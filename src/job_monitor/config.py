@@ -83,9 +83,10 @@ class KeywordsConfig(BaseModel):
 # scoring.yaml                                                                #
 # --------------------------------------------------------------------------- #
 class ScoringWeights(BaseModel):
-    semantic: float = 0.40
     seniority: float = 0.30
-    industry_company: float = 0.20
+    semantic: float = 0.25
+    industry: float = 0.20
+    company: float = 0.15
     location_salary: float = 0.10
 
 

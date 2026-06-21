@@ -2,7 +2,7 @@
 
 Calibration strategy: ``semantic`` is the only non-deterministic component (it
 depends on the caller's embedding cosine), so the worked-example tests assert
-every RULE component (seniority, industry_company, location_salary) EXACTLY and
+every RULE component (seniority, industry, company, location_salary) EXACTLY and
 pin the final tier under a MOCKED similarity. The remaining tests are targeted
 unit checks of each table and helper.
 """
@@ -25,7 +25,8 @@ from job_monitor.scorer import (
     final_score,
     priority_tier,
     resume_tips,
-    score_industry_company,
+    score_company,
+    score_industry,
     score_job,
     score_location_salary,
     score_salary,
@@ -83,7 +84,11 @@ def test_example1_site_quality_manager_lands_a_plus() -> None:
 
     jd_text = f"{job.title}\n{job.description}"
     signals = detect_signals(jd_text)
-    assert score_industry_company("food manufacturing", signals, jd_text, False, scoring=_SCORING) == 95
+    # industry = clamp(25 + [site_leadership 15 + manages_quality_team 15
+    #            + food_safety_cert 15 + customer_audit 10]) = 80
+    assert score_industry("food manufacturing", signals, jd_text, scoring=_SCORING) == 80
+    # is_tier1 -> large_food_group -> 100
+    assert score_company("food manufacturing", jd_text, "Example Co", False, True, scoring=_SCORING) == 100
     assert score_location_salary("Western Sydney NSW", 140000, 160000, True, scoring=_SCORING) == 95.0
 
     result = score_job(
@@ -95,6 +100,12 @@ def test_example1_site_quality_manager_lands_a_plus() -> None:
         is_tier1=True,
     )
     assert result.components.semantic == pytest.approx(85.0, abs=0.01)
+    assert result.components.seniority == pytest.approx(93.333, abs=0.01)
+    assert result.components.industry == 80
+    assert result.components.company == 100
+    assert result.components.location_salary == 95.0
+    # final = .30*93.333 + .25*85 + .20*80 + .15*100 + .10*95 = 89.8
+    assert result.final_score == pytest.approx(89.8, abs=0.05)
     assert result.priority_tier == PriorityTier.A_PLUS
     assert result.strong_alert is True
 
@@ -110,7 +121,10 @@ def test_example2_senior_food_quality_specialist_lands_a() -> None:
 
     jd_text = f"{job.title}\n{job.description}"
     signals = detect_signals(jd_text)
-    assert score_industry_company("retail group", signals, jd_text, False, scoring=_SCORING) == 74
+    # industry = clamp(22 + [supplier 15 + food_safety_cert 15 + capa 10]) = 62
+    assert score_industry("retail group", signals, jd_text, scoring=_SCORING) == 62
+    # sector "retail group" -> large_retail_food -> 12/15*100 = 80
+    assert score_company("retail group", jd_text, "Example Co", False, False, scoring=_SCORING) == 80
     assert score_location_salary("Sydney", None, None, False, scoring=_SCORING) == 75.0
 
     result = score_job(
@@ -120,6 +134,12 @@ def test_example2_senior_food_quality_specialist_lands_a() -> None:
         profile=_PROFILE,
         sector="retail group",
     )
+    assert result.components.seniority == pytest.approx(83.333, abs=0.01)
+    assert result.components.industry == 62
+    assert result.components.company == 80
+    assert result.components.location_salary == 75.0
+    # final = .30*83.333 + .25*85 + .20*62 + .15*80 + .10*75 = 78.2
+    assert result.final_score == pytest.approx(78.2, abs=0.05)
     assert result.priority_tier == PriorityTier.A
 
 
@@ -137,7 +157,12 @@ def test_example3_qa_officer_lands_d() -> None:
 
     jd_text = f"{job.title}\n{job.description}"
     signals = detect_signals(jd_text)
-    assert score_industry_company("food", signals, jd_text, False, scoring=_SCORING) == 33
+    # industry = clamp(25 + 0) = 25 (no responsibility signals fire)
+    assert score_industry("food", signals, jd_text, scoring=_SCORING) == 25
+    # sector "food" -> mid_food_manufacturer -> 8/15*100 = 53.333
+    assert score_company("food", jd_text, "Example Co", False, False, scoring=_SCORING) == pytest.approx(
+        53.333, abs=0.01
+    )
     assert score_location_salary("Sydney", 75000, 85000, True, scoring=_SCORING) == pytest.approx(58.333, abs=0.01)
 
     result = score_job(
@@ -147,6 +172,12 @@ def test_example3_qa_officer_lands_d() -> None:
         profile=_PROFILE,
         sector="food",
     )
+    assert result.components.seniority == 10.0
+    assert result.components.industry == 25
+    assert result.components.company == pytest.approx(53.333, abs=0.01)
+    assert result.components.location_salary == pytest.approx(58.333, abs=0.01)
+    # final = .30*10 + .25*50 + .20*25 + .15*53.333 + .10*58.333 = 34.3
+    assert result.final_score == pytest.approx(34.3, abs=0.05)
     assert result.priority_tier == PriorityTier.D
 
 
@@ -231,12 +262,28 @@ def test_site_technical_manager_not_site_quality_manager() -> None:
         ("Adelaide SA", "other_au"),
         ("Australia", "other_au"),
         ("London UK", "overseas"),
+        ("London", "overseas"),
+        ("Hung Yen, Vietnam", "overseas"),
+        ("Auckland, New Zealand", "overseas"),
+        ("Toledo", "overseas"),
+        ("Rayong Plant", "overseas"),
+        ("Chicago, IL", "overseas"),
         ("", "other_au"),
         (None, "other_au"),
     ],
 )
 def test_classify_location(location: str | None, key: str) -> None:
     assert classify_location(location) == key
+
+
+def test_classify_location_overseas_filtered() -> None:
+    # Spot-check the spec's overseas examples (these are filtered by the pipeline).
+    overseas = ["Hung Yen, Vietnam", "Auckland, New Zealand", "Toledo", "Rayong Plant", "Chicago, IL", "London"]
+    for loc in overseas:
+        assert classify_location(loc) == "overseas", loc
+    # AU / empty / ambiguous stay non-overseas.
+    for loc in ["Sydney", "Melbourne VIC", "Newcastle", "Perth WA", "Australia", "", None]:
+        assert classify_location(loc) != "overseas", loc
 
 
 @pytest.mark.parametrize(
@@ -341,20 +388,43 @@ def test_classify_company_tiers() -> None:
     assert classify_company("unknown", "", False) == "unclear"
 
 
-def test_industry_company_audit_double_count_avoided() -> None:
+def test_classify_company_by_employer_name() -> None:
+    # Known major employers classify by name even with no sector (aggregator jobs).
+    assert classify_company("", "", False, "Nestle Australia") == "large_food_group"
+    assert classify_company("", "", False, "PepsiCo ANZ") == "large_food_group"
+    assert classify_company("", "", False, "Coca-Cola Europacific Partners") == "large_food_group"
+    assert classify_company("", "", False, "Woolworths Group") == "large_retail_food"
+    assert classify_company("", "", False, "Coles Supermarkets") == "large_retail_food"
+    assert classify_company("", "", False, "Michael Page") == "recruiter_anonymous_food"
+    assert classify_company("", "", False, "Hays Recruitment") == "recruiter_anonymous_food"
+    assert classify_company("", "", False, "Some Random Pty Ltd") == "unclear"
+
+
+def test_score_company_normalization() -> None:
+    # points/15*100 mapping.
+    assert score_company("food manufacturing", "", "Co", False, False, scoring=_SCORING) == 100
+    assert score_company("retail group", "", "Co", False, False, scoring=_SCORING) == 80
+    assert score_company("food", "", "Co", False, False, scoring=_SCORING) == pytest.approx(53.333, abs=0.01)
+    assert score_company("unknown", "", "Co", True, False, scoring=_SCORING) == pytest.approx(33.333, abs=0.01)
+    assert score_company("unknown", "", "Co", False, False, scoring=_SCORING) == 0
+    # is_tier1 forces at least large_food_group (100).
+    assert score_company("unknown", "", "Co", False, True, scoring=_SCORING) == 100
+
+
+def test_industry_audit_double_count_avoided() -> None:
     # supplier_vendor_assurance + customer_retailer_audit: subtract the audit once.
     text = "Supplier quality and customer audit readiness for our food factory"
     signals = detect_signals(text)
     assert "supplier_vendor_assurance" in signals
     assert "customer_retailer_audit" in signals
-    # food_manufacturing 25 + (supplier 15 + customer_audit 10 - 10) + mid 8 = 48
-    assert score_industry_company("food", signals, text, False, scoring=_SCORING) == 48
+    # food_manufacturing 25 + (supplier 15 + customer_audit 10 - 10) = 40
+    assert score_industry("food", signals, text, scoring=_SCORING) == 40
 
 
-def test_industry_company_out_of_domain_floors_at_zero() -> None:
+def test_industry_out_of_domain_floors_at_zero() -> None:
     text = "Software QA Engineer, SaaS platform, test automation, food safety jargon"
     signals = detect_signals(text)
-    assert score_industry_company("software", signals, text, False, scoring=_SCORING) == 0
+    assert score_industry("software", signals, text, scoring=_SCORING) == 0
 
 
 # --------------------------------------------------------------------------- #
@@ -375,21 +445,25 @@ def test_compute_semantic(similarity: float, expected: float) -> None:
 
 
 def test_final_score_weighted_sum() -> None:
-    components = ScoreComponents(semantic=80.0, seniority=90.0, industry_company=70.0, location_salary=60.0)
-    # 0.40*80 + 0.30*90 + 0.20*70 + 0.10*60 = 32 + 27 + 14 + 6 = 79.0
-    assert final_score(components, scoring=_SCORING) == 79.0
+    components = ScoreComponents(
+        semantic=80.0, seniority=90.0, industry=70.0, company=50.0, location_salary=60.0
+    )
+    # 0.30*90 + 0.25*80 + 0.20*70 + 0.15*50 + 0.10*60 = 27 + 20 + 14 + 7.5 + 6 = 74.5
+    assert final_score(components, scoring=_SCORING) == 74.5
 
 
 @pytest.mark.parametrize(
     ("final", "tier"),
     [
         (90.0, PriorityTier.A_PLUS),
-        (85.0, PriorityTier.A_PLUS),
-        (80.0, PriorityTier.A),
-        (75.0, PriorityTier.A),
-        (60.0, PriorityTier.B),
-        (45.0, PriorityTier.C),
-        (44.9, PriorityTier.D),
+        (80.0, PriorityTier.A_PLUS),
+        (79.9, PriorityTier.A),
+        (65.0, PriorityTier.A),
+        (64.9, PriorityTier.B),
+        (50.0, PriorityTier.B),
+        (49.9, PriorityTier.C),
+        (38.0, PriorityTier.C),
+        (37.9, PriorityTier.D),
         (0.0, PriorityTier.D),
     ],
 )
@@ -457,7 +531,7 @@ def test_hard_excluded_only_for_out_of_domain_plus_exclusion() -> None:
     )
     result = score_job(soft, similarity=0.5, scoring=_SCORING, profile=_PROFILE, sector="software")
     assert result.hard_excluded is True
-    assert result.components.industry_company == 0
+    assert result.components.industry == 0
 
     # In-domain food role with a junior exclusion signal is NOT hard-excluded.
     food = _job("QA Officer", "Entry-level QA officer, food factory.", location="Sydney")

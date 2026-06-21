@@ -1,14 +1,19 @@
 # Spec §10-12 scoring model, as editable data.
-# final_score = 0.40*semantic + 0.30*seniority + 0.20*industry_company + 0.10*location_salary
+# final_score = 0.30*seniority + 0.25*semantic + 0.20*industry + 0.15*company + 0.10*location_salary
 # Each component is normalized to 0-100; final is 0-100.
+#
+# Relevance-first weighting: seniority + semantic + industry dominate, with
+# company-size as an important standalone lever. `industry` is the food-relevance
+# (industry table + responsibility signals); `company` is the company-size class.
 #
 # The scorer (scorer.py) ships these same tables as in-module defaults; values
 # here override them so the model can be retuned without code changes.
 
 weights:
-  semantic: 0.40
   seniority: 0.30
-  industry_company: 0.20
+  semantic: 0.25
+  industry: 0.20
+  company: 0.15
   location_salary: 0.10
 
 # Promote a `senior` + in-domain quality/food-safety title with no manager/officer
@@ -79,9 +84,9 @@ salary_bands:
   - [0, -10]
 
 # Spec §11 — final_score -> priority tier. [min_inclusive, tier], evaluated high -> low.
-tier_bands:
-  - [85, "A+"]
-  - [75, "A"]
-  - [60, "B"]
-  - [45, "C"]
+tier_bands:   # re-centered for the relevance+company weighting (scores compress lower than the spec's semantic-heavy model)
+  - [80, "A+"]
+  - [65, "A"]
+  - [50, "B"]
+  - [38, "C"]
   - [0, "D"]

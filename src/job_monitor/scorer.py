@@ -1,21 +1,30 @@
 """Scoring engine: turn a job + similarity into a calibrated :class:`ScoreResult`.
 
 This is the heart of the matcher (spec §10-12). The final score is a weighted
-sum of four 0-100 components::
+sum of five 0-100 components (relevance-first; company-size an important lever)::
 
-    final = 0.40*semantic + 0.30*seniority + 0.20*industry_company + 0.10*location_salary
+    final = 0.30*seniority + 0.25*semantic + 0.20*industry + 0.15*company + 0.10*location_salary
 
 Design notes
 ------------
-* **industry_company folding.** The 0.20 component is not a single table lookup.
-  It *absorbs* the additive responsibility table (spec §10.3): the component is
-  ``clamp(industry + sum(fired responsibility points) + company, 0, 100)``. The
+* **industry component.** The 0.20 ``industry`` component is the food-relevance
+  signal: ``clamp(industry_points + sum(fired responsibility points), 0, 100)``.
+  It *absorbs* the additive responsibility table (spec §10.3). The
   ``out_of_domain`` industry value is a large negative (-50) so a software /
-  construction / NDIS / healthcare posting drives the whole component to zero
-  even when a few generic responsibility signals fire. When both
+  construction / NDIS / healthcare posting drives the component to zero even when
+  a few generic responsibility signals fire. When both
   ``supplier_vendor_assurance`` and ``customer_retailer_audit`` fire we subtract
   the customer/retailer audit points once, because "audit" is double-counted by
-  the two overlapping signal vocabularies.
+  the two overlapping signal vocabularies. NO company-size term lives here.
+
+* **company component.** The 0.15 ``company`` component is the standalone
+  company-size lever. It maps the COMPANY_POINTS class to 0-100 via
+  ``points/15*100`` (large_food_group 15→100, large_retail_food 12→80,
+  mid_food_manufacturer 8→53, recruiter_anonymous_food 5→33, unclear 0→0). A
+  ``is_tier1`` target forces at least large_food_group (100). The employer
+  ``company_name`` is also matched against known AU Tier-1 food/FMCG/retail
+  brands so aggregator-sourced jobs (SEEK/Jora/LinkedIn, no sector) still earn
+  company-size credit when the employer is a major company.
 
 * **Senior-specialist promotion.** A ``senior`` + in-domain quality / food-safety
   title that has NO manager/officer/coordinator head-noun (e.g. "Senior Food
@@ -53,7 +62,8 @@ __all__ = [
     "final_score",
     "priority_tier",
     "resume_tips",
-    "score_industry_company",
+    "score_company",
+    "score_industry",
     "score_job",
     "score_location",
     "score_location_salary",
@@ -506,17 +516,52 @@ def classify_industry(sector: str, jd_text: str) -> str:
     return "unclear"
 
 
-def classify_company(sector: str, jd_text: str, is_recruiter: bool) -> str:
-    """Single best company-type key from sector keywords + recruiter flag.
+# Known major AU food / FMCG manufacturers & multinationals -> large_food_group.
+_TIER1_FOOD_GROUP = re.compile(
+    r"\bnestl|\bpepsico\b|\bmars\b|mondelez|cadbury|kellanova|kellogg|\bbega\b|saputo|"
+    r"fonterra|lactalis|\blion\b|\basahi\b|coca[\s-]?cola|\bccep\b|amatil|suntory|\bjbs\b|"
+    r"\bteys\b|ingham|goodman fielder|george weston|tip[\s-]?top|arnott|graincorp|sunrice|"
+    r"cargill|\bkerry\b|hellofresh|treasury wine"
+)
+# Known major AU food retailers / supermarkets -> large_retail_food.
+_TIER1_RETAIL = re.compile(
+    r"woolworths|\bcoles\b|\baldi\b|metcash|costco"
+)
+# Known recruiters / staffing agencies -> recruiter_anonymous_food.
+_RECRUITER_NAMES = re.compile(
+    r"michael page|\bhays\b|six degrees|peoplefusion|blackbook|randstad|hudson|\bmpau\b|"
+    r"robert walters|robert half|adecco|\bhello recruitment\b|recruit\w*|\bagency\b|"
+    r"talent\b|staffing"
+)
 
-    Driven primarily by the ``sector`` controlled vocabulary: a large
-    food-manufacturing / FMCG group, a major retailer, or a mid-size food
-    manufacturer. An anonymous recruiter posting in the food space gets a small
-    bump when nothing more specific matches.
+
+def classify_company(
+    sector: str,
+    jd_text: str,
+    is_recruiter: bool,
+    company_name: str = "",
+) -> str:
+    """Single best company-type key from company name + sector keywords + recruiter flag.
+
+    The employer ``company_name`` is matched first against a curated set of known
+    AU Tier-1 food/FMCG/retail brands and recruiter/agency names. This lets
+    aggregator-sourced jobs (SEEK/Jora/LinkedIn) that carry no ``sector`` still
+    earn the right company-size credit. Failing that, classification falls back
+    to the ``sector`` controlled vocabulary, then JD text / recruiter flag.
     """
+    name = company_name.lower()
     sec = sector.lower()
     blob = f"{sector}\n{jd_text}".lower()
 
+    # 1. Known-employer name patterns (works without a sector).
+    if _TIER1_FOOD_GROUP.search(name):
+        return "large_food_group"
+    if _TIER1_RETAIL.search(name):
+        return "large_retail_food"
+    if _RECRUITER_NAMES.search(name):
+        return "recruiter_anonymous_food"
+
+    # 2. Sector-driven classification (controlled vocab).
     if re.search(
         r"food (?:manufactur\w*|group)|\bfmcg\b|multinational|global (?:food|fmcg)|large (?:food )?group",
         sec,
@@ -527,7 +572,7 @@ def classify_company(sector: str, jd_text: str, is_recruiter: bool) -> str:
     if re.search(r"\bfood\b|\bbeverage\b|\bmanufactur\w*", sec):
         return "mid_food_manufacturer"
 
-    # Fall back to JD text / recruiter flag.
+    # 3. Fall back to JD text / recruiter flag.
     if re.search(r"large (?:food )?group|food group|multinational|global (?:food|fmcg)", blob):
         return "large_food_group"
     if re.search(r"\bretail\w*|supermarket|grocer\w*|major retailer", blob):
@@ -539,21 +584,20 @@ def classify_company(sector: str, jd_text: str, is_recruiter: bool) -> str:
     return "unclear"
 
 
-def score_industry_company(
+def score_industry(
     sector: str,
     signals: set[str],
     jd_text: str,
-    is_recruiter: bool,
     *,
     scoring: ScoringConfig | None = None,
 ) -> float:
-    """The 0.20 component: ``clamp(industry + responsibility_sum + company, 0, 100)``.
+    """The 0.20 ``industry`` component: ``clamp(industry + responsibility_sum, 0, 100)``.
 
-    Folds the additive responsibility table into this single component.
+    Food-relevance only: the industry table plus the additive responsibility
+    table (spec §10.3). No company-size term lives here.
     """
     industry_points = _industry_points(scoring) if scoring else _DEFAULT_INDUSTRY_POINTS
     resp_points = _responsibility_points(scoring) if scoring else _DEFAULT_RESPONSIBILITY_POINTS
-    company_points = _company_points(scoring) if scoring else _DEFAULT_COMPANY_POINTS
 
     industry = industry_points.get(classify_industry(sector, jd_text), 0)
 
@@ -563,20 +607,70 @@ def score_industry_company(
     if "supplier_vendor_assurance" in signals and "customer_retailer_audit" in signals:
         responsibility_sum -= resp_points.get("customer_retailer_audit", 0)
 
-    company = company_points.get(classify_company(sector, jd_text, is_recruiter), 0)
+    return _clamp(industry + responsibility_sum, 0, 100)
 
-    return _clamp(industry + responsibility_sum + company, 0, 100)
+
+def score_company(
+    sector: str,
+    jd_text: str,
+    company_name: str,
+    is_recruiter: bool,
+    is_tier1: bool,
+    *,
+    scoring: ScoringConfig | None = None,
+) -> float:
+    """The 0.15 ``company`` component: company-size class mapped to 0-100.
+
+    Maps the COMPANY_POINTS class via ``points/15*100`` (large_food_group 15→100,
+    large_retail_food 12→80, mid_food_manufacturer 8→53, recruiter_anonymous_food
+    5→33, unclear 0→0). A ``is_tier1`` target company is forced to at least
+    large_food_group (100). The employer name is classified too (see
+    :func:`classify_company`) so aggregator jobs can still earn company credit.
+    """
+    company_points = _company_points(scoring) if scoring else _DEFAULT_COMPANY_POINTS
+    large_group_pts = company_points.get("large_food_group", 15)
+
+    key = classify_company(sector, jd_text, is_recruiter, company_name)
+    pts = company_points.get(key, 0)
+    if is_tier1:
+        pts = max(pts, large_group_pts)
+
+    # Normalize on the large_food_group anchor (15 by default) so that class -> 100.
+    denom = large_group_pts if large_group_pts else 15
+    return _clamp(pts / denom * 100, 0, 100)
 
 
 # --------------------------------------------------------------------------- #
 # 4. Location / salary (spec §10.5-§10.6, the 0.10 component)                 #
 # --------------------------------------------------------------------------- #
+# Clearly non-Australian locations (countries, well-known overseas cities/regions,
+# and US state codes). Matching any of these classifies the job as overseas so the
+# AU-only filter excludes it. Be conservative: only explicit non-AU hits fire.
+_OVERSEAS = re.compile(
+    r"\bvietnam\b|\bnew zealand\b|\bauckland\b|wellington|christchurch|"
+    r"\bnz\b|\bthailand\b|\brayong\b|\bbangkok\b|\bphilippines\b|\bmanila\b|"
+    r"\bindonesia\b|jakarta|\bmalaysia\b|kuala lumpur|\bsingapore\b|\bchina\b|"
+    r"shanghai|beijing|\bindia\b|mumbai|\bjapan\b|tokyo|\bkorea\b|"
+    r"\busa\b|united states|\bu\.s\.a?\.?\b|\bchicago\b|\btoledo\b|new york|"
+    r"\bcalifornia\b|\btexas\b|\bil\b|\bca\b|\bny\b|\btx\b|\boh\b|"
+    r"united kingdom|\buk\b|\blondon\b|manchester|\bireland\b|dublin|"
+    r"\bcanada\b|toronto|\bgermany\b|\bfrance\b|\bnetherlands\b|"
+    r"hung yen|\bplant\b.*\b(vietnam|thailand|china|indonesia)\b"
+)
+
+
 def classify_location(location: str | None) -> str:
-    """Single best location key."""
+    """Single best location key.
+
+    Empty / unknown / ambiguous locations stay in the neutral AU bucket
+    (``other_au``). Only locations matching the explicit overseas vocabulary are
+    classified ``overseas`` (and subsequently filtered by the pipeline).
+    """
     if not location or not location.strip():
         return "other_au"
     loc = location.lower()
 
+    # AU classification takes precedence so AU states/cities are never mis-flagged.
     if re.search(r"sydney|parramatta|western sydney|macquarie park|norwest|north ryde", loc):
         return "sydney_greater"
     if re.search(r"newcastle|wollongong|orange|central coast|regional nsw|\bnsw regional\b", loc):
@@ -591,7 +685,14 @@ def classify_location(location: str | None) -> str:
         loc,
     ):
         return "other_au"
-    return "overseas"
+
+    # Clearly overseas (countries, known overseas cities/regions, US state codes).
+    if _OVERSEAS.search(loc):
+        return "overseas"
+
+    # Ambiguous / unrecognized -> stay neutral-AU so we never filter a real AU
+    # suburb we simply don't have a pattern for.
+    return "other_au"
 
 
 def score_location(location: str | None, *, scoring: ScoringConfig | None = None) -> float:
@@ -661,17 +762,18 @@ def compute_semantic(similarity: float) -> float:
 # 6. Final score + tier (spec §11)                                            #
 # --------------------------------------------------------------------------- #
 def final_score(components: ScoreComponents, *, scoring: ScoringConfig | None = None) -> float:
-    """Weighted sum of the four components, rounded to 1 dp."""
+    """Weighted sum of the five components, rounded to 1 dp."""
     if scoring is not None:
         w = scoring.weights
-        weights = (w.semantic, w.seniority, w.industry_company, w.location_salary)
+        weights = (w.semantic, w.seniority, w.industry, w.company, w.location_salary)
     else:
-        weights = (0.40, 0.30, 0.20, 0.10)
+        weights = (0.25, 0.30, 0.20, 0.15, 0.10)
     total = (
         weights[0] * components.semantic
         + weights[1] * components.seniority
-        + weights[2] * components.industry_company
-        + weights[3] * components.location_salary
+        + weights[2] * components.industry
+        + weights[3] * components.company
+        + weights[4] * components.location_salary
     )
     return round(total, 1)
 
@@ -770,6 +872,7 @@ def score_job(
     scoring: ScoringConfig,
     profile: ProfileConfig,
     sector: str = "",
+    company_name: str = "",
     is_tier1: bool = False,
     is_recruiter: bool = False,
     posted_days_ago: int | None = None,
@@ -777,10 +880,12 @@ def score_job(
     """Score a single job into a :class:`ScoreResult` (spec §10-12).
 
     ``similarity`` is the cosine in [-1, 1] between the job and the candidate
-    profile embeddings, computed by the caller. ``profile`` is accepted for
-    future profile-aware tuning and keeps the public signature stable.
+    profile embeddings, computed by the caller. ``company_name`` is the employer
+    name (used for company-size classification of aggregator jobs). ``profile``
+    is accepted for future profile-aware tuning and keeps the signature stable.
     """
     jd_text = f"{job.title}\n{job.description or ''}"
+    company_name = company_name or job.company_name
 
     # Components.
     category = canonical_seniority(job.title, promote_senior_specialist=scoring.promote_senior_specialist)
@@ -788,7 +893,8 @@ def score_job(
 
     semantic = compute_semantic(similarity)
     seniority = score_seniority(category, scoring=scoring)
-    industry_company = score_industry_company(sector, signals, jd_text, is_recruiter, scoring=scoring)
+    industry = score_industry(sector, signals, jd_text, scoring=scoring)
+    company = score_company(sector, jd_text, company_name, is_recruiter, is_tier1, scoring=scoring)
     location_salary = score_location_salary(
         job.location, job.salary_min, job.salary_max, job.salary_currency is not None, scoring=scoring
     )
@@ -796,7 +902,8 @@ def score_job(
     components = ScoreComponents(
         semantic=semantic,
         seniority=seniority,
-        industry_company=industry_company,
+        industry=industry,
+        company=company,
         location_salary=location_salary,
     )
     final = final_score(components, scoring=scoring)

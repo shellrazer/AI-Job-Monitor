@@ -124,11 +124,16 @@ class Job:
 
 @dataclass(frozen=True)
 class ScoreComponents:
-    """The four weighted components of the final score (each 0-100)."""
+    """The five weighted components of the final score (each 0-100).
+
+    ``industry`` is the food-relevance component (industry table + responsibility
+    signals); ``company`` is the standalone company-size lever.
+    """
 
     semantic: float
     seniority: float
-    industry_company: float
+    industry: float
+    company: float
     location_salary: float
 
 

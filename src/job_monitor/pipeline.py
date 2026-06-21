@@ -136,9 +136,21 @@ def embed_and_score(jobs: list[Job], cfg: AppConfig, *, embedder: Any, today: da
     from job_monitor.embeddings import cosine
 
     profile_vec = embedder.encode(cfg.profile.full_text)
-    texts = [f"{j.title}. {j.description or ''}" for j in jobs]
+    # AU-only filter (Part B): clearly-overseas jobs are marked irrelevant and
+    # skipped entirely (no embedding / scoring). They still persist for audit but
+    # are excluded from the report (which filters out IRRELEVANT). Empty / unknown
+    # / AU locations are conservatively kept.
+    scorable: list[Job] = []
+    for job in jobs:
+        if scorer.classify_location(job.location) == "overseas":
+            job.status = JobStatus.IRRELEVANT
+        else:
+            scorable.append(job)
+    if not scorable:
+        return
+    texts = [f"{j.title}. {j.description or ''}" for j in scorable]
     vecs = embedder.encode(texts)
-    for i, job in enumerate(jobs):
+    for i, job in enumerate(scorable):
         vec = vecs[i]
         job.embedding = vec
         similarity = cosine(vec, profile_vec)
@@ -151,13 +163,15 @@ def embed_and_score(jobs: list[Job], cfg: AppConfig, *, embedder: Any, today: da
             scoring=cfg.scoring,
             profile=cfg.profile,
             sector=sector,
+            company_name=job.company_name,
             is_tier1=is_tier1,
             is_recruiter=is_recruiter,
             posted_days_ago=posted_days,
         )
         job.semantic_score = result.components.semantic
         job.seniority_score = result.components.seniority
-        job.industry_score = result.components.industry_company
+        job.industry_score = result.components.industry
+        job.company_score = result.components.company
         job.location_score = result.components.location_salary
         job.final_score = result.final_score
         job.priority_tier = result.priority_tier

@@ -21,8 +21,13 @@ def get_adapter_registry() -> dict[str, type[BaseAdapter]]:
     in optional heavy backends (e.g. Playwright) until an adapter is built.
     """
     from job_monitor.sources.generic_html import GenericHtmlAdapter
+    from job_monitor.sources.greenhouse import GreenhouseAdapter
     from job_monitor.sources.jora import JoraAdapter
+    from job_monitor.sources.lever import LeverAdapter
+    from job_monitor.sources.linkedin import LinkedInAdapter
+    from job_monitor.sources.phenom import PhenomAdapter
     from job_monitor.sources.seek import SeekAdapter
+    from job_monitor.sources.smartrecruiters import SmartRecruitersAdapter
     from job_monitor.sources.successfactors import SuccessFactorsAdapter
     from job_monitor.sources.workday import WorkdayAdapter
 
@@ -32,6 +37,11 @@ def get_adapter_registry() -> dict[str, type[BaseAdapter]]:
         "seek": SeekAdapter,
         "jora": JoraAdapter,
         "generic_html": GenericHtmlAdapter,
+        "smartrecruiters": SmartRecruitersAdapter,
+        "greenhouse": GreenhouseAdapter,
+        "lever": LeverAdapter,
+        "linkedin": LinkedInAdapter,
+        "phenom": PhenomAdapter,
     }
 
 

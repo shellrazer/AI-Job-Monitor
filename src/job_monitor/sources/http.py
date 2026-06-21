@@ -11,11 +11,14 @@ the concerns that would otherwise be re-implemented (badly) in each adapter:
 
 Two transports are exposed: plain ``httpx`` (for JSON ATS APIs and ordinary HTML)
 and ``curl_cffi`` browser impersonation (for Cloudflare-fronted sites such as
-SEEK / Jora). A persistent ``403`` is surfaced as :class:`SourceBlocked`.
+SEEK / Jora). An optional third path renders JavaScript-heavy pages through a
+headless Playwright browser (the ``browser`` extra). A persistent ``403`` is
+surfaced as :class:`SourceBlocked`.
 """
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import threading
@@ -39,6 +42,41 @@ from job_monitor.models import SourceBlocked
 
 # HTTP status codes that warrant a retry (transient server / throttling errors).
 _RETRYABLE_STATUS = {429, 500, 502, 503, 504}
+
+# Fallback user agent for the Playwright transport when the configured one looks
+# like a bot (a realistic browser UA helps render-only / anti-bot pages).
+_BROWSER_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+)
+
+# Cache key tag for the Playwright render transport.
+_RENDER_TAG = "RENDER"
+
+# Generous wait (ms) for a challenge interstitial (e.g. Cloudflare "Just a
+# moment") to auto-solve and navigate to the real page before we look for the
+# requested ``wait_selector``.
+_CHALLENGE_WAIT_MS = 25_000
+
+# Short settle wait (ms) after networkidle when no wait_selector is supplied,
+# giving late client-side rendering a moment to finish.
+_SETTLE_WAIT_MS = 3_000
+
+# Substrings that mark the final content as still a challenge / block page.
+# Lower-cased; matched case-insensitively against the rendered HTML.
+_CHALLENGE_MARKERS = (
+    "just a moment",
+    "cf-challenge",
+    "attention required",
+    "access denied",
+    "request unsuccessful",
+)
+
+
+def _looks_like_challenge(html: str) -> bool:
+    """Return True when ``html`` still looks like a challenge / block page."""
+    lowered = html.lower()
+    return any(marker in lowered for marker in _CHALLENGE_MARKERS)
 
 
 class _RetryableStatus(Exception):
@@ -175,6 +213,56 @@ class PoliteClient:
         )
         return resp.text
 
+    def get_text_rendered(
+        self,
+        url: str,
+        *,
+        headers: dict[str, str] | None = None,
+        wait_selector: str | None = None,
+        wait_until: str = "networkidle",
+        use_cache: bool = True,
+    ) -> str:
+        """Render ``url`` in a headless browser and return the post-JS HTML.
+
+        Uses Playwright (the optional ``browser`` extra) for pages whose listings
+        only materialise after client-side JavaScript runs. Shares the same
+        on-disk cache and per-host rate limiter as the other transports, keyed by
+        a dedicated ``RENDER`` tag.
+
+        ``wait_until`` is the navigation lifecycle event to await (e.g.
+        ``"networkidle"``, ``"load"``, ``"domcontentloaded"``). When
+        ``wait_selector`` is given the call waits for that selector but swallows a
+        timeout, returning whatever rendered so far.
+
+        The navigation status alone is NOT treated as a block: Cloudflare's "Just
+        a moment" interstitial returns ``403`` first, then auto-solves and
+        navigates to the real page. :class:`SourceBlocked` is raised only when the
+        FINAL rendered content still looks like a challenge / block page AND lacks
+        the requested ``wait_selector``.
+
+        Raises :class:`RuntimeError` if Playwright is not installed, and
+        :class:`SourceBlocked` only on a persistent challenge / block page.
+        """
+        cache_key = self._cache_key("GET", url, _RENDER_TAG.encode("utf-8"), _RENDER_TAG)
+
+        if use_cache:
+            cached = self._cache_get(cache_key)
+            if cached is not None:
+                return cached.text
+
+        self._respect_rate_limit(url)
+
+        html = self._render_with_playwright(
+            url,
+            headers=headers,
+            wait_selector=wait_selector,
+            wait_until=wait_until,
+        )
+
+        if use_cache:
+            self._cache_put(cache_key, _CachedResponse(200, html))
+        return html
+
     def clear_cache(self) -> None:
         """Delete every cached response file."""
         for path in self._cache_dir.glob("*.json"):
@@ -293,6 +381,99 @@ class PoliteClient:
             headers=request_headers,
             timeout=self.settings.timeout_seconds,
         )
+
+    def _render_with_playwright(
+        self,
+        url: str,
+        *,
+        headers: dict[str, str] | None,
+        wait_selector: str | None,
+        wait_until: str,
+    ) -> str:
+        """Drive a headless chromium to fetch the fully rendered HTML for ``url``.
+
+        Tolerant of anti-bot interstitials: navigation always uses
+        ``domcontentloaded`` (so we get control back as soon as the document is
+        parsed, even mid-challenge), then we wait for the requested selector — or
+        networkidle plus a short settle — to let a Cloudflare-style challenge
+        auto-solve before we read the page. ``wait_until`` is accepted for API
+        compatibility but the navigation lifecycle is fixed at
+        ``domcontentloaded`` here.
+        """
+        # Imported lazily so the package never hard-requires Playwright; it is an
+        # optional dependency declared as the ``browser`` extra.
+        try:
+            from playwright.sync_api import sync_playwright
+        except ImportError as exc:  # pragma: no cover - exercised via monkeypatch
+            raise RuntimeError(
+                "Playwright not installed; run "
+                "`uv sync --extra browser && uv run playwright install chromium`"
+            ) from exc
+
+        # Use the configured UA if it looks browser-like, else a realistic one;
+        # render-only pages are usually behind some anti-bot heuristic.
+        configured_ua = self.settings.user_agent
+        user_agent = configured_ua if "Mozilla" in configured_ua else _BROWSER_USER_AGENT
+        timeout_ms = int(self.settings.timeout_seconds * 1000)
+
+        with sync_playwright() as pw:
+            browser = pw.chromium.launch(
+                headless=True,
+                args=["--disable-blink-features=AutomationControlled"],
+            )
+            try:
+                context = browser.new_context(
+                    user_agent=user_agent,
+                    viewport={"width": 1366, "height": 900},
+                    locale="en-AU",
+                    extra_http_headers=headers or {},
+                )
+                page = context.new_page()
+
+                # Do NOT bail on the navigation response status: Cloudflare's
+                # interstitial returns 403 first, then JS solves it and navigates
+                # to the real page. We classify on the FINAL content instead.
+                page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
+
+                if wait_selector:
+                    # Generous wait so a challenge has time to clear and the real
+                    # listings to appear. Swallow a timeout: classify on content.
+                    with contextlib.suppress(Exception):
+                        page.wait_for_selector(wait_selector, timeout=_CHALLENGE_WAIT_MS)
+                else:
+                    # No selector to anchor on: best-effort networkidle, then a
+                    # short settle for late client-side rendering.
+                    with contextlib.suppress(Exception):
+                        page.wait_for_load_state("networkidle", timeout=_CHALLENGE_WAIT_MS)
+                    page.wait_for_timeout(_SETTLE_WAIT_MS)
+
+                html = page.content()
+            finally:
+                browser.close()
+
+        # Only treat it as blocked if the FINAL content still looks like a
+        # challenge / block page AND the requested selector never appeared.
+        selector_present = bool(wait_selector) and self._html_has_selector(html, wait_selector)
+        if _looks_like_challenge(html) and not selector_present:
+            raise SourceBlocked(f"challenge/block page persisted for {url}")
+        return html
+
+    @staticmethod
+    def _html_has_selector(html: str, selector: str | None) -> bool:
+        """Return True when ``selector`` matches anything in ``html``.
+
+        Used to decide whether a challenge marker in the page is benign (the real
+        listings are present too) or terminal. Defensive: a malformed selector or
+        parse failure yields ``False``.
+        """
+        if not selector:
+            return False
+        try:
+            from selectolax.parser import HTMLParser
+
+            return HTMLParser(html).css_first(selector) is not None
+        except Exception:
+            return False
 
     def _headers(self, headers: dict[str, str] | None) -> dict[str, str]:
         merged = {"User-Agent": self.settings.user_agent}

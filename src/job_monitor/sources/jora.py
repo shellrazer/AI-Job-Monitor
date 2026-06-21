@@ -24,7 +24,7 @@ import re
 from typing import TYPE_CHECKING, Any, ClassVar
 from urllib.parse import quote, urlsplit, urlunsplit
 
-from job_monitor.models import RawJob, Source
+from job_monitor.models import RawJob, Source, SourceBlocked
 from job_monitor.normalize import clean_text
 from job_monitor.sources.base import BaseAdapter
 
@@ -33,6 +33,10 @@ if TYPE_CHECKING:
     from job_monitor.sources.http import PoliteClient
 
 _DEFAULT_BASE_URL = "https://au.jora.com"
+
+# Default number of search-results pages to walk when the company config does
+# not specify ``max_pages``.
+_DEFAULT_MAX_PAGES = 3
 
 # The 32-char hex id trailing a job path, e.g. ``/job/Quality-Manager-<hash>``.
 # Anchored at the end of the *path* (query already stripped before matching).
@@ -201,17 +205,57 @@ class JoraAdapter(BaseAdapter):
     # Fetching (network)                                                 #
     # ------------------------------------------------------------------ #
     def fetch(self, search_terms: list[str]) -> list[RawJob]:
-        """Fetch the Jora search-results page and parse it.
+        """Fetch the Jora search-results pages and parse them.
 
         Builds the URL from the company's ``search`` config: ``q`` (query) and
-        ``l`` (location). ``search_terms`` overrides ``q`` when provided. The
-        page is fetched via curl_cffi browser impersonation (Cloudflare); a
-        :class:`~job_monitor.models.SourceBlocked` from the client propagates.
+        ``l`` (location), with ``search_terms`` overriding ``q`` when provided.
+        Walks pages ``1..max_pages`` via the ``&p={n}`` (1-indexed) pagination
+        param — ``max_pages`` read from ``search`` (default
+        :data:`_DEFAULT_MAX_PAGES`). Each page is fetched via curl_cffi browser
+        impersonation (Cloudflare); results accumulate and are de-duplicated by
+        ``apply_url``.
+
+        Stops early when a page yields zero jobs or contributes no new
+        ``apply_url`` (end of results). A :class:`~job_monitor.models.SourceBlocked`
+        from page 1 propagates; if a later page blocks, we stop and return what
+        we have so far.
         """
         search = self._search()
         query = search_terms[0] if search_terms else str(search.get("q", ""))
         location = str(search.get("l", ""))
+        max_pages = self._max_pages(search)
 
-        url = f"{_DEFAULT_BASE_URL}/j?q={quote(query)}&l={quote(location)}"
-        html = self.http.get_text_impersonate(url)
-        return self.parse(html, base_url=_DEFAULT_BASE_URL)
+        by_url: dict[str, RawJob] = {}
+        for page in range(1, max_pages + 1):
+            url = f"{_DEFAULT_BASE_URL}/j?q={quote(query)}&l={quote(location)}&p={page}"
+            try:
+                html = self.http.get_text_impersonate(url)
+            except SourceBlocked:
+                if page == 1:
+                    raise
+                # A later page blocked: keep what we already gathered.
+                break
+
+            jobs = self.parse(html, base_url=_DEFAULT_BASE_URL)
+            if not jobs:
+                # Empty page => end of results.
+                break
+
+            added = False
+            for job in jobs:
+                if job.apply_url not in by_url:
+                    by_url[job.apply_url] = job
+                    added = True
+            if not added:
+                # No new postings on this page => end of results.
+                break
+
+        return list(by_url.values())
+
+    @staticmethod
+    def _max_pages(search: dict[str, Any]) -> int:
+        try:
+            value = int(search.get("max_pages", _DEFAULT_MAX_PAGES))
+        except (TypeError, ValueError):
+            return _DEFAULT_MAX_PAGES
+        return value if value >= 1 else _DEFAULT_MAX_PAGES

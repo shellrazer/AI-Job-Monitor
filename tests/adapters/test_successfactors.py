@@ -11,6 +11,7 @@ RSS feed or a JS-rendered HTML landing page. Both paths are exercised here.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -163,3 +164,100 @@ def test_parse_real_graincorp_html_does_not_crash(adapter: SuccessFactorsAdapter
     for job in jobs:
         assert job.title
         assert job.apply_url
+
+
+# --------------------------------------------------------------------------- #
+# fetch() transport selection                                                 #
+# --------------------------------------------------------------------------- #
+class _FakeHttp:
+    """Records which transport was used and returns canned payload text."""
+
+    def __init__(self, payload: str) -> None:
+        self.payload = payload
+        self.calls: list[tuple[str, str]] = []
+        # Captures the wait_selector passed to the render transport (if any).
+        self.wait_selector: str | None = None
+
+    def get_text(self, url: str, **_: Any) -> str:
+        self.calls.append(("httpx", url))
+        return self.payload
+
+    def get_text_impersonate(self, url: str, **_: Any) -> str:
+        self.calls.append(("cffi", url))
+        return self.payload
+
+    def get_text_rendered(self, url: str, *, wait_selector: str | None = None, **_: Any) -> str:
+        self.calls.append(("render", url))
+        self.wait_selector = wait_selector
+        return self.payload
+
+
+def _adapter_with_http(http: Any, search: dict[str, Any]) -> SuccessFactorsAdapter:
+    company = CompanyConfig(
+        company_id="graincorp",
+        name="GrainCorp",
+        adapter="successfactors",
+        careers_url=CAREERS_URL,
+        search=search,
+    )
+    return SuccessFactorsAdapter(http=http, company=company, settings=Settings())
+
+
+def test_fetch_defaults_to_impersonate() -> None:
+    # No render / no feed_url -> SuccessFactors defaults to impersonation
+    # (sidesteps the SF/Recruiting-Marketing 403 blocks, e.g. Nestlé).
+    http = _FakeHttp(HTML_FIXTURE)
+    adapter = _adapter_with_http(http, {})
+
+    jobs = adapter.fetch(["quality"])
+
+    assert len(jobs) == 2
+    assert http.calls == [("cffi", CAREERS_URL)]
+
+
+def test_fetch_feed_url_uses_impersonate_by_default() -> None:
+    feed_url = "https://jobs.graincorp.com.au/rssfeed/"
+    http = _FakeHttp(RSS_FIXTURE)
+    adapter = _adapter_with_http(http, {"feed_url": feed_url})
+
+    jobs = adapter.fetch(["quality"])
+
+    assert len(jobs) == 2
+    assert http.calls == [("cffi", feed_url)]
+
+
+def test_fetch_uses_rendered_when_configured() -> None:
+    http = _FakeHttp(HTML_FIXTURE)
+    adapter = _adapter_with_http(http, {"render": True, "wait_selector": "ul.results"})
+
+    jobs = adapter.fetch(["quality"])
+
+    assert len(jobs) == 2
+    assert http.calls == [("render", CAREERS_URL)]
+    # wait_selector must be threaded through to the render transport.
+    assert http.wait_selector == "ul.results"
+
+
+def test_fetch_render_wins_over_impersonate() -> None:
+    http = _FakeHttp(HTML_FIXTURE)
+    adapter = _adapter_with_http(http, {"render": True, "impersonate": True})
+
+    adapter.fetch(["quality"])
+
+    # render takes precedence even when impersonate is also set.
+    assert http.calls == [("render", CAREERS_URL)]
+    assert http.wait_selector is None
+
+
+def test_fetch_returns_empty_without_careers_or_feed_url() -> None:
+    http = _FakeHttp(HTML_FIXTURE)
+    company = CompanyConfig(
+        company_id="graincorp",
+        name="GrainCorp",
+        adapter="successfactors",
+        search={},
+    )
+    adapter = SuccessFactorsAdapter(http=http, company=company, settings=Settings())
+
+    assert adapter.fetch(["quality"]) == []
+    assert http.calls == []

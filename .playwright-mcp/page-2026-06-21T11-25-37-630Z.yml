@@ -1,0 +1,270 @@
+- generic [ref=e1]:
+  - dialog "Cookie Consent Banner" [ref=e2]:
+    - button "Close this dialog" [active] [ref=e3] [cursor=pointer]:
+      - img "Close this dialog" [ref=e4]
+    - generic [ref=e5]:
+      - generic [ref=e6]: This website utilizes technologies such as cookies to enable essential site functionality, as well as for analytics, personalization, and targeted advertising. You may change your settings at any time or accept the default settings. You may close this banner to continue with only essential cookies.
+      - link "Privacy Policy" [ref=e7] [cursor=pointer]:
+        - /url: https://www.livehire.com/privacy/
+    - generic [ref=e8]:
+      - button "Manage Preferences" [ref=e9] [cursor=pointer]
+      - button "Accept All" [ref=e10] [cursor=pointer]
+      - button "Reject Non-Essential" [ref=e11] [cursor=pointer]
+  - generic [ref=e13]:
+    - generic [ref=e15]:
+      - img "Harris Farm logo" [ref=e19]
+      - navigation [ref=e21]:
+        - list [ref=e22]:
+          - listitem [ref=e23]:
+            - generic [ref=e25]:
+              - button "Log in" [ref=e26] [cursor=pointer]:
+                - generic [ref=e28]: Log in
+              - text:  
+    - generic [ref=e33]:
+      - heading "Job search" [level=1] [ref=e35]
+      - generic [ref=e36]:
+        - generic [ref=e38]:
+          - generic [ref=e41]:
+            - generic [ref=e42]: WHAT
+            - textbox "WHAT" [ref=e43]:
+              - /placeholder: Enter keyword, role name or ID
+          - generic [ref=e44]:
+            - generic [ref=e47]:
+              - generic [ref=e48]: 
+              - combobox "Search by city, suburb, or postcode... - then select from the suggested options below" [ref=e49]
+            - generic [ref=e50]:
+              - button "All work types" [ref=e53] [cursor=pointer]:
+                - generic [ref=e54]: All work types
+                - generic [ref=e55]: 
+              - button "All work options" [ref=e58] [cursor=pointer]:
+                - generic [ref=e59]: All work options
+                - generic [ref=e60]: 
+        - generic [ref=e63]:
+          - text: Showing
+          - strong [ref=e64]: "10"
+          - text: of 14
+        - list [ref=e66]:
+          - listitem [ref=e67]:
+            - link "Casual Shop Assistant Lindfield You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food. Location Lindfield NSW 2070, Australia Work Type Casual Applications Close At Closes in 22 days" [ref=e68] [cursor=pointer]:
+              - /url: /careers/harrisfarm/job/JXG6N/BAZPYCW977/casual-shop-assistant-lindfield
+              - generic [ref=e70]:
+                - generic [ref=e71]:
+                  - heading "Casual Shop Assistant Lindfield" [level=3] [ref=e72]
+                  - paragraph [ref=e73]: You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food.
+                - generic [ref=e75]:
+                  - generic [ref=e76]:
+                    - generic [ref=e77]: 
+                    - generic [ref=e78]: Location
+                    - generic [ref=e79]: Lindfield NSW 2070, Australia
+                  - generic [ref=e80]:
+                    - generic [ref=e81]: 
+                    - generic [ref=e82]: Work Type
+                    - generic [ref=e83]: Casual
+                  - generic [ref=e84]:
+                    - generic [ref=e85]: 
+                    - generic [ref=e86]: Applications Close At
+                    - generic [ref=e87]: Closes in 22 days
+          - listitem [ref=e88]:
+            - link "Full time Shop Assistant - Lindfield You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food. Location Lindfield NSW 2070, Australia Work Type Full time Applications Close At Closes in 22 days" [ref=e89] [cursor=pointer]:
+              - /url: /careers/harrisfarm/job/J9MM8/WNL7DKF9EY/full-time-shop-assistant-lindfield
+              - generic [ref=e91]:
+                - generic [ref=e92]:
+                  - heading "Full time Shop Assistant - Lindfield" [level=3] [ref=e93]
+                  - paragraph [ref=e94]: You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food.
+                - generic [ref=e96]:
+                  - generic [ref=e97]:
+                    - generic [ref=e98]: 
+                    - generic [ref=e99]: Location
+                    - generic [ref=e100]: Lindfield NSW 2070, Australia
+                  - generic [ref=e101]:
+                    - generic [ref=e102]: 
+                    - generic [ref=e103]: Work Type
+                    - generic [ref=e104]: Full time
+                  - generic [ref=e105]:
+                    - generic [ref=e106]: 
+                    - generic [ref=e107]: Applications Close At
+                    - generic [ref=e108]: Closes in 22 days
+          - listitem [ref=e109]:
+            - 'link "Trainee Food Safety Officer If you''re a recent graduate or early-career professional curious about how food safety really works, this is the role to launch your career. Location Homebush NSW 2140, Australia Work Type Full time Published At: 3 days ago" [ref=e110] [cursor=pointer]':
+              - /url: /careers/harrisfarm/job/C3R6E/Z8RTRNDS9E/trainee-food-safety-officer
+              - generic [ref=e112]:
+                - generic [ref=e113]:
+                  - heading "Trainee Food Safety Officer" [level=3] [ref=e114]
+                  - paragraph [ref=e115]: If you're a recent graduate or early-career professional curious about how food safety really works, this is the role to launch your career.
+                - generic [ref=e117]:
+                  - generic [ref=e118]:
+                    - generic [ref=e119]: 
+                    - generic [ref=e120]: Location
+                    - generic [ref=e121]: Homebush NSW 2140, Australia
+                  - generic [ref=e122]:
+                    - generic [ref=e123]: 
+                    - generic [ref=e124]: Work Type
+                    - generic [ref=e125]: Full time
+                  - generic [ref=e126]:
+                    - generic [ref=e127]: 
+                    - generic [ref=e128]: "Published At:"
+                    - generic [ref=e129]: 3 days ago
+          - listitem [ref=e130]:
+            - link "Full Time Shop Assistants - Mona Vale We’re on the lookout for passionate, driven people to help reconnect Aussies with the simple, natural joy of good food, every single day! Location Mona Vale, NSW 2103 Work Type Full time Applications Close At Closes in 22 days" [ref=e131] [cursor=pointer]:
+              - /url: /careers/harrisfarm/job/DFQJC/MX0DU8NWHI/full-time-shop-assistants-mona-vale
+              - generic [ref=e133]:
+                - generic [ref=e134]:
+                  - heading "Full Time Shop Assistants - Mona Vale" [level=3] [ref=e135]
+                  - paragraph [ref=e136]: We’re on the lookout for passionate, driven people to help reconnect Aussies with the simple, natural joy of good food, every single day!
+                - generic [ref=e138]:
+                  - generic [ref=e139]:
+                    - generic [ref=e140]: 
+                    - generic [ref=e141]: Location
+                    - generic [ref=e142]: Mona Vale, NSW 2103
+                  - generic [ref=e143]:
+                    - generic [ref=e144]: 
+                    - generic [ref=e145]: Work Type
+                    - generic [ref=e146]: Full time
+                  - generic [ref=e147]:
+                    - generic [ref=e148]: 
+                    - generic [ref=e149]: Applications Close At
+                    - generic [ref=e150]: Closes in 22 days
+          - listitem [ref=e151]:
+            - link "Casual Shop Assistant - Willougby You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food. Location Willoughby NSW 2068, Australia Work Type Casual Applications Close At Closes in 22 days" [ref=e152] [cursor=pointer]:
+              - /url: /careers/harrisfarm/job/NKN4D/VARXCQ3436/casual-shop-assistant-willougby
+              - generic [ref=e154]:
+                - generic [ref=e155]:
+                  - heading "Casual Shop Assistant - Willougby" [level=3] [ref=e156]
+                  - paragraph [ref=e157]: You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food.
+                - generic [ref=e159]:
+                  - generic [ref=e160]:
+                    - generic [ref=e161]: 
+                    - generic [ref=e162]: Location
+                    - generic [ref=e163]: Willoughby NSW 2068, Australia
+                  - generic [ref=e164]:
+                    - generic [ref=e165]: 
+                    - generic [ref=e166]: Work Type
+                    - generic [ref=e167]: Casual
+                  - generic [ref=e168]:
+                    - generic [ref=e169]: 
+                    - generic [ref=e170]: Applications Close At
+                    - generic [ref=e171]: Closes in 22 days
+          - listitem [ref=e172]:
+            - link "Full Time Shop Assistant Erina You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food. Location Erina NSW 2250, Australia Work Type Full time Applications Close At Closes in 22 days" [ref=e173] [cursor=pointer]:
+              - /url: /careers/harrisfarm/job/XKGJT/D9IEPG2V17/full-time-shop-assistant-erina
+              - generic [ref=e175]:
+                - generic [ref=e176]:
+                  - heading "Full Time Shop Assistant Erina" [level=3] [ref=e177]
+                  - paragraph [ref=e178]: You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food.
+                - generic [ref=e180]:
+                  - generic [ref=e181]:
+                    - generic [ref=e182]: 
+                    - generic [ref=e183]: Location
+                    - generic [ref=e184]: Erina NSW 2250, Australia
+                  - generic [ref=e185]:
+                    - generic [ref=e186]: 
+                    - generic [ref=e187]: Work Type
+                    - generic [ref=e188]: Full time
+                  - generic [ref=e189]:
+                    - generic [ref=e190]: 
+                    - generic [ref=e191]: Applications Close At
+                    - generic [ref=e192]: Closes in 22 days
+          - listitem [ref=e193]:
+            - link "Casual Shop Assistant Erina You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food. Location Erina NSW 2250, Australia Work Type Casual Applications Close At Closes in 22 days" [ref=e194] [cursor=pointer]:
+              - /url: /careers/harrisfarm/job/H8TR6/K8T6295P8M/casual-shop-assistant-erina
+              - generic [ref=e196]:
+                - generic [ref=e197]:
+                  - heading "Casual Shop Assistant Erina" [level=3] [ref=e198]
+                  - paragraph [ref=e199]: You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food.
+                - generic [ref=e201]:
+                  - generic [ref=e202]:
+                    - generic [ref=e203]: 
+                    - generic [ref=e204]: Location
+                    - generic [ref=e205]: Erina NSW 2250, Australia
+                  - generic [ref=e206]:
+                    - generic [ref=e207]: 
+                    - generic [ref=e208]: Work Type
+                    - generic [ref=e209]: Casual
+                  - generic [ref=e210]:
+                    - generic [ref=e211]: 
+                    - generic [ref=e212]: Applications Close At
+                    - generic [ref=e213]: Closes in 22 days
+          - listitem [ref=e214]:
+            - link "Full Time Perishable & Grocery Assistant - West End People are the driving force behind any successful business. A key aspect of this role is the ability to work as a member of a team. Location West End QLD, Australia Work Type Full time Applications Close At Closes in 20 days" [ref=e215] [cursor=pointer]:
+              - /url: /careers/harrisfarm/job/PXCG3/JN6CCCBP6G/full-time-perishable-grocery-assistant-west-end
+              - generic [ref=e217]:
+                - generic [ref=e218]:
+                  - heading "Full Time Perishable & Grocery Assistant - West End" [level=3] [ref=e219]
+                  - paragraph [ref=e220]: People are the driving force behind any successful business. A key aspect of this role is the ability to work as a member of a team.
+                - generic [ref=e222]:
+                  - generic [ref=e223]:
+                    - generic [ref=e224]: 
+                    - generic [ref=e225]: Location
+                    - generic [ref=e226]: West End QLD, Australia
+                  - generic [ref=e227]:
+                    - generic [ref=e228]: 
+                    - generic [ref=e229]: Work Type
+                    - generic [ref=e230]: Full time
+                  - generic [ref=e231]:
+                    - generic [ref=e232]: 
+                    - generic [ref=e233]: Applications Close At
+                    - generic [ref=e234]: Closes in 20 days
+          - listitem [ref=e235]:
+            - link "Warehouse Supervisor (PM Shift) – Greystanes DC We are seeking a detail-oriented and experienced Team Leader to oversee operations and ensure efficiency in our warehouse during the PM shift. This role is for someone who thrives in a fast-paced environment, leads by example, and is committed to maintaining high standards of productivity and safety Location Greystanes NSW 2145, Australia Work Type Full time Applications Close At Closes in 9 days" [ref=e236] [cursor=pointer]:
+              - /url: /careers/harrisfarm/job/KYM4R/2LVIJVAHAY/warehouse-supervisor-pm-shift-greystanes-dc
+              - generic [ref=e238]:
+                - generic [ref=e239]:
+                  - heading "Warehouse Supervisor (PM Shift) – Greystanes DC" [level=3] [ref=e240]
+                  - paragraph [ref=e241]: We are seeking a detail-oriented and experienced Team Leader to oversee operations and ensure efficiency in our warehouse during the PM shift. This role is for someone who thrives in a fast-paced environment, leads by example, and is committed to maintaining high standards of productivity and safety
+                - generic [ref=e243]:
+                  - generic [ref=e244]:
+                    - generic [ref=e245]: 
+                    - generic [ref=e246]: Location
+                    - generic [ref=e247]: Greystanes NSW 2145, Australia
+                  - generic [ref=e248]:
+                    - generic [ref=e249]: 
+                    - generic [ref=e250]: Work Type
+                    - generic [ref=e251]: Full time
+                  - generic [ref=e252]:
+                    - generic [ref=e253]: 
+                    - generic [ref=e254]: Applications Close At
+                    - generic [ref=e255]: Closes in 9 days
+          - listitem [ref=e256]:
+            - link "Casual Shop Assistant - Manly You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food. Location Manly NSW 2095, Australia Work Type Casual Applications Close At Closes in 3 hours" [ref=e257] [cursor=pointer]:
+              - /url: /careers/harrisfarm/job/4KMX6/LSWH001A5E/casual-shop-assistant-manly
+              - generic [ref=e259]:
+                - generic [ref=e260]:
+                  - heading "Casual Shop Assistant - Manly" [level=3] [ref=e261]
+                  - paragraph [ref=e262]: You'll help customers find what they need, keep the store looking fresh and abundant, and be part of a team that loves good food and good people. No experience needed, we'll teach you everything. What you bring is a friendly attitude, pride in your work, and a genuine love of great fresh food.
+                - generic [ref=e264]:
+                  - generic [ref=e265]:
+                    - generic [ref=e266]: 
+                    - generic [ref=e267]: Location
+                    - generic [ref=e268]: Manly NSW 2095, Australia
+                  - generic [ref=e269]:
+                    - generic [ref=e270]: 
+                    - generic [ref=e271]: Work Type
+                    - generic [ref=e272]: Casual
+                  - generic [ref=e273]:
+                    - generic [ref=e274]: 
+                    - generic [ref=e275]: Applications Close At
+                    - generic [ref=e276]: Closes in 3 hours
+        - button "Show more jobs" [ref=e277] [cursor=pointer]
+      - generic [ref=e278]:
+        - generic [ref=e279]:
+          - heading "We're always on the lookout for talent" [level=2] [ref=e280]
+          - paragraph [ref=e281]: If you are thinking about a future with us, sign up to stay connected and be informed of any new opportunities.
+        - link "Join our Talent Community" [ref=e282] [cursor=pointer]:
+          - /url: https://www.livehire.com/talent/community/harrisfarm/careers
+    - contentinfo [ref=e284]:
+      - generic [ref=e285]:
+        - generic [ref=e286]: Powered by
+        - link "Humanforce Talent" [ref=e287] [cursor=pointer]:
+          - /url: https://www.humanforce.com
+          - img "Humanforce Talent" [ref=e288]
+      - list [ref=e289]:
+        - listitem [ref=e290]:
+          - link "Privacy Policy" [ref=e291] [cursor=pointer]:
+            - /url: https://www.humanforce.com/privacy-policy
+          - text: "|"
+        - listitem [ref=e292]:
+          - link "Terms of Service" [ref=e293] [cursor=pointer]:
+            - /url: https://www.humanforce.com/terms-conditions
+          - text: "|"
+        - listitem [ref=e294]:
+          - button "Cookie Preferences" [ref=e295] [cursor=pointer]

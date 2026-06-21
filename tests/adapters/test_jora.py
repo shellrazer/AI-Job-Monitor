@@ -78,3 +78,106 @@ def test_parse_populates_metadata(adapter: JoraAdapter, jora_html: str) -> None:
 def test_parse_empty_html_is_safe(adapter: JoraAdapter) -> None:
     assert adapter.parse("") == []
     assert adapter.parse("<html><body>no jobs here</body></html>") == []
+
+
+# ---------------------------------------------------------------------------
+# Pagination (fetch across pages)
+# ---------------------------------------------------------------------------
+
+# A distinct, small page 2: one card overlaps page 1 (the BreastScreen posting,
+# to exercise cross-page de-dup) plus two genuinely-new postings.
+_OVERLAP_ID = "60d85bfc97dec3ff19e39604b641ef3a"  # present in the page-1 fixture
+_JORA_PAGE2_HTML = f"""
+<html><body>
+  <div class="job-card result organic-job">
+    <a class="job-link" href="/job/Quality-Manager-{_OVERLAP_ID}?fsv=true">
+      BreastScreen Quality Manager
+    </a>
+    <span class="job-company">Health NSW</span>
+    <span class="job-location">Sydney NSW</span>
+  </div>
+  <div class="job-card result organic-job">
+    <a class="job-link" href="/job/Page-Two-Engineer-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?fsv=true">
+      Page Two Engineer
+    </a>
+    <span class="job-company">Page Two Co</span>
+    <span class="job-location">Brisbane QLD</span>
+  </div>
+  <div class="job-card result organic-job">
+    <a class="job-link" href="/job/Page-Two-Analyst-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb?fsv=true">
+      Page Two Analyst
+    </a>
+    <span class="job-company">Page Two Co</span>
+    <span class="job-location">Perth WA</span>
+  </div>
+</body></html>
+"""
+
+
+class _FakeJoraClient:
+    """Stand-in PoliteClient: serves fixtures keyed by the requested page (&p=)."""
+
+    def __init__(self, page_html: dict[int, str]) -> None:
+        self._page_html = page_html
+        self.requested_pages: list[int] = []
+
+    def get_text_impersonate(self, url: str, **_: object) -> str:
+        import re
+
+        match = re.search(r"[?&]p=(\d+)", url)
+        page = int(match.group(1)) if match else 1
+        self.requested_pages.append(page)
+        return self._page_html.get(page, "")
+
+
+def _adapter_with_client(client: _FakeJoraClient, max_pages: int = 3) -> JoraAdapter:
+    company = CompanyConfig(
+        company_id="jora1",
+        name="Jora",
+        adapter="jora",
+        search={"q": "quality manager", "l": "Sydney NSW", "max_pages": max_pages},
+    )
+    return JoraAdapter(http=client, company=company, settings=Settings())  # type: ignore[arg-type]
+
+
+def test_fetch_paginates_dedupes_and_stops_on_empty(jora_html: str) -> None:
+    client = _FakeJoraClient(
+        {
+            1: jora_html,
+            2: _JORA_PAGE2_HTML,
+            3: "",  # empty page => stop
+        }
+    )
+    adapter = _adapter_with_client(client, max_pages=3)
+
+    jobs = adapter.fetch(["quality manager"])
+
+    # The empty page 3 halts the walk after it is requested.
+    assert client.requested_pages == [1, 2, 3]
+
+    apply_urls = [job.apply_url for job in jobs]
+    # De-duplicated across pages by apply_url.
+    assert len(apply_urls) == len(set(apply_urls))
+
+    page1_only = adapter.parse(jora_html)
+    assert len(jobs) >= len(page1_only)
+
+    # The two genuinely-new page-2 postings made it in.
+    assert any(url.endswith("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") for url in apply_urls)
+    assert any(url.endswith("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb") for url in apply_urls)
+    # The page-2 overlap card points at the same apply_url as a page-1 card,
+    # so it appears exactly once (cross-page de-dup).
+    overlap_url = f"https://au.jora.com/job/Quality-Manager-{_OVERLAP_ID}"
+    assert overlap_url in apply_urls
+    assert apply_urls.count(overlap_url) == 1
+
+
+def test_fetch_stops_when_page_adds_no_new_urls(jora_html: str) -> None:
+    # Page 2 identical to page 1 => no new apply_urls => stop before page 3.
+    client = _FakeJoraClient({1: jora_html, 2: jora_html, 3: _JORA_PAGE2_HTML})
+    adapter = _adapter_with_client(client, max_pages=3)
+
+    jobs = adapter.fetch(["quality manager"])
+
+    assert client.requested_pages == [1, 2]
+    assert len(jobs) == len(adapter.parse(jora_html))

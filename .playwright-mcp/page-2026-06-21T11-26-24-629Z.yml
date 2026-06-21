@@ -1,0 +1,789 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - link [ref=e3] [cursor=pointer]:
+      - /url: /jobs/search
+      - img [ref=e4]
+    - list [ref=e6]:
+      - listitem [ref=e7]:
+        - link "About us" [ref=e8] [cursor=pointer]:
+          - /url: https://www.pfdfoods.com.au/about-us
+      - listitem [ref=e9]:
+        - link "Our Products" [ref=e10] [cursor=pointer]:
+          - /url: https://www.pfdfoods.com.au/our-products
+      - listitem [ref=e11]:
+        - link "Promotions" [ref=e12] [cursor=pointer]:
+          - /url: https://www.pfdfoods.com.au/promotions
+      - listitem [ref=e13]:
+        - link "Ordering" [ref=e14] [cursor=pointer]:
+          - /url: https://www.pfdfoods.com.au/ordering
+      - listitem [ref=e15]:
+        - link "Contact" [ref=e16] [cursor=pointer]:
+          - /url: https://www.pfdfoods.com.au/contact
+      - listitem [ref=e17]:
+        - 'link "CALL US: 131 733" [ref=e18] [cursor=pointer]':
+          - /url: tel:+61131733
+      - listitem [ref=e19]:
+        - link "Applicant Login" [ref=e21] [cursor=pointer]:
+          - /url: /me/settings
+          - text: Applicant Login
+  - generic [ref=e24]:
+    - generic "Road, Tarmac, Asphalt, Freeway, Handrail, Convention Center, Building, Architecture, Terminal, Urban" [ref=e33]:
+      - generic [ref=e34]:
+        - heading "Want to work at PFD?" [level=1] [ref=e35]
+        - heading "Sign up for new jobs posted here" [level=2] [ref=e36]
+        - paragraph [ref=e37]:
+          - link "Sign up for job alerts" [ref=e38] [cursor=pointer]:
+            - /url: "#job_alert_cta"
+        - paragraph [ref=e39]
+    - generic [ref=e50]:
+      - link "Skip to jobs search results" [ref=e51] [cursor=pointer]:
+        - /url: "#jobs_search_results_0c75fe06361d52bcad40fcab23f12bd2"
+      - generic [ref=e52]:
+        - region "Filter jobs" [ref=e55]:
+          - generic [ref=e56]:
+            - heading "Category" [level=4] [ref=e57]
+            - generic [ref=e58]: Search categories
+            - textbox "Search categories" [ref=e59]:
+              - /placeholder: Search
+            - group "Category" [ref=e60]:
+              - generic [ref=e61]: 8 filter options found
+              - generic [ref=e62]: Category
+              - list [ref=e63]:
+                - listitem [ref=e64]:
+                  - generic [ref=e65]:
+                    - checkbox "Administration/Customer service (4 items)" [ref=e66]
+                    - text: Administration/Customer service
+                    - generic [ref=e67]: (4 items)
+                  - generic [ref=e68]: "4"
+                - listitem [ref=e69]:
+                  - generic [ref=e70]:
+                    - checkbox "Food science/technology (1 items)" [ref=e71]
+                    - text: Food science/technology
+                    - generic [ref=e72]: (1 items)
+                  - generic [ref=e73]: "1"
+                - listitem [ref=e74]:
+                  - generic [ref=e75]:
+                    - checkbox "Information technology (2 items)" [ref=e76]
+                    - text: Information technology
+                    - generic [ref=e77]: (2 items)
+                  - generic [ref=e78]: "2"
+                - listitem [ref=e79]:
+                  - generic [ref=e80]:
+                    - checkbox "Management (1 items)" [ref=e81]
+                    - text: Management
+                    - generic [ref=e82]: (1 items)
+                  - generic [ref=e83]: "1"
+                - listitem [ref=e84]:
+                  - generic [ref=e85]:
+                    - checkbox "Other (1 items)" [ref=e86]
+                    - text: Other
+                    - generic [ref=e87]: (1 items)
+                  - generic [ref=e88]: "1"
+                - listitem [ref=e89]:
+                  - generic [ref=e90]:
+                    - checkbox "Production (2 items)" [ref=e91]
+                    - text: Production
+                    - generic [ref=e92]: (2 items)
+                  - generic [ref=e93]: "2"
+                - listitem [ref=e94]:
+                  - generic [ref=e95]:
+                    - checkbox "Sales and marketing (9 items)" [ref=e96]
+                    - text: Sales and marketing
+                    - generic [ref=e97]: (9 items)
+                  - generic [ref=e98]: "9"
+                - listitem [ref=e99]:
+                  - generic [ref=e100]:
+                    - checkbox "Warehousing, inventory management and distribution (32 items)" [ref=e101]
+                    - text: Warehousing, inventory management and distribution
+                    - generic [ref=e102]: (32 items)
+                  - generic [ref=e103]: "32"
+          - generic [ref=e104]:
+            - heading "Employment Type" [level=4] [ref=e105]
+            - generic [ref=e106]: Search employment types
+            - textbox "Search employment types" [ref=e107]:
+              - /placeholder: Search
+            - group "Employment Type" [ref=e108]:
+              - generic [ref=e109]: 2 filter options found
+              - generic [ref=e110]: Employment Type
+              - list [ref=e111]:
+                - listitem [ref=e112]:
+                  - generic [ref=e113]:
+                    - checkbox "Casual (2 items)" [ref=e114]
+                    - text: Casual
+                    - generic [ref=e115]: (2 items)
+                  - generic [ref=e116]: "2"
+                - listitem [ref=e117]:
+                  - generic [ref=e118]:
+                    - checkbox "Full time (49 items)" [ref=e119]
+                    - text: Full time
+                    - generic [ref=e120]: (49 items)
+                  - generic [ref=e121]: "49"
+          - generic [ref=e122]:
+            - heading "State" [level=4] [ref=e123]
+            - generic [ref=e124]: Search states
+            - textbox "Search states" [ref=e125]:
+              - /placeholder: Search
+            - group "State" [ref=e126]:
+              - generic [ref=e127]: 8 filter options found
+              - generic [ref=e128]: State
+              - list [ref=e129]:
+                - listitem [ref=e130]:
+                  - generic [ref=e131]:
+                    - checkbox "ACT (4 items)" [ref=e132]
+                    - text: ACT
+                    - generic [ref=e133]: (4 items)
+                  - generic [ref=e134]: "4"
+                - listitem [ref=e135]:
+                  - generic [ref=e136]:
+                    - checkbox "NSW (11 items)" [ref=e137]
+                    - text: NSW
+                    - generic [ref=e138]: (11 items)
+                  - generic [ref=e139]: "11"
+                - listitem [ref=e140]:
+                  - generic [ref=e141]:
+                    - checkbox "NT (1 items)" [ref=e142]
+                    - text: NT
+                    - generic [ref=e143]: (1 items)
+                  - generic [ref=e144]: "1"
+                - listitem [ref=e145]:
+                  - generic [ref=e146]:
+                    - checkbox "QLD (8 items)" [ref=e147]
+                    - text: QLD
+                    - generic [ref=e148]: (8 items)
+                  - generic [ref=e149]: "8"
+                - listitem [ref=e150]:
+                  - generic [ref=e151]:
+                    - checkbox "SA (6 items)" [ref=e152]
+                    - text: SA
+                    - generic [ref=e153]: (6 items)
+                  - generic [ref=e154]: "6"
+                - listitem [ref=e155]:
+                  - generic [ref=e156]:
+                    - checkbox "TAS (3 items)" [ref=e157]
+                    - text: TAS
+                    - generic [ref=e158]: (3 items)
+                  - generic [ref=e159]: "3"
+                - listitem [ref=e160]:
+                  - generic [ref=e161]:
+                    - checkbox "VIC (10 items)" [ref=e162]
+                    - text: VIC
+                    - generic [ref=e163]: (10 items)
+                  - generic [ref=e164]: "10"
+                - listitem [ref=e165]:
+                  - generic [ref=e166]:
+                    - checkbox "WA (8 items)" [ref=e167]
+                    - text: WA
+                    - generic [ref=e168]: (8 items)
+                  - generic [ref=e169]: "8"
+          - generic [ref=e170]:
+            - heading "Site" [level=4] [ref=e171]
+            - generic [ref=e172]: Search
+            - textbox "Search" [ref=e173]
+            - group "Site" [ref=e174]:
+              - generic [ref=e175]: 24 filter options found
+              - generic [ref=e176]: Site
+              - list [ref=e177]:
+                - listitem [ref=e178]:
+                  - generic [ref=e179]:
+                    - checkbox "Adelaide (5 items)" [ref=e180]
+                    - text: Adelaide
+                    - generic [ref=e181]: (5 items)
+                  - generic [ref=e182]: "5"
+                - listitem [ref=e183]:
+                  - generic [ref=e184]:
+                    - checkbox "Alice Springs (1 items)" [ref=e185]
+                    - text: Alice Springs
+                    - generic [ref=e186]: (1 items)
+                  - generic [ref=e187]: "1"
+                - listitem [ref=e188]:
+                  - generic [ref=e189]:
+                    - checkbox "Bendigo (1 items)" [ref=e190]
+                    - text: Bendigo
+                    - generic [ref=e191]: (1 items)
+                  - generic [ref=e192]: "1"
+                - listitem [ref=e193]:
+                  - generic [ref=e194]:
+                    - checkbox "Brisbane (6 items)" [ref=e195]
+                    - text: Brisbane
+                    - generic [ref=e196]: (6 items)
+                  - generic [ref=e197]: "6"
+                - listitem [ref=e198]:
+                  - generic [ref=e199]:
+                    - checkbox "Bunbury (2 items)" [ref=e200]
+                    - text: Bunbury
+                    - generic [ref=e201]: (2 items)
+                  - generic [ref=e202]: "2"
+                - listitem [ref=e203]:
+                  - generic [ref=e204]:
+                    - checkbox "Canberra (4 items)" [ref=e205]
+                    - text: Canberra
+                    - generic [ref=e206]: (4 items)
+                  - generic [ref=e207]: "4"
+                - listitem [ref=e208]:
+                  - generic [ref=e209]:
+                    - checkbox "Geelong (1 items)" [ref=e210]
+                    - text: Geelong
+                    - generic [ref=e211]: (1 items)
+                  - generic [ref=e212]: "1"
+                - listitem [ref=e213]:
+                  - generic [ref=e214]:
+                    - checkbox "Gold Coast (2 items)" [ref=e215]
+                    - text: Gold Coast
+                    - generic [ref=e216]: (2 items)
+                  - generic [ref=e217]: "2"
+                - listitem [ref=e218]:
+                  - generic [ref=e219]:
+                    - checkbox "Hobart (1 items)" [ref=e220]
+                    - text: Hobart
+                    - generic [ref=e221]: (1 items)
+                  - generic [ref=e222]: "1"
+                - listitem [ref=e223]:
+                  - generic [ref=e224]:
+                    - checkbox "Kalgoorlie (2 items)" [ref=e225]
+                    - text: Kalgoorlie
+                    - generic [ref=e226]: (2 items)
+                  - generic [ref=e227]: "2"
+                - listitem [ref=e228]:
+                  - generic [ref=e229]:
+                    - checkbox "Launceston (2 items)" [ref=e230]
+                    - text: Launceston
+                    - generic [ref=e231]: (2 items)
+                  - generic [ref=e232]: "2"
+                - listitem [ref=e233]:
+                  - generic [ref=e234]:
+                    - checkbox "Mackay (1 items)" [ref=e235]
+                    - text: Mackay
+                    - generic [ref=e236]: (1 items)
+                  - generic [ref=e237]: "1"
+                - listitem [ref=e238]:
+                  - generic [ref=e239]:
+                    - checkbox "Melbourne (6 items)" [ref=e240]
+                    - text: Melbourne
+                    - generic [ref=e241]: (6 items)
+                  - generic [ref=e242]: "6"
+                - listitem [ref=e243]:
+                  - generic [ref=e244]:
+                    - checkbox "Mildura (1 items)" [ref=e245]
+                    - text: Mildura
+                    - generic [ref=e246]: (1 items)
+                  - generic [ref=e247]: "1"
+                - listitem [ref=e248]:
+                  - generic [ref=e249]:
+                    - checkbox "Mount Gambier (1 items)" [ref=e250]
+                    - text: Mount Gambier
+                    - generic [ref=e251]: (1 items)
+                  - generic [ref=e252]: "1"
+                - listitem [ref=e253]:
+                  - generic [ref=e254]:
+                    - checkbox "Mudgee (2 items)" [ref=e255]
+                    - text: Mudgee
+                    - generic [ref=e256]: (2 items)
+                  - generic [ref=e257]: "2"
+                - listitem [ref=e258]:
+                  - generic [ref=e259]:
+                    - checkbox "Newcastle (1 items)" [ref=e260]
+                    - text: Newcastle
+                    - generic [ref=e261]: (1 items)
+                  - generic [ref=e262]: "1"
+                - listitem [ref=e263]:
+                  - generic [ref=e264]:
+                    - checkbox "Northam (1 items)" [ref=e265]
+                    - text: Northam
+                    - generic [ref=e266]: (1 items)
+                  - generic [ref=e267]: "1"
+                - listitem [ref=e268]:
+                  - generic [ref=e269]:
+                    - checkbox "Parkes (1 items)" [ref=e270]
+                    - text: Parkes
+                    - generic [ref=e271]: (1 items)
+                  - generic [ref=e272]: "1"
+                - listitem [ref=e273]:
+                  - generic [ref=e274]:
+                    - checkbox "Perth (3 items)" [ref=e275]
+                    - text: Perth
+                    - generic [ref=e276]: (3 items)
+                  - generic [ref=e277]: "3"
+                - listitem [ref=e278]:
+                  - generic [ref=e279]:
+                    - checkbox "Rockhampton (1 items)" [ref=e280]
+                    - text: Rockhampton
+                    - generic [ref=e281]: (1 items)
+                  - generic [ref=e282]: "1"
+                - listitem [ref=e283]:
+                  - generic [ref=e284]:
+                    - checkbox "Sydney (4 items)" [ref=e285]
+                    - text: Sydney
+                    - generic [ref=e286]: (4 items)
+                  - generic [ref=e287]: "4"
+                - listitem [ref=e288]:
+                  - generic [ref=e289]:
+                    - checkbox "Warrnambool (1 items)" [ref=e290]
+                    - text: Warrnambool
+                    - generic [ref=e291]: (1 items)
+                  - generic [ref=e292]: "1"
+                - listitem [ref=e293]:
+                  - generic [ref=e294]:
+                    - checkbox "Wollongong (1 items)" [ref=e295]
+                    - text: Wollongong
+                    - generic [ref=e296]: (1 items)
+                  - generic [ref=e297]: "1"
+        - generic [ref=e299]:
+          - generic [ref=e302]:
+            - generic [ref=e303]: Search by job title, location, department, category, etc.
+            - generic [ref=e304]:
+              - textbox "Search by job title, location, department, category, etc." [ref=e305]
+              - button "Search" [ref=e307] [cursor=pointer]
+          - region [ref=e308]:
+            - region "Jobs search results" [ref=e310]:
+              - table [ref=e311]:
+                - rowgroup [ref=e312]:
+                  - row "Title Category Employment Type Site" [ref=e313]:
+                    - columnheader "Title" [ref=e314]
+                    - columnheader "Category" [ref=e315]
+                    - columnheader "Employment Type" [ref=e316]
+                    - columnheader "Site" [ref=e317]
+                - rowgroup [ref=e318]:
+                  - 'link "Title: Seafood Processor/General Hand Category: Production Employment Type: Casual Brisbane" [ref=e319] [cursor=pointer]':
+                    - 'cell "Title: Seafood Processor/General Hand" [ref=e320]':
+                      - 'link "Title: Seafood Processor/General Hand" [ref=e321]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/seafood-processor-general-hand-lytton-qld-australia-5f349c7e-1758-4b90-8a2a-5e156252810f
+                        - text: Seafood Processor/General Hand
+                    - 'cell "Category: Production" [ref=e322]':
+                      - list [ref=e323]:
+                        - 'listitem "Category: Production" [ref=e324]': Production
+                    - 'cell "Employment Type: Casual" [ref=e325]':
+                      - list [ref=e326]:
+                        - 'listitem "Employment Type: Casual" [ref=e327]': Casual
+                    - cell "Brisbane" [ref=e328]
+                  - 'link "Title: Filleter - Afternoon Shift Category: Production Employment Type: Full time Brisbane" [ref=e329] [cursor=pointer]':
+                    - 'cell "Title: Filleter - Afternoon Shift" [ref=e330]':
+                      - 'link "Title: Filleter - Afternoon Shift" [ref=e331]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/filleter-afternoon-shift-lytton-qld-australia
+                        - text: Filleter - Afternoon Shift
+                    - 'cell "Category: Production" [ref=e332]':
+                      - list [ref=e333]:
+                        - 'listitem "Category: Production" [ref=e334]': Production
+                    - 'cell "Employment Type: Full time" [ref=e335]':
+                      - list [ref=e336]:
+                        - 'listitem "Employment Type: Full time" [ref=e337]': Full time
+                    - cell "Brisbane" [ref=e338]
+                  - 'link "Title: Storeperson Category: Warehousing, inventory management and distribution Employment Type: Full time Mildura" [ref=e339] [cursor=pointer]':
+                    - 'cell "Title: Storeperson" [ref=e340]':
+                      - 'link "Title: Storeperson" [ref=e341]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/storeperson-mildura-vic-australia-dcb29250-9499-458b-bfca-6a5fa4641e11
+                        - text: Storeperson
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e342]':
+                      - list [ref=e343]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e344]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e345]':
+                      - list [ref=e346]:
+                        - 'listitem "Employment Type: Full time" [ref=e347]': Full time
+                    - cell "Mildura" [ref=e348]
+                  - 'link "Title: Sales Representative Category: Sales and marketing Employment Type: Full time Bunbury" [ref=e349] [cursor=pointer]':
+                    - 'cell "Title: Sales Representative" [ref=e350]':
+                      - 'link "Title: Sales Representative" [ref=e351]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/sales-representative-picton-wa-australia
+                        - text: Sales Representative
+                    - 'cell "Category: Sales and marketing" [ref=e352]':
+                      - list [ref=e353]:
+                        - 'listitem "Category: Sales and marketing" [ref=e354]': Sales and marketing
+                    - 'cell "Employment Type: Full time" [ref=e355]':
+                      - list [ref=e356]:
+                        - 'listitem "Employment Type: Full time" [ref=e357]': Full time
+                    - cell "Bunbury" [ref=e358]
+                  - 'link "Title: Brisbane North Field Sales Manager Category: Sales and marketing Employment Type: Full time Brisbane" [ref=e359] [cursor=pointer]':
+                    - 'cell "Title: Brisbane North Field Sales Manager" [ref=e360]':
+                      - 'link "Title: Brisbane North Field Sales Manager" [ref=e361]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/brisbane-north-field-sales-manager-lytton-qld-australia
+                        - text: Brisbane North Field Sales Manager
+                    - 'cell "Category: Sales and marketing" [ref=e362]':
+                      - list [ref=e363]:
+                        - 'listitem "Category: Sales and marketing" [ref=e364]': Sales and marketing
+                    - 'cell "Employment Type: Full time" [ref=e365]':
+                      - list [ref=e366]:
+                        - 'listitem "Employment Type: Full time" [ref=e367]': Full time
+                    - cell "Brisbane" [ref=e368]
+                  - 'link "Title: Branch Manager |Canberra Category: Warehousing, inventory management and distribution Employment Type: Full time Canberra" [ref=e369] [cursor=pointer]':
+                    - 'cell "Title: Branch Manager |Canberra" [ref=e370]':
+                      - 'link "Title: Branch Manager |Canberra" [ref=e371]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/branch-manager-canberra-fyshwick-act-australia
+                        - text: Branch Manager |Canberra
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e372]':
+                      - list [ref=e373]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e374]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e375]':
+                      - list [ref=e376]:
+                        - 'listitem "Employment Type: Full time" [ref=e377]': Full time
+                    - cell "Canberra" [ref=e378]
+                  - 'link "Title: Head of Digital & Trade Marketing Category: Other Employment Type: Full time Melbourne" [ref=e379] [cursor=pointer]':
+                    - 'cell "Title: Head of Digital & Trade Marketing" [ref=e380]':
+                      - 'link "Title: Head of Digital & Trade Marketing" [ref=e381]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/head-of-digital-trade-marketing-mulgrave-vic-australia
+                        - text: Head of Digital & Trade Marketing
+                    - 'cell "Category: Other" [ref=e382]':
+                      - list [ref=e383]:
+                        - 'listitem "Category: Other" [ref=e384]': Other
+                    - 'cell "Employment Type: Full time" [ref=e385]':
+                      - list [ref=e386]:
+                        - 'listitem "Employment Type: Full time" [ref=e387]': Full time
+                    - cell "Melbourne" [ref=e388]
+                  - 'link "Title: Delivery Driver Category: Warehousing, inventory management and distribution Employment Type: Full time Canberra" [ref=e389] [cursor=pointer]':
+                    - 'cell "Title: Delivery Driver" [ref=e390]':
+                      - 'link "Title: Delivery Driver" [ref=e391]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/delivery-driver-fyshwick-act-australia-b3441026-78de-4b0d-82d0-81dd93852483
+                        - text: Delivery Driver
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e392]':
+                      - list [ref=e393]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e394]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e395]':
+                      - list [ref=e396]:
+                        - 'listitem "Employment Type: Full time" [ref=e397]': Full time
+                    - cell "Canberra" [ref=e398]
+                  - 'link "Title: Delivery Driver Storeperson Category: Warehousing, inventory management and distribution Employment Type: Full time Parkes" [ref=e399] [cursor=pointer]':
+                    - 'cell "Title: Delivery Driver Storeperson" [ref=e400]':
+                      - 'link "Title: Delivery Driver Storeperson" [ref=e401]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/delivery-driver-storeperson-parkes-nsw-australia-5ec95049-2ff0-4cce-9dc0-7ce3b7a58dd1
+                        - text: Delivery Driver Storeperson
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e402]':
+                      - list [ref=e403]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e404]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e405]':
+                      - list [ref=e406]:
+                        - 'listitem "Employment Type: Full time" [ref=e407]': Full time
+                    - cell "Parkes" [ref=e408]
+                  - 'link "Title: Delivery Driver Category: Warehousing, inventory management and distribution Employment Type: Full time Sydney" [ref=e409] [cursor=pointer]':
+                    - 'cell "Title: Delivery Driver" [ref=e410]':
+                      - 'link "Title: Delivery Driver" [ref=e411]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/delivery-driver-chullora-nsw-australia-0d600f1f-3ab4-46b4-b6ab-f1b78441f1dc
+                        - text: Delivery Driver
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e412]':
+                      - list [ref=e413]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e414]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e415]':
+                      - list [ref=e416]:
+                        - 'listitem "Employment Type: Full time" [ref=e417]': Full time
+                    - cell "Sydney" [ref=e418]
+                  - 'link "Title: Sales Representative Category: Sales and marketing Employment Type: Full time Canberra" [ref=e419] [cursor=pointer]':
+                    - 'cell "Title: Sales Representative" [ref=e420]':
+                      - 'link "Title: Sales Representative" [ref=e421]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/sales-representative-fyshwick-act-australia-2759ac3c-d658-4b8c-9041-d1da99687352
+                        - text: Sales Representative
+                    - 'cell "Category: Sales and marketing" [ref=e422]':
+                      - list [ref=e423]:
+                        - 'listitem "Category: Sales and marketing" [ref=e424]': Sales and marketing
+                    - 'cell "Employment Type: Full time" [ref=e425]':
+                      - list [ref=e426]:
+                        - 'listitem "Employment Type: Full time" [ref=e427]': Full time
+                    - cell "Canberra" [ref=e428]
+                  - 'link "Title: Warehouse Supervisor AM Category: Warehousing, inventory management and distribution Employment Type: Full time Launceston" [ref=e429] [cursor=pointer]':
+                    - 'cell "Title: Warehouse Supervisor AM" [ref=e430]':
+                      - 'link "Title: Warehouse Supervisor AM" [ref=e431]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/warehouse-supervisor-am-kings-meadow-tas-australia
+                        - text: Warehouse Supervisor AM
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e432]':
+                      - list [ref=e433]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e434]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e435]':
+                      - list [ref=e436]:
+                        - 'listitem "Employment Type: Full time" [ref=e437]': Full time
+                    - cell "Launceston" [ref=e438]
+                  - 'link "Title: Customer Service Representative Category: Administration/Customer service Employment Type: Full time Brisbane" [ref=e439] [cursor=pointer]':
+                    - 'cell "Title: Customer Service Representative" [ref=e440]':
+                      - 'link "Title: Customer Service Representative" [ref=e441]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/customer-service-representative-lytton-qld-australia-b86c8c3f-2658-4958-9df3-f6a8ff78db12
+                        - text: Customer Service Representative
+                    - 'cell "Category: Administration/Customer service" [ref=e442]':
+                      - list [ref=e443]:
+                        - 'listitem "Category: Administration/Customer service" [ref=e444]': Administration/Customer service
+                    - 'cell "Employment Type: Full time" [ref=e445]':
+                      - list [ref=e446]:
+                        - 'listitem "Employment Type: Full time" [ref=e447]': Full time
+                    - cell "Brisbane" [ref=e448]
+                  - 'link "Title: Delivery Driver Storeperson Category: Warehousing, inventory management and distribution Employment Type: Full time Mount Gambier" [ref=e449] [cursor=pointer]':
+                    - 'cell "Title: Delivery Driver Storeperson" [ref=e450]':
+                      - 'link "Title: Delivery Driver Storeperson" [ref=e451]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/delivery-driver-storeperson-mount-gambier-sa-australia-68618519-459b-44a7-9757-bac65fa568c1
+                        - text: Delivery Driver Storeperson
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e452]':
+                      - list [ref=e453]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e454]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e455]':
+                      - list [ref=e456]:
+                        - 'listitem "Employment Type: Full time" [ref=e457]': Full time
+                    - cell "Mount Gambier" [ref=e458]
+                  - 'link "Title: Customer Service Representative Category: Administration/Customer service Employment Type: Full time Brisbane" [ref=e459] [cursor=pointer]':
+                    - 'cell "Title: Customer Service Representative" [ref=e460]':
+                      - 'link "Title: Customer Service Representative" [ref=e461]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/customer-service-representative-lytton-qld-australia-a1c8dd18-e6cf-4503-a712-1c1e84f0e4cb
+                        - text: Customer Service Representative
+                    - 'cell "Category: Administration/Customer service" [ref=e462]':
+                      - list [ref=e463]:
+                        - 'listitem "Category: Administration/Customer service" [ref=e464]': Administration/Customer service
+                    - 'cell "Employment Type: Full time" [ref=e465]':
+                      - list [ref=e466]:
+                        - 'listitem "Employment Type: Full time" [ref=e467]': Full time
+                    - cell "Brisbane" [ref=e468]
+                  - 'link "Title: Branch Manager - Kalgoorlie Category: Warehousing, inventory management and distribution Employment Type: Full time Kalgoorlie" [ref=e469] [cursor=pointer]':
+                    - 'cell "Title: Branch Manager - Kalgoorlie" [ref=e470]':
+                      - 'link "Title: Branch Manager - Kalgoorlie" [ref=e471]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/branch-manager-kalgoorlie-kalgoorlie-wa-australia
+                        - text: Branch Manager - Kalgoorlie
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e472]':
+                      - list [ref=e473]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e474]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e475]':
+                      - list [ref=e476]:
+                        - 'listitem "Employment Type: Full time" [ref=e477]': Full time
+                    - cell "Kalgoorlie" [ref=e478]
+                  - 'link "Title: Delivery Driver Category: Warehousing, inventory management and distribution Employment Type: Full time Mudgee" [ref=e479] [cursor=pointer]':
+                    - 'cell "Title: Delivery Driver" [ref=e480]':
+                      - 'link "Title: Delivery Driver" [ref=e481]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/delivery-driver-mudgee-nsw-australia-f73be6d1-a4d8-4856-aaaa-a0f715843295
+                        - text: Delivery Driver
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e482]':
+                      - list [ref=e483]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e484]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e485]':
+                      - list [ref=e486]:
+                        - 'listitem "Employment Type: Full time" [ref=e487]': Full time
+                    - cell "Mudgee" [ref=e488]
+                  - 'link "Title: Delivery Driver Storeperson Category: Warehousing, inventory management and distribution Employment Type: Full time Bunbury" [ref=e489] [cursor=pointer]':
+                    - 'cell "Title: Delivery Driver Storeperson" [ref=e490]':
+                      - 'link "Title: Delivery Driver Storeperson" [ref=e491]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/delivery-driver-storeperson-picton-wa-australia-e4ba19d2-3ef5-4dd0-a430-69ac16222b4b
+                        - text: Delivery Driver Storeperson
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e492]':
+                      - list [ref=e493]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e494]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e495]':
+                      - list [ref=e496]:
+                        - 'listitem "Employment Type: Full time" [ref=e497]': Full time
+                    - cell "Bunbury" [ref=e498]
+                  - 'link "Title: Replenishment Planner Category: Warehousing, inventory management and distribution Employment Type: Full time Hobart" [ref=e499] [cursor=pointer]':
+                    - 'cell "Title: Replenishment Planner" [ref=e500]':
+                      - 'link "Title: Replenishment Planner" [ref=e501]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/replenishment-planner-hobart-tas-australia
+                        - text: Replenishment Planner
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e502]':
+                      - list [ref=e503]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e504]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e505]':
+                      - list [ref=e506]:
+                        - 'listitem "Employment Type: Full time" [ref=e507]': Full time
+                    - cell "Hobart" [ref=e508]
+                  - 'link "Title: Full Time Delivery Driver Storeperson Category: Warehousing, inventory management and distribution Employment Type: Full time Gold Coast" [ref=e509] [cursor=pointer]':
+                    - 'cell "Title: Full Time Delivery Driver Storeperson" [ref=e510]':
+                      - 'link "Title: Full Time Delivery Driver Storeperson" [ref=e511]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/full-time-delivery-driver-storeperson-tweed-heads-west-nsw-australia
+                        - text: Full Time Delivery Driver Storeperson
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e512]':
+                      - list [ref=e513]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e514]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e515]':
+                      - list [ref=e516]:
+                        - 'listitem "Employment Type: Full time" [ref=e517]': Full time
+                    - cell "Gold Coast" [ref=e518]
+                  - 'link "Title: Delivery Driver Storeperson Category: Warehousing, inventory management and distribution Employment Type: Casual Gold Coast" [ref=e519] [cursor=pointer]':
+                    - 'cell "Title: Delivery Driver Storeperson" [ref=e520]':
+                      - 'link "Title: Delivery Driver Storeperson" [ref=e521]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/delivery-driver-storeperson-tweed-heads-west-nsw-australia-53d8e5bb-93d6-47f9-9179-74f794104cd1
+                        - text: Delivery Driver Storeperson
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e522]':
+                      - list [ref=e523]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e524]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Casual" [ref=e525]':
+                      - list [ref=e526]:
+                        - 'listitem "Employment Type: Casual" [ref=e527]': Casual
+                    - cell "Gold Coast" [ref=e528]
+                  - 'link "Title: Key Account Manager Category: Sales and marketing Employment Type: Full time Sydney" [ref=e529] [cursor=pointer]':
+                    - 'cell "Title: Key Account Manager" [ref=e530]':
+                      - 'link "Title: Key Account Manager" [ref=e531]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/key-account-manager-chullora-nsw-australia
+                        - text: Key Account Manager
+                    - 'cell "Category: Sales and marketing" [ref=e532]':
+                      - list [ref=e533]:
+                        - 'listitem "Category: Sales and marketing" [ref=e534]': Sales and marketing
+                    - 'cell "Employment Type: Full time" [ref=e535]':
+                      - list [ref=e536]:
+                        - 'listitem "Employment Type: Full time" [ref=e537]': Full time
+                    - cell "Sydney" [ref=e538]
+                  - 'link "Title: Delivery Driver Storeperson Category: Warehousing, inventory management and distribution Employment Type: Full time Northam" [ref=e539] [cursor=pointer]':
+                    - 'cell "Title: Delivery Driver Storeperson" [ref=e540]':
+                      - 'link "Title: Delivery Driver Storeperson" [ref=e541]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/delivery-driver-storeperson-northam-wa-australia-30fc4b86-b9a6-4f5f-89d4-a706a3d5bf2b
+                        - text: Delivery Driver Storeperson
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e542]':
+                      - list [ref=e543]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e544]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e545]':
+                      - list [ref=e546]:
+                        - 'listitem "Employment Type: Full time" [ref=e547]': Full time
+                    - cell "Northam" [ref=e548]
+                  - 'link "Title: Data Engineer Lead Category: Information technology Employment Type: Full time Melbourne" [ref=e549] [cursor=pointer]':
+                    - 'cell "Title: Data Engineer Lead" [ref=e550]':
+                      - 'link "Title: Data Engineer Lead" [ref=e551]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/data-engineer-lead-mulgrave-vic-australia
+                        - text: Data Engineer Lead
+                    - 'cell "Category: Information technology" [ref=e552]':
+                      - list [ref=e553]:
+                        - 'listitem "Category: Information technology" [ref=e554]': Information technology
+                    - 'cell "Employment Type: Full time" [ref=e555]':
+                      - list [ref=e556]:
+                        - 'listitem "Employment Type: Full time" [ref=e557]': Full time
+                    - cell "Melbourne" [ref=e558]
+                  - 'link "Title: Storeperson Category: Warehousing, inventory management and distribution Employment Type: Full time Perth" [ref=e559] [cursor=pointer]':
+                    - 'cell "Title: Storeperson" [ref=e560]':
+                      - 'link "Title: Storeperson" [ref=e561]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/storeperson-jandakot-wa-australia-e82307df-98da-4d8f-b3d9-6d106173af41
+                        - text: Storeperson
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e562]':
+                      - list [ref=e563]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e564]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e565]':
+                      - list [ref=e566]:
+                        - 'listitem "Employment Type: Full time" [ref=e567]': Full time
+                    - cell "Perth" [ref=e568]
+                  - 'link "Title: Delivery Driver Category: Warehousing, inventory management and distribution Employment Type: Full time Adelaide" [ref=e569] [cursor=pointer]':
+                    - 'cell "Title: Delivery Driver" [ref=e570]':
+                      - 'link "Title: Delivery Driver" [ref=e571]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/delivery-driver-torrensville-sa-australia-4795206b-a1e3-4b6c-b695-3fb93a618646
+                        - text: Delivery Driver
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e572]':
+                      - list [ref=e573]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e574]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e575]':
+                      - list [ref=e576]:
+                        - 'listitem "Employment Type: Full time" [ref=e577]': Full time
+                    - cell "Adelaide" [ref=e578]
+                  - 'link "Title: Meat Sales Specialist Category: Sales and marketing Employment Type: Full time Melbourne" [ref=e579] [cursor=pointer]':
+                    - 'cell "Title: Meat Sales Specialist" [ref=e580]':
+                      - 'link "Title: Meat Sales Specialist" [ref=e581]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/meat-sales-specialist-mulgrave-vic-australia
+                        - text: Meat Sales Specialist
+                    - 'cell "Category: Sales and marketing" [ref=e582]':
+                      - list [ref=e583]:
+                        - 'listitem "Category: Sales and marketing" [ref=e584]': Sales and marketing
+                    - 'cell "Employment Type: Full time" [ref=e585]':
+                      - list [ref=e586]:
+                        - 'listitem "Employment Type: Full time" [ref=e587]': Full time
+                    - cell "Melbourne" [ref=e588]
+                  - 'link "Title: Sales Representative – Dandenong Ranges Category: Sales and marketing Employment Type: Full time Melbourne" [ref=e589] [cursor=pointer]':
+                    - 'cell "Title: Sales Representative – Dandenong Ranges" [ref=e590]':
+                      - 'link "Title: Sales Representative – Dandenong Ranges" [ref=e591]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/sales-representative-dandenong-ranges-mulgrave-vic-australia
+                        - text: Sales Representative – Dandenong Ranges
+                    - 'cell "Category: Sales and marketing" [ref=e592]':
+                      - list [ref=e593]:
+                        - 'listitem "Category: Sales and marketing" [ref=e594]': Sales and marketing
+                    - 'cell "Employment Type: Full time" [ref=e595]':
+                      - list [ref=e596]:
+                        - 'listitem "Employment Type: Full time" [ref=e597]': Full time
+                    - cell "Melbourne" [ref=e598]
+                  - 'link "Title: Delivery Driver Category: Warehousing, inventory management and distribution Employment Type: Full time Adelaide" [ref=e599] [cursor=pointer]':
+                    - 'cell "Title: Delivery Driver" [ref=e600]':
+                      - 'link "Title: Delivery Driver" [ref=e601]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/delivery-driver-torrensville-sa-australia-2129c590-9cb3-45bb-9ebb-1eae5e8ced81
+                        - text: Delivery Driver
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e602]':
+                      - list [ref=e603]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e604]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e605]':
+                      - list [ref=e606]:
+                        - 'listitem "Employment Type: Full time" [ref=e607]': Full time
+                    - cell "Adelaide" [ref=e608]
+                  - 'link "Title: Delivery Driver Storeperson Category: Warehousing, inventory management and distribution Employment Type: Full time Wollongong" [ref=e609] [cursor=pointer]':
+                    - 'cell "Title: Delivery Driver Storeperson" [ref=e610]':
+                      - 'link "Title: Delivery Driver Storeperson" [ref=e611]':
+                        - /url: https://careers.pfdfoods.com.au/jobs/delivery-driver-storeperson-fernhill-nsw-australia-d0144b59-0b16-4ad9-baed-80bb6f5c2617
+                        - text: Delivery Driver Storeperson
+                    - 'cell "Category: Warehousing, inventory management and distribution" [ref=e612]':
+                      - list [ref=e613]:
+                        - 'listitem "Category: Warehousing, inventory management and distribution" [ref=e614]': Warehousing, inventory management and distribution
+                    - 'cell "Employment Type: Full time" [ref=e615]':
+                      - list [ref=e616]:
+                        - 'listitem "Employment Type: Full time" [ref=e617]': Full time
+                    - cell "Wollongong" [ref=e618]
+              - generic [ref=e620]:
+                - alert [ref=e622]:
+                  - paragraph [ref=e623]: Displaying 1 - 30 of 51 in total
+                - navigation "Pagination" [ref=e626]:
+                  - list [ref=e627]:
+                    - listitem "Previous page" [ref=e628]:
+                      - link "‹":
+                        - /url: ""
+                    - listitem "Page 1" [ref=e629]:
+                      - link "1" [ref=e630] [cursor=pointer]:
+                        - /url: /jobs/search?page=1
+                    - listitem "Page 2" [ref=e631]:
+                      - link "2" [ref=e632] [cursor=pointer]:
+                        - /url: /jobs/search?page=2
+                    - listitem "Next page" [ref=e633]:
+                      - link "›" [ref=e634] [cursor=pointer]:
+                        - /url: /jobs/search?page=2
+          - paragraph [ref=e635]:
+            - link "Powered by PageUp" [ref=e636] [cursor=pointer]:
+              - /url: https://www.pageuppeople.com/powered-by-pageup/
+    - generic [ref=e647]:
+      - heading "Register today for Job Alerts" [level=3] [ref=e650]:
+        - strong [ref=e651]: Register today for Job Alerts
+      - generic [ref=e653]:
+        - generic [ref=e654]:
+          - generic [ref=e656]: First Name (required)
+          - textbox "First Name (required)" [ref=e657]:
+            - /placeholder: First Name
+        - generic [ref=e658]:
+          - generic [ref=e660]: Last Name (required)
+          - textbox "Last Name (required)" [ref=e661]:
+            - /placeholder: Last Name
+        - generic [ref=e662]:
+          - generic [ref=e664]: Email (required)
+          - textbox "Email (required)" [ref=e665]:
+            - /placeholder: Email
+        - group [ref=e667]:
+          - generic [ref=e668]: Job Alert
+          - generic [ref=e669]: Finalize your job alert by selecting criteria from the dropdowns below. You can select multiple options from each dropdown by returning to the combobox and re-entering the list of options. Submit at the end to create your job alert.
+          - generic [ref=e670]:
+            - generic [ref=e671]: Categories
+            - generic [ref=e672]: Categories
+            - status [ref=e674]:
+              - combobox "Categories" [ref=e675]
+          - generic [ref=e676]:
+            - generic [ref=e677]: Site
+            - generic [ref=e678]: Site
+            - status [ref=e680]:
+              - combobox "Site" [ref=e681]
+        - button "Send" [ref=e683] [cursor=pointer]
+  - contentinfo [ref=e684]:
+    - list [ref=e689]:
+      - listitem [ref=e690]:
+        - link [ref=e691] [cursor=pointer]:
+          - /url: https://www.facebook.com/PFDFoodServices
+      - listitem [ref=e693]:
+        - link [ref=e694] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/pfd-food-services-pty-ltd/?originalSubdomain=au
+      - listitem [ref=e696]:
+        - link [ref=e697] [cursor=pointer]:
+          - /url: https://www.instagram.com/pfdfoodservices/
+    - generic [ref=e700]:
+      - list [ref=e701]:
+        - listitem [ref=e702]:
+          - link "Terms & Conditions" [ref=e703] [cursor=pointer]:
+            - /url: https://www.pfdfoods.com.au/terms-and-conditions
+        - listitem [ref=e704]:
+          - link "Privacy Policy" [ref=e705] [cursor=pointer]:
+            - /url: https://www.pfdfoods.com.au/privacy-policy
+      - paragraph [ref=e706]: "© 2021 PFD Food Services Pty Ltd ABN: 29 006 972 381"
+  - dialog "Cookie consent" [ref=e707]:
+    - document:
+      - generic [ref=e708]:
+        - generic [ref=e709]:
+          - img "PFD Food Services logo" [ref=e710]:
+            - img "PFD Food Services logo" [ref=e711]
+          - button "Close" [active] [ref=e712] [cursor=pointer]: ×
+        - generic [ref=e714]:
+          - paragraph [ref=e715]: This website uses cookies.
+          - paragraph [ref=e716]: We use cookies to personalise content such as job recommendations, and to analyse our traffic. You consent to our cookies if you click "I Accept". If you click on "I Do Not Accept", then we will not use cookies but you may have a deteriorated user experience. You can change your settings by clicking on the Settings link on the top right of the device
+        - generic [ref=e717]:
+          - button "I do not accept" [ref=e718] [cursor=pointer]
+          - button "I accept" [ref=e719] [cursor=pointer]
+  - generic [ref=e721]: Please choose a site

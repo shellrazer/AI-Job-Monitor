@@ -1,0 +1,172 @@
+{
+  "jobs": [
+    {
+      "data": {
+        "slug": "453428",
+        "language": "en-us",
+        "languages": [
+          "en-us"
+        ],
+        "req_id": "453428",
+        "title": "Supplier Quality Assurance Associate Scientist (12‑Month Fixed Term Contract)",
+        "location_name": "Chatswood-AUS",
+        "street_address": "799 Pacific Highway\nTower A, Level 4",
+        "city": "Chatswood",
+        "state": "New South Wales",
+        "country": "Australia",
+        "country_code": "AU",
+        "postal_code": "2067",
+        "location_type": "LAT_LNG",
+        "latitude": -33.7981592,
+        "longitude": 151.178904,
+        "categories": [
+          {
+            "name": "R&D"
+          }
+        ],
+        "promotion_value": 0,
+        "employment_type": "FULL_TIME",
+        "hiring_organization": "PepsiCo",
+        "posted_date": "2026-05-27T12:38:00+0000",
+        "posting_expiry_date": "2026-06-25T18:30:00+0000",
+        "apply_url": "https://globalcareers-pepsico.icims.com/jobs/453428/login",
+        "internal": false,
+        "external": false,
+        "searchable": true,
+        "applyable": true,
+        "li_easy_applyable": true,
+        "ats_code": "icims",
+        "isFrontLineAIJob": false,
+        "update_date": "2026-06-06T09:27:36+0000",
+        "create_date": "2026-05-27T12:39:29+0000",
+        "category": [
+          " R&D"
+        ],
+        "full_location": "Chatswood, Australia",
+        "short_location": "Chatswood, Australia",
+        "multipleLocations": false
+      }
+    },
+    {
+      "data": {
+        "slug": "454018",
+        "language": "en-us",
+        "languages": [
+          "en-us"
+        ],
+        "req_id": "454018",
+        "title": "Production Team Leader - Afternoon Shift",
+        "location_name": "Regency Park-AUS",
+        "street_address": "553 - 567 South Road",
+        "city": "Regency Park",
+        "state": "South Australia",
+        "country": "Australia",
+        "country_code": "AU",
+        "postal_code": "5010",
+        "location_type": "LAT_LNG",
+        "latitude": -34.8573501,
+        "longitude": 138.5672101,
+        "categories": [
+          {
+            "name": "Supply Chain"
+          }
+        ],
+        "promotion_value": 0,
+        "employment_type": "TEMPORARY",
+        "hiring_organization": "PepsiCo",
+        "posted_date": "2026-05-15T02:08:00+0000",
+        "posting_expiry_date": "2026-07-13T02:30:00+0000",
+        "apply_url": "https://globalflcareers-pepsico.icims.com/jobs/454018/login",
+        "internal": false,
+        "external": false,
+        "searchable": true,
+        "applyable": true,
+        "li_easy_applyable": true,
+        "ats_code": "icims",
+        "isFrontLineAIJob": false,
+        "update_date": "2026-06-18T08:38:53+0000",
+        "create_date": "2026-06-18T07:39:34+0000",
+        "category": [
+          " Supply Chain"
+        ],
+        "full_location": "Regency Park, Australia",
+        "short_location": "Regency Park, Australia",
+        "multipleLocations": false
+      }
+    },
+    {
+      "data": {
+        "slug": "431613",
+        "language": "en-us",
+        "languages": [
+          "en-us"
+        ],
+        "req_id": "431613",
+        "title": "Supply Network Planning Sr Analyst",
+        "location_name": "TX-Plano-7701a-HDQ-TX224B",
+        "street_address": "7701 Legacy Dr",
+        "city": "Plano",
+        "state": "Texas",
+        "country": "United States",
+        "country_code": "US",
+        "postal_code": "75024-4002",
+        "location_type": "ANY",
+        "latitude": 33.0765938,
+        "longitude": -96.84415779999999,
+        "additional_locations": [
+          {
+            "location_name": "Hyderabad HUB-IND",
+            "street_address": "Laxmi Infobhan\n9th Floor, Tower 2",
+            "city": "Hyderabad",
+            "state": "Telangana",
+            "country": "India",
+            "country_code": "IN",
+            "postal_code": "500075",
+            "latitude": 17.4757183,
+            "longitude": 78.30800049999999
+          },
+          {
+            "location_name": "Krakow - Hub- POL",
+            "street_address": "Fabryczna\n1",
+            "city": "Kraków",
+            "state": "Malopolskie",
+            "country": "Poland",
+            "country_code": "PL",
+            "postal_code": "31-553",
+            "latitude": 50.060714,
+            "longitude": 19.9710614
+          }
+        ],
+        "categories": [
+          {
+            "name": "Supply Chain"
+          }
+        ],
+        "tags1": [
+          "United States"
+        ],
+        "promotion_value": 0,
+        "employment_type": "FULL_TIME",
+        "hiring_organization": "PepsiCo",
+        "posted_date": "2026-01-20T19:23:00+0000",
+        "apply_url": "https://uscareers-pepsico.icims.com/jobs/431613/login",
+        "internal": false,
+        "external": false,
+        "searchable": true,
+        "applyable": true,
+        "li_easy_applyable": true,
+        "ats_code": "icims",
+        "isFrontLineAIJob": false,
+        "update_date": "2026-06-08T23:38:08+0000",
+        "create_date": "2026-01-20T19:24:17+0000",
+        "category": [
+          " Supply Chain"
+        ],
+        "full_location": "Plano, Texas; Hyderabad, India; Kraków, Poland",
+        "short_location": "Plano, Texas",
+        "multipleLocations": true
+      }
+    }
+  ],
+  "totalCount": 35
+}

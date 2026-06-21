@@ -28,11 +28,15 @@ from urllib.parse import quote, urlsplit
 
 from selectolax.parser import HTMLParser, Node
 
-from job_monitor.models import RawJob, Source
+from job_monitor.models import RawJob, Source, SourceBlocked
 from job_monitor.normalize import clean_text
 from job_monitor.sources.base import BaseAdapter
 
 DEFAULT_BASE_URL = "https://www.seek.com.au"
+
+# Default number of search-results pages to walk when the company config does
+# not specify ``max_pages``.
+DEFAULT_MAX_PAGES = 3
 
 # Locates the start of the redux assignment; the object itself is extracted by
 # brace-matching from the first ``{`` (regex alone can't balance nested braces).
@@ -56,12 +60,17 @@ class SeekAdapter(BaseAdapter):
     # Fetch                                                              #
     # ------------------------------------------------------------------ #
     def fetch(self, search_terms: list[str]) -> list[RawJob]:
-        """Fetch SEEK search results for the company's keywords/where.
+        """Fetch SEEK search results across pages for the company's keywords/where.
 
-        Builds the simple query-form URL
-        ``.../jobs?keywords=...&where=...`` and retrieves it via curl_cffi
-        impersonation (SEEK sits behind Cloudflare). ``SourceBlocked`` from the
-        HTTP layer is allowed to propagate.
+        Builds the query-form URL ``.../jobs?keywords=...&where=...&page={n}``
+        and walks pages ``1..max_pages`` (``max_pages`` read from the company's
+        ``search`` config, default :data:`DEFAULT_MAX_PAGES`), retrieving each via
+        curl_cffi impersonation (SEEK sits behind Cloudflare). Results are
+        accumulated and de-duplicated by ``apply_url``.
+
+        Stops early when a page yields zero jobs or contributes no new
+        ``apply_url`` (end of results). ``SourceBlocked`` from page 1 propagates;
+        if a later page blocks, we stop and return what we have so far.
         """
         search = getattr(self.company, "search", None) or {}
         keywords = search.get("keywords")
@@ -70,13 +79,48 @@ class SeekAdapter(BaseAdapter):
             # SEEK already understands OR syntax inside ``keywords``).
             keywords = " ".join(search_terms) if search_terms else ""
         where = search.get("where", "")
+        max_pages = self._max_pages(search)
 
-        url = self._search_url(str(keywords), str(where))
-        html = self.http.get_text_impersonate(url)
-        return self.parse(html, base_url=DEFAULT_BASE_URL)
+        by_url: dict[str, RawJob] = {}
+        for page in range(1, max_pages + 1):
+            url = self._search_url(str(keywords), str(where), page)
+            try:
+                html = self.http.get_text_impersonate(url)
+            except SourceBlocked:
+                if page == 1:
+                    raise
+                # A later page blocked: keep what we already gathered.
+                break
 
-    def _search_url(self, keywords: str, where: str) -> str:
-        return f"{DEFAULT_BASE_URL}/jobs?keywords={quote(keywords)}&where={quote(where)}"
+            jobs = self.parse(html, base_url=DEFAULT_BASE_URL)
+            if not jobs:
+                # Empty page => end of results.
+                break
+
+            added = False
+            for job in jobs:
+                if job.apply_url not in by_url:
+                    by_url[job.apply_url] = job
+                    added = True
+            if not added:
+                # No new postings on this page => end of results.
+                break
+
+        return list(by_url.values())
+
+    @staticmethod
+    def _max_pages(search: dict[str, Any]) -> int:
+        try:
+            value = int(search.get("max_pages", DEFAULT_MAX_PAGES))
+        except (TypeError, ValueError):
+            return DEFAULT_MAX_PAGES
+        return value if value >= 1 else DEFAULT_MAX_PAGES
+
+    def _search_url(self, keywords: str, where: str, page: int) -> str:
+        return (
+            f"{DEFAULT_BASE_URL}/jobs?keywords={quote(keywords)}"
+            f"&where={quote(where)}&page={page}"
+        )
 
     # ------------------------------------------------------------------ #
     # Parse                                                              #

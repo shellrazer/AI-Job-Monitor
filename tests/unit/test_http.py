@@ -186,3 +186,230 @@ def test_get_text_impersonate_403_raises_source_blocked(
 
     with pytest.raises(SourceBlocked):
         client.get_text_impersonate("https://www.jora.com/jobs")
+
+
+# --------------------------------------------------------------------------- #
+# get_text_rendered (Playwright)                                              #
+# --------------------------------------------------------------------------- #
+def test_get_text_rendered_missing_playwright_raises_runtime_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """When the lazy Playwright import fails we surface a clear install hint."""
+    import builtins
+
+    real_import = builtins.__import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "playwright.sync_api" or name.startswith("playwright"):
+            raise ImportError("No module named 'playwright'")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    client = _client(tmp_path)
+
+    with pytest.raises(RuntimeError, match="Playwright not installed"):
+        client.get_text_rendered("https://example.com/jobs", use_cache=False)
+
+
+# --------------------------------------------------------------------------- #
+# Render challenge-tolerance: classify on FINAL content, not the nav status    #
+# --------------------------------------------------------------------------- #
+class _FakeResponse:
+    def __init__(self, status: int) -> None:
+        self.status = status
+
+
+class _FakePage:
+    """Minimal Playwright page stand-in driven by a scripted final HTML."""
+
+    def __init__(self, *, goto_status: int, content: str, selector_found: bool) -> None:
+        self._goto_status = goto_status
+        self._content = content
+        self._selector_found = selector_found
+        self.goto_calls: list[dict[str, object]] = []
+        self.waited_selector: str | None = None
+        self.waited_timeout: int | None = None
+
+    def goto(self, url, *, wait_until, timeout):
+        self.goto_calls.append({"url": url, "wait_until": wait_until, "timeout": timeout})
+        return _FakeResponse(self._goto_status)
+
+    def wait_for_selector(self, selector, *, timeout):
+        self.waited_selector = selector
+        self.waited_timeout = timeout
+        if not self._selector_found:
+            raise TimeoutError("selector never appeared")
+
+    def wait_for_load_state(self, state, *, timeout):
+        return None
+
+    def wait_for_timeout(self, ms):
+        return None
+
+    def content(self) -> str:
+        return self._content
+
+
+class _FakeContext:
+    def __init__(self, page: _FakePage) -> None:
+        self._page = page
+        self.kwargs: dict[str, object] | None = None
+
+    def new_page(self) -> _FakePage:
+        return self._page
+
+
+class _FakeBrowser:
+    def __init__(self, context: _FakeContext) -> None:
+        self._context = context
+        self.launch_args: list[str] | None = None
+
+    def new_context(self, **kwargs):
+        self._context.kwargs = kwargs
+        return self._context
+
+    def close(self) -> None:
+        return None
+
+
+class _FakeChromium:
+    def __init__(self, browser: _FakeBrowser) -> None:
+        self._browser = browser
+
+    def launch(self, *, headless, args=None):
+        self._browser.launch_args = args
+        return self._browser
+
+
+class _FakePlaywright:
+    def __init__(self, browser: _FakeBrowser) -> None:
+        self.chromium = _FakeChromium(browser)
+
+    def __enter__(self) -> _FakePlaywright:
+        return self
+
+    def __exit__(self, *exc) -> bool:
+        return False
+
+
+def _install_fake_playwright(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    goto_status: int,
+    content: str,
+    selector_found: bool,
+) -> _FakePage:
+    """Inject a fake ``playwright.sync_api`` module returning scripted content."""
+    import sys
+    import types
+
+    page = _FakePage(goto_status=goto_status, content=content, selector_found=selector_found)
+    browser = _FakeBrowser(_FakeContext(page))
+
+    fake_module = types.ModuleType("playwright.sync_api")
+    fake_module.sync_playwright = lambda: _FakePlaywright(browser)  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "playwright.sync_api", fake_module)
+    return page
+
+
+def test_rendered_403_nav_status_does_not_raise_when_selector_present(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A 403 navigation status must NOT raise: Cloudflare returns 403 then solves.
+
+    With the real listings present in the final content, the page is returned.
+    """
+    final_html = "<html><body><a href='/job/1'>Quality Manager</a></body></html>"
+    page = _install_fake_playwright(
+        monkeypatch, goto_status=403, content=final_html, selector_found=True
+    )
+    client = _client(tmp_path)
+
+    html = client.get_text_rendered(
+        "https://example.com/jobs", wait_selector="a[href*='/job/']", use_cache=False
+    )
+
+    assert html == final_html
+    # Navigation used domcontentloaded so we regain control mid-challenge.
+    assert page.goto_calls[0]["wait_until"] == "domcontentloaded"
+    assert page.waited_selector == "a[href*='/job/']"
+
+
+def test_rendered_persistent_challenge_raises_source_blocked(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Final content still a challenge page AND selector absent -> SourceBlocked."""
+    challenge_html = "<html><head><title>Just a moment...</title></head><body>cf-challenge</body></html>"
+    _install_fake_playwright(
+        monkeypatch, goto_status=403, content=challenge_html, selector_found=False
+    )
+    client = _client(tmp_path)
+
+    with pytest.raises(SourceBlocked):
+        client.get_text_rendered(
+            "https://example.com/jobs", wait_selector="a[href*='/job/']", use_cache=False
+        )
+
+
+def test_rendered_challenge_marker_benign_when_selector_present(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A challenge marker is benign if the real listings rendered alongside it."""
+    mixed_html = (
+        "<html><body><noscript>Access Denied</noscript>"
+        "<a href='/job/9'>Site Quality Manager</a></body></html>"
+    )
+    _install_fake_playwright(
+        monkeypatch, goto_status=200, content=mixed_html, selector_found=True
+    )
+    client = _client(tmp_path)
+
+    html = client.get_text_rendered(
+        "https://example.com/jobs", wait_selector="a[href*='/job/']", use_cache=False
+    )
+    assert html == mixed_html
+
+
+def test_rendered_uses_realistic_browser_context(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Chromium launches with the automation flag off and an AU browser context."""
+    page = _install_fake_playwright(
+        monkeypatch, goto_status=200, content="<html><body>ok</body></html>", selector_found=False
+    )
+    client = _client(tmp_path)
+
+    client.get_text_rendered("https://example.com/", use_cache=False)
+
+    # No wait_selector -> networkidle + settle path; clean content -> returned.
+    assert page.goto_calls[0]["wait_until"] == "domcontentloaded"
+
+
+@pytest.mark.slow
+def test_get_text_rendered_against_file_url(tmp_path: Path) -> None:
+    """Render a local file:// page with real Playwright (no network).
+
+    Skips cleanly when Playwright / chromium are unavailable in the environment.
+    """
+    page = tmp_path / "page.html"
+    marker = "RENDERED-MARKER-12345"
+    page.write_text(
+        f"<html><body><h1 id='title'>{marker}</h1></body></html>",
+        encoding="utf-8",
+    )
+    file_url = page.as_uri()
+
+    client = _client(tmp_path)
+
+    try:
+        html = client.get_text_rendered(file_url, wait_selector="#title")
+    except RuntimeError as exc:  # Playwright not installed
+        pytest.skip(str(exc))
+    except Exception as exc:  # chromium binary missing / launch failure
+        pytest.skip(f"Playwright browser unavailable: {exc}")
+
+    assert marker in html
+
+    # Second call is served from the on-disk cache (no second browser launch).
+    cached = client.get_text_rendered(file_url, wait_selector="#title")
+    assert cached == html

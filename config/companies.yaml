@@ -1,17 +1,17 @@
-# Master source list (spec §4 + §7). Each entry binds an adapter + search params.
+# Master source list (spec §4 + §7 + §8). Each entry binds an adapter + search params.
 #
-# adapter values: workday | successfactors | seek | jora | generic_html
-# priority_tier: P1 (big food/FMCG/agribusiness + verified endpoints), P2, P3.
+# adapter: workday | successfactors | smartrecruiters | greenhouse | lever | phenom
+#          | generic_html | seek | jora | linkedin
+# search flags honored by HTML adapters: impersonate (curl_cffi), render (Playwright headless).
+# priority_tier: P1 (big food/FMCG/agribusiness + verified), P2, P3.
 #
-# IMPORTANT: ATS platform/tenant/slug assumptions MUST be confirmed with
-# `uv run job-monitor validate`. Several spec assumptions were already wrong
-# (GWF = Springboard, Coles = Phenom). Entries whose endpoints are unverified are
-# marked `# UNVERIFIED` — they may report blocked/empty until corrected.
+# Endpoints were live-probed and VERIFIED unless marked. Run `uv run job-monitor validate`
+# to re-confirm; selectors marked "approx" should be tuned from its output.
 
 companies:
-  # ----------------------------------------------------------------------- #
-  # Workday (verified public CXS JSON endpoint)                             #
-  # ----------------------------------------------------------------------- #
+  # ======================================================================= #
+  # Workday — public CXS JSON API (most reliable)                           #
+  # ======================================================================= #
   - company_id: bega
     name: "Bega Group"
     sector: "Dairy / Food Manufacturing"
@@ -40,35 +40,209 @@ companies:
       cxs_site: "Saputo_External_Careers"
       search_terms: ["quality", "food safety"]
 
-  # ----------------------------------------------------------------------- #
-  # SuccessFactors (Recruiting-Marketing RSS/sitemap feed)  # UNVERIFIED     #
-  # ----------------------------------------------------------------------- #
-  - company_id: graincorp
-    name: "GrainCorp"
-    sector: "Grain / Agribusiness"
+  - company_id: mondelez_au
+    name: "Mondelez Australia (Cadbury)"
+    sector: "Confectionery / Snacks / FMCG"
     priority_tier: P1
-    careers_url: "https://jobs.graincorp.com.au/"
-    ats_platform: successfactors
-    adapter: successfactors
+    careers_url: "https://mdlz.wd3.myworkdayjobs.com/External"
+    ats_platform: workday
+    adapter: workday
+    active: true
+    search:   # global tenant — scope to AU via searchText
+      base_url: "https://mdlz.wd3.myworkdayjobs.com"
+      cxs_tenant: "mdlz"
+      cxs_site: "External"
+      search_terms: ["quality Australia", "food safety Australia"]
+
+  # ======================================================================= #
+  # Phenom — public JSON (api_jobs feed or widgets POST)                    #
+  # ======================================================================= #
+  - company_id: pepsico_au
+    name: "PepsiCo Australia"
+    sector: "Snacks / Beverages / FMCG"
+    priority_tier: P1
+    careers_url: "https://www.pepsicojobs.com/main/jobs"
+    ats_platform: phenom
+    adapter: phenom
     active: true
     search:
-      careers_url: "https://jobs.graincorp.com.au/"
-      search_terms: ["quality", "food safety", "technical"]
+      mode: "api_jobs"
+      api_url: "https://www.pepsicojobs.com/api/jobs"
+      careers_base: "https://www.pepsicojobs.com"
+      location: "Australia"
+      keywords: "quality"
+      max_pages: 5
 
+  - company_id: mars_au
+    name: "Mars Australia"
+    sector: "Confectionery / Petcare / Food"
+    priority_tier: P1
+    careers_url: "https://careers.mars.com/au/en/search-results"
+    ats_platform: phenom
+    adapter: phenom
+    active: true
+    search:
+      mode: "widgets"
+      widgets_url: "https://careers.mars.com/widgets"
+      lang: "en_au"
+      country: "au"
+      au_filter: true
+      search_terms: ["quality", "food safety"]
+      max_pages: 3
+
+  - company_id: kerry_au
+    name: "Kerry Group Australia"
+    sector: "Food ingredients / Taste & Nutrition"
+    priority_tier: P2
+    careers_url: "https://jobs.kerry.com/viewalljobs/"
+    ats_platform: phenom
+    adapter: phenom
+    active: true
+    search:   # global tenant — client-side AU filter
+      mode: "widgets"
+      widgets_url: "https://jobs.kerry.com/widgets"
+      lang: "en_global"
+      country: "au"
+      au_filter: true
+      search_terms: ["quality", "food safety"]
+      max_pages: 5
+
+  - company_id: lion
+    name: "Lion"
+    sector: "Beverages (beer / dairy)"
+    priority_tier: P1
+    careers_url: "https://www.lioncareers.com/au/en"
+    ats_platform: phenom
+    adapter: phenom
+    active: true
+    search:
+      mode: "widgets"
+      widgets_url: "https://www.lioncareers.com/widgets"
+      lang: "en_au"
+      country: "au"
+      au_filter: true
+      search_terms: ["quality", "food safety"]
+      max_pages: 3
+
+  - company_id: hellofresh_au
+    name: "HelloFresh Australia (incl. Youfoodz)"
+    sector: "Meal Kit / Food Manufacturing"
+    priority_tier: P1
+    careers_url: "https://careers.hellofresh.com/global/en/australia"
+    ats_platform: phenom
+    adapter: phenom
+    active: true
+    search:
+      mode: "widgets"
+      widgets_url: "https://careers.hellofresh.com/widgets"
+      lang: "en_global"
+      country: "au"
+      au_filter: true
+      search_terms: ["quality", "food safety"]
+      max_pages: 3
+
+  # ======================================================================= #
+  # SmartRecruiters — public JSON API                                       #
+  # ======================================================================= #
+  - company_id: aldi_au
+    name: "ALDI Australia"
+    sector: "Retail / Grocery"
+    priority_tier: P2
+    careers_url: "https://www.aldicareers.com.au/jobs"
+    ats_platform: smartrecruiters
+    adapter: smartrecruiters
+    active: true
+    search:
+      company_slug: "ALDIStores"
+      search_terms: ["quality", "food safety"]
+
+  # ======================================================================= #
+  # SuccessFactors — server-rendered HTML /search, or RSS feed (impersonate) #
+  # ======================================================================= #
   - company_id: nestle_au
     name: "Nestlé Australia"
     sector: "FMCG / Food Manufacturing"
     priority_tier: P1
-    careers_url: "https://www.nestle.com.au/en/jobs"
+    careers_url: "https://jobs.nestle.com/"
+    ats_platform: successfactors
+    adapter: generic_html
+    active: false   # Official site hard-blocked by Cloudflare Turnstile (confirmed 2026-06: headless AND headful Playwright both stuck on "Just a moment"; curl_cffi chrome124/safari + sitemap.xml + RSS/tile-search/api all 403). Real Nestlé roles are captured instead via the LinkedIn + SEEK company searches below.
+    search:
+      list_url: "https://jobs.nestle.com/search/?q=quality&locationsearch=Australia"
+      base_url: "https://jobs.nestle.com"
+      render: true
+      wait_selector: "a[href*='/job/']"
+      selectors:
+        item: "tr.data-row"
+        title: "a.jobTitle-link"
+        link: "a.jobTitle-link@href"
+        location: "span.jobLocation"
+      search_terms: ["quality", "food safety"]
+
+  # Nestlé official site is bot-blocked — capture real Nestlé jobs via aggregators instead.
+  - company_id: nestle_linkedin
+    name: "Nestlé Australia — via LinkedIn"
+    sector: "FMCG / Food Manufacturing"
+    priority_tier: P1
+    ats_platform: linkedin
+    adapter: linkedin
+    active: true
+    search:
+      keywords: "Nestle quality"
+      location: "Australia"
+      max_pages: 3
+
+  - company_id: nestle_seek
+    name: "Nestlé Australia — via SEEK"
+    sector: "FMCG / Food Manufacturing"
+    priority_tier: P1
+    ats_platform: seek
+    adapter: seek
+    active: true
+    search:
+      keywords: "Nestle"
+      where: "Australia"
+      max_pages: 2
+
+  - company_id: kellanova
+    name: "Kellanova (Kellogg's) Australia"
+    sector: "Snacks / Cereal / FMCG"
+    priority_tier: P1
+    careers_url: "https://jobs.kellanova.com/"
     ats_platform: successfactors
     adapter: successfactors
     active: true
     search:
-      careers_url: "https://jobs.nestle.com/"
-      search_terms: ["quality manager", "food safety"]
+      careers_url: "https://jobs.kellanova.com/search/?q=quality&locationsearch=Australia"
+      search_terms: ["quality", "food safety"]
+
+  - company_id: suntory_oceania
+    name: "Suntory Oceania"
+    sector: "Beverages"
+    priority_tier: P1
+    careers_url: "https://careers.suntorybeverageandfood.com/search/"
+    ats_platform: successfactors
+    adapter: successfactors
+    active: true
+    search:
+      careers_url: "https://careers.suntorybeverageandfood.com/tile-search-results/?q=quality&startrow=0"
+      impersonate: true
+      search_terms: ["quality", "food safety"]
+
+  - company_id: metcash
+    name: "Metcash"
+    sector: "Wholesale / Grocery Distribution"
+    priority_tier: P1
+    careers_url: "https://careers.metcash.com/search/"
+    ats_platform: successfactors
+    adapter: successfactors
+    active: true
+    search:
+      careers_url: "https://careers.metcash.com/search/?q=quality"
+      search_terms: ["quality", "food safety"]
 
   - company_id: jbs_au
-    name: "JBS Australia"
+    name: "JBS Australia (incl. Primo Foods)"
     sector: "Meat"
     priority_tier: P1
     careers_url: "https://careers.jbssa.com.au/"
@@ -76,7 +250,7 @@ companies:
     adapter: successfactors
     active: true
     search:
-      careers_url: "https://careers.jbssa.com.au/"
+      careers_url: "https://careers.jbssa.com.au/search/?q=quality"
       search_terms: ["quality", "food safety"]
 
   - company_id: arnotts
@@ -88,13 +262,38 @@ companies:
     adapter: successfactors
     active: true
     search:
-      careers_url: "https://careers.arnotts.com/"
+      careers_url: "https://careers.arnotts.com/search/?q=quality"
       search_terms: ["quality", "food safety"]
 
-  # ----------------------------------------------------------------------- #
-  # Other ATS via config-driven HTML (Springboard/Phenom/Avature/PageUp)    #
-  # # UNVERIFIED selectors — confirm with `validate` before relying on them #
-  # ----------------------------------------------------------------------- #
+  - company_id: graincorp
+    name: "GrainCorp"
+    sector: "Grain / Agribusiness"
+    priority_tier: P1
+    careers_url: "https://jobs.graincorp.com.au/"
+    ats_platform: successfactors
+    adapter: successfactors
+    active: true
+    search:   # JS-rendered SF site — render with Playwright
+      careers_url: "https://jobs.graincorp.com.au/search/?q=quality"
+      render: true
+      wait_selector: "a[href*='/job/']"
+      search_terms: ["quality", "food safety"]
+
+  - company_id: teys
+    name: "Teys Australia"
+    sector: "Meat"
+    priority_tier: P1
+    careers_url: "https://au.teysgroup.com/people/careers/"
+    ats_platform: currentjobs
+    adapter: successfactors   # generic RSS <item> feed
+    active: true
+    search:
+      feed_url: "https://teysgroupau.currentjobs.co/Job/Rss"
+      search_terms: ["quality", "food safety"]
+
+  # ======================================================================= #
+  # generic_html — config-driven CSS selectors (some need render)           #
+  # ======================================================================= #
   - company_id: gwf
     name: "George Weston Foods / Tip Top"
     sector: "Bakery / Food Manufacturing"
@@ -105,12 +304,112 @@ companies:
     active: true
     search:
       list_url: "https://gwf.springboard.com.au/jobtools/jncustomsearch.searchResults?in_organid=18931&in_jobDate=All"
-      selectors:
-        item: "tr.data-row, div.job-row, article"
-        title: "a.job-link, h3, h2"
-        location: "td.location, span.location"
-        link: "a@href"
       base_url: "https://gwf.springboard.com.au"
+      selectors:   # Springboard results table; title+link are the job anchor (/jobs/.../GWF-{id})
+        item: "td.job_title, tr.new-row"
+        title: "a[href*='/jobs/']"
+        link: "a[href*='/jobs/']@href"
+
+  - company_id: goodman_fielder
+    name: "Goodman Fielder"
+    sector: "Food Manufacturing / FMCG"
+    priority_tier: P1
+    careers_url: "https://careers.goodmanfielder.com.au/"
+    ats_platform: springboard
+    adapter: generic_html
+    active: true
+    search:
+      list_url: "https://careers.goodmanfielder.com.au/jobtools/jncustomsearch.searchResults?in_organid=17226&in_jobDate=All"
+      base_url: "https://careers.goodmanfielder.com.au"
+      selectors:   # same Springboard table as gwf (title+link are the /jobs/.../GF-{id} anchor)
+        item: "td.job_title, tr.new-row"
+        title: "a[href*='/jobs/']"
+        link: "a[href*='/jobs/']@href"
+
+  - company_id: inghams
+    name: "Ingham's"
+    sector: "Poultry / Food Manufacturing"
+    priority_tier: P1
+    careers_url: "https://inghams.com.au/working-with-us/"
+    ats_platform: elmo
+    adapter: generic_html
+    active: true
+    search:
+      list_url: "https://inghams.elmotalent.com.au/careers/default/jobs"
+      base_url: "https://inghams.elmotalent.com.au"
+      selectors:
+        item: "li.list-group-item"
+        title: "a.redirect_elmo_link"
+        link: "a.redirect_elmo_link@href"
+        location: "div.col-md-4"
+
+  - company_id: norco
+    name: "Norco Co-operative"
+    sector: "Dairy"
+    priority_tier: P2
+    careers_url: "https://jobboards.adlogic.com.au/norco/"
+    ats_platform: adlogic
+    adapter: generic_html
+    active: true
+    search:   # AdLogic job board; each posting is a current-job-box card
+      list_url: "https://jobboards.adlogic.com.au/norco/"
+      base_url: "https://jobboards.adlogic.com.au"
+      selectors:
+        item: "div.current-job-box"
+        title: "h4.job_title a"
+        link: "h4.job_title a@href"
+        location: "b.job-bullet-info"
+
+  - company_id: costco_au
+    name: "Costco Australia"
+    sector: "Retail / Warehouse"
+    priority_tier: P2
+    careers_url: "https://www.costco.com.au/careers"
+    ats_platform: turborecruit
+    adapter: generic_html
+    active: true
+    search:   # TurboRecruit; each posting is a jobHeader cell with a clsJobTitle anchor
+      list_url: "https://costco.turborecruit.com.au/job/job_search_result.cfm"
+      base_url: "https://costco.turborecruit.com.au/job/"
+      selectors:
+        item: "td.jobHeader"
+        title: "a.clsJobTitle"
+        link: "a.clsJobTitle@href"
+
+  - company_id: marley_spoon
+    name: "Marley Spoon"
+    sector: "Meal Kit / Food Manufacturing"
+    priority_tier: P2
+    careers_url: "https://apply.marleyspoon.com/"
+    ats_platform: teamtailor
+    adapter: generic_html
+    active: true
+    search:   # Teamtailor; each posting is an <li> wrapping a /jobs/{id}-{slug} anchor
+      list_url: "https://apply.marleyspoon.com/"
+      base_url: "https://apply.marleyspoon.com"
+      impersonate: true
+      selectors:
+        item: "li:has(a[href*='/jobs/'])"
+        title: "span[title]"
+        link: "a[href*='/jobs/']@href"
+
+  - company_id: woolworths
+    name: "Woolworths Group (incl. Primary Connect)"
+    sector: "Retail / Grocery / Supply Chain"
+    priority_tier: P1
+    careers_url: "https://careers.woolworthsgroup.com.au/en_GB/apply/search-jobs"
+    ats_platform: avature
+    adapter: generic_html
+    active: true
+    search:   # Avature; each posting is an article--result tile (page 1 only; pagination via ?jobOffset=)
+      list_url: "https://careers.woolworthsgroup.com.au/en_GB/apply/search-jobs"
+      base_url: "https://careers.woolworthsgroup.com.au"
+      impersonate: true
+      selectors:
+        item: "article.article--result"
+        title: "h3.article__header__text__title a"
+        link: "h3.article__header__text__title a@href"
+        location: "div.article__header__text__subtitle"
 
   - company_id: coles
     name: "Coles Group"
@@ -120,14 +419,167 @@ companies:
     ats_platform: phenom
     adapter: generic_html
     active: true
-    search:
+    search:   # Phenom JS-rendered — render with Playwright; selectors approx
       list_url: "https://colescareers.com.au/au/en/search-results?keywords=quality"
+      base_url: "https://colescareers.com.au"
+      render: true
+      wait_selector: "a[data-ph-at-id='job-link'], li.jobs-list-item"
       selectors:
         item: "li.jobs-list-item, div.job-tile"
-        title: "a.au-target, h3, [data-ph-at-id='job-link']"
+        title: "a[data-ph-at-id='job-link'], h3, a.au-target"
         location: "span.job-location, .au-target-job-location"
         link: "a@href"
-      base_url: "https://colescareers.com.au"
+
+  - company_id: compass_au
+    name: "Compass Group Australia"
+    sector: "Foodservice / Catering"
+    priority_tier: P2
+    careers_url: "https://careers.compass-group.com.au/jobs/search"
+    ats_platform: custom
+    adapter: generic_html
+    active: true
+    search:   # AWS WAF + JS — render with Playwright; selectors approx
+      list_url: "https://careers.compass-group.com.au/jobs/search?query=quality"
+      base_url: "https://careers.compass-group.com.au"
+      render: true
+      wait_selector: "a[href*='/jobs/']"
+      selectors:
+        item: "article, li"
+        title: "a[href*='/jobs/']"
+        link: "a[href*='/jobs/']@href"
+        location: "span.location"
+
+  - company_id: pfd_foods
+    name: "PFD Food Services"
+    sector: "Foodservice Distribution"
+    priority_tier: P2
+    careers_url: "https://careers.pfdfoods.com.au/jobs/search"
+    ats_platform: custom
+    adapter: generic_html
+    active: true
+    search:   # AWS WAF + JS — render with Playwright; selectors approx
+      list_url: "https://careers.pfdfoods.com.au/jobs/search?query=quality"
+      base_url: "https://careers.pfdfoods.com.au"
+      render: true
+      wait_selector: "a[href*='/jobs/']"
+      selectors:
+        item: "article, li"
+        title: "a[href*='/jobs/']"
+        link: "a[href*='/jobs/']@href"
+        location: "span.location"
+
+  - company_id: cargill
+    name: "Cargill"
+    sector: "Grain / Agribusiness"
+    priority_tier: P1
+    careers_url: "https://careers.cargill.com/en/search-jobs"
+    ats_platform: radancy
+    adapter: generic_html
+    active: true
+    search:   # Radancy/TalentBrew — JS-rendered; /search-jobs/Australia is the AU location facet (path-segment keyword filter is unreliable, so filter to AU and let scoring rank quality roles)
+      list_url: "https://careers.cargill.com/en/search-jobs/Australia"
+      base_url: "https://careers.cargill.com"
+      render: true
+      wait_selector: "a[href*='/job/']"
+      selectors:
+        item: "li:has(a[href*='/job/'])"
+        title: "a[href*='/job/'] h3"
+        link: "a[href*='/job/']@href"
+        location: "span.job-location"
+      search_terms: ["quality", "food safety"]
+
+  - company_id: ccep
+    name: "Coca-Cola Europacific Partners"
+    sector: "Beverages"
+    priority_tier: P1
+    careers_url: "https://www.ccep.jobs/en/search-jobs"
+    ats_platform: radancy
+    adapter: generic_html
+    active: true
+    search:   # Radancy — JS-rendered; /search-jobs/Australia is the AU location facet
+      list_url: "https://www.ccep.jobs/en/search-jobs/Australia"
+      base_url: "https://www.ccep.jobs"
+      render: true
+      wait_selector: "a[href*='/job/']"
+      selectors:
+        item: "li.list__item"
+        title: "a.list__item--content span.jobtitle"
+        link: "a.list__item--content@href"
+        location: "span.job-location"
+      search_terms: ["quality", "food safety"]
+
+  - company_id: adm
+    name: "ADM (Archer Daniels Midland)"
+    sector: "Grain / Oilseed / Agribusiness"
+    priority_tier: P2
+    careers_url: "https://sjobs.brassring.com/TGnewUI/Search/home?partnerid=25416&siteid=5429"
+    ats_platform: brassring
+    adapter: generic_html
+    active: true
+    search:   # IBM/Kenexa BrassRing Angular SPA — JS-rendered; job rows are li.job with absolute JobDetails links
+      list_url: "https://sjobs.brassring.com/TGnewUI/Search/home/HomeWithPreLoad?partnerid=25416&siteid=5429&PageType=searchResults&SearchType=linkquery&LinkID=4393910"
+      base_url: "https://sjobs.brassring.com"
+      render: true
+      wait_selector: "a[id^='Job_title']"
+      selectors:
+        item: "li.job"
+        title: "a.jobtitle"
+        link: "a.jobtitle@href"
+        location: "p.position3"
+      search_terms: ["quality", "food safety"]
+
+  # --- Verified-platform but disabled pending a small adapter/selector tweak --- #
+  - company_id: sunrice
+    name: "SunRice"
+    sector: "Grain / Rice / Food Manufacturing"
+    priority_tier: P1
+    careers_url: "https://www.sunrice.com.au/careers"
+    ats_platform: successfactors
+    adapter: successfactors
+    active: false   # SF feed uses <Job-Listing>/<Job> XML, not <item> RSS — needs SF parser extension
+    search:
+      feed_url: "https://career10.successfactors.com/career?company=C0001106122P&career_ns=job_listing_summary&navBarLevel=JOB_SEARCH&site=&resultType=XML"
+      impersonate: true
+      search_terms: ["quality", "food safety"]
+
+  - company_id: treasury_wine
+    name: "Treasury Wine Estates"
+    sector: "Wine / Beverages"
+    priority_tier: P2
+    careers_url: "https://www.tweglobal.com/careers"
+    ats_platform: oracle_orc
+    adapter: generic_html
+    active: false   # Oracle Recruiting Cloud REST JSON — needs a dedicated oracle_orc adapter
+    search:
+      list_url: "https://www.tweglobal.com/careers"
+
+  - company_id: harris_farm
+    name: "Harris Farm Markets"
+    sector: "Retail / Grocery"
+    priority_tier: P3
+    careers_url: "https://www.harrisfarm.com.au/pages/careers"
+    ats_platform: livehire
+    adapter: generic_html
+    active: false   # LiveHire public JSON (POST careers-api/search/harrisfarm) — needs a livehire adapter
+    search:
+      list_url: "https://www.livehire.com/careers/harrisfarm"
+
+  - company_id: dnata_catering
+    name: "dnata Catering Australia"
+    sector: "Inflight Catering / Food Manufacturing"
+    priority_tier: P2
+    careers_url: "https://dnatacateringcareers.com.au/"
+    ats_platform: expr3ss
+    adapter: generic_html
+    active: false   # apply links are in onclick JS, not href — generic_html link extractor needs a tweak
+    search:
+      list_url: "https://dnatacatering.expr3ss.com/home"
+      base_url: "https://dnatacatering.expr3ss.com/"
+      selectors:
+        item: "td.jobTitle div.jobdescription"
+        title: "self"
+        link: "self@onclick"
+        location: "span.location"
 
   - company_id: fonterra
     name: "Fonterra Australia"
@@ -136,19 +588,71 @@ companies:
     careers_url: "https://careers.fonterra.com/careers/SearchJobs/"
     ats_platform: avature
     adapter: generic_html
-    active: false   # UNVERIFIED — JS rendered; enable after validate
+    active: false   # Avature JS — enable with render after selector confirmation
     search:
       list_url: "https://careers.fonterra.com/careers/SearchJobs/quality"
+      base_url: "https://careers.fonterra.com"
+      render: true
       selectors:
         item: "li.list__item, article.article--result"
         title: "a.link, h3"
         location: "span.list__item-location"
         link: "a@href"
-      base_url: "https://careers.fonterra.com"
 
-  # ----------------------------------------------------------------------- #
-  # SEEK saved searches (spec §7) — aggregator scrape via curl_cffi/Playwright
-  # ----------------------------------------------------------------------- #
+  # ======================================================================= #
+  # LinkedIn — guest jobs API (curl_cffi impersonation, paginated)          #
+  # ======================================================================= #
+  - company_id: li_food_safety_quality
+    name: "LinkedIn — Food Safety & Quality Manager (Sydney)"
+    sector: "aggregator"
+    priority_tier: P1
+    ats_platform: linkedin
+    adapter: linkedin
+    active: true
+    search:
+      keywords: "Food Safety Quality Manager"
+      location: "Sydney, New South Wales, Australia"
+      max_pages: 3
+
+  - company_id: li_senior_quality
+    name: "LinkedIn — Senior/Site/National Quality Manager (Australia)"
+    sector: "aggregator"
+    priority_tier: P1
+    ats_platform: linkedin
+    adapter: linkedin
+    active: true
+    search:
+      keywords: "Senior Quality Manager food"
+      location: "Australia"
+      max_pages: 3
+
+  - company_id: li_supplier_quality
+    name: "LinkedIn — Supplier Quality / Vendor Assurance (Australia)"
+    sector: "aggregator"
+    priority_tier: P1
+    ats_platform: linkedin
+    adapter: linkedin
+    active: true
+    search:
+      keywords: "Supplier Quality Manager OR Vendor Assurance"
+      location: "Australia"
+      max_pages: 3
+
+  - company_id: li_regulatory_food
+    name: "LinkedIn — Regulatory Affairs / Compliance Manager Food (Australia)"
+    sector: "aggregator"
+    priority_tier: P2
+    ats_platform: linkedin
+    adapter: linkedin
+    active: true
+    search:
+      keywords: "Regulatory Affairs Manager food"
+      location: "Australia"
+      max_pages: 2
+
+  # ======================================================================= #
+  # SEEK saved searches (spec §7) — curl_cffi, paginated                    #
+  # ======================================================================= #
   - company_id: seek_senior_quality
     name: "SEEK — Senior/Site/National Quality Manager (Sydney)"
     sector: "aggregator"
@@ -159,6 +663,7 @@ companies:
     search:
       keywords: "Food Safety Quality Manager OR Site Quality Manager OR Senior Quality Manager OR National Quality Manager OR Group Quality Manager"
       where: "All Sydney NSW"
+      max_pages: 3
 
   - company_id: seek_qa_food_mfg
     name: "SEEK — QA Manager Food Manufacturing (NSW)"
@@ -170,6 +675,7 @@ companies:
     search:
       keywords: "QA Manager food manufacturing OR Quality Assurance Manager HACCP OR Quality Manager FMCG"
       where: "All Sydney NSW"
+      max_pages: 3
 
   - company_id: seek_supplier_quality
     name: "SEEK — Supplier Quality / Vendor Assurance (Australia)"
@@ -181,6 +687,7 @@ companies:
     search:
       keywords: "Supplier Quality Manager OR Vendor Assurance Manager OR Product Quality Manager food OR Senior Food Quality Specialist"
       where: "Australia"
+      max_pages: 3
 
   - company_id: seek_regulatory
     name: "SEEK — Regulatory / Compliance Manager Food (Australia)"
@@ -192,10 +699,11 @@ companies:
     search:
       keywords: "Regulatory Affairs Manager food OR Food Safety Compliance Manager OR Quality Compliance Manager food"
       where: "Australia"
+      max_pages: 2
 
-  # ----------------------------------------------------------------------- #
-  # Jora searches — aggregator scrape via curl_cffi/Playwright              #
-  # ----------------------------------------------------------------------- #
+  # ======================================================================= #
+  # Jora searches — curl_cffi, paginated                                    #
+  # ======================================================================= #
   - company_id: jora_quality_manager
     name: "Jora — Quality Manager food (Sydney)"
     sector: "aggregator"
@@ -206,6 +714,7 @@ companies:
     search:
       q: "quality manager food"
       l: "Sydney NSW"
+      max_pages: 3
 
   - company_id: jora_food_safety
     name: "Jora — Food Safety Quality Manager (Australia)"
@@ -217,3 +726,4 @@ companies:
     search:
       q: "food safety quality manager"
       l: "Australia"
+      max_pages: 2

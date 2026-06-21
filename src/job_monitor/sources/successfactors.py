@@ -31,7 +31,12 @@ same pure method serves both paths and both can be exercised from fixtures.
 NOTE: For a JS-rendered SuccessFactors site with no configured ``feed_url`` the
 static HTML will contain no postings and :meth:`fetch` returns ``[]`` (the
 healthcheck then reports "empty"). Resolving this needs either the RSS
-``feed_url`` or a future Playwright-backed fetch path.
+``feed_url`` or ``search['render']`` to drive a Playwright render.
+
+Transport selection (see :meth:`SuccessFactorsAdapter.fetch`): this adapter
+DEFAULTS to curl_cffi browser impersonation because the SF edge frequently
+``403``-blocks a plain httpx client (e.g. Nestlé). Set ``search['render']`` to
+force a Playwright headless render for fully JS-rendered career sites instead.
 """
 
 from __future__ import annotations
@@ -254,24 +259,46 @@ class SuccessFactorsAdapter(BaseAdapter):
         If ``company.search['feed_url']`` is configured we GET and parse that RSS
         feed (the reliable path). Otherwise we GET ``careers_url`` and best-effort
         scrape job-posting anchors out of the static HTML — which, for a
-        JS-rendered SuccessFactors site, will typically yield ``[]``. Returning an
-        empty list is intentional and acceptable: the healthcheck reports "empty",
-        documenting that this site needs either an RSS ``feed_url`` or (future)
-        Playwright rendering. ``SourceBlocked`` propagates from the HTTP client.
+        JS-rendered SuccessFactors site, may yield ``[]`` unless ``render`` is
+        enabled. ``SourceBlocked`` propagates from the HTTP client.
+
+        Transport is chosen from ``company.search`` flags:
+
+        * ``search["render"]`` truthy -> Playwright headless render
+          (``get_text_rendered``, passing ``search["wait_selector"]``) — some SF
+          career sites are fully JS-rendered. Render always wins.
+        * else -> curl_cffi browser impersonation (``get_text_impersonate``).
+          Impersonation is the DEFAULT for SuccessFactors (unlike other
+          adapters): the SF/Recruiting-Marketing edge (e.g. Nestlé) frequently
+          returns ``403`` to a plain httpx client, so we impersonate Chrome by
+          default unless ``render`` is requested. Setting ``search["impersonate"]``
+          truthy is therefore redundant but harmless.
 
         ``search_terms`` is accepted for interface parity; SuccessFactors RSS
         feeds are pre-scoped per company, so it is not used to vary the request.
         """
         feed_url = self._feed_url()
         if feed_url:
-            payload = self.http.get_text(feed_url)
+            payload = self._fetch_url(feed_url)
             return self.parse(payload, base_url=self._feed_base(feed_url))
 
         careers_url = self._careers_url()
         if not careers_url:
             return []
-        payload = self.http.get_text(careers_url)
+        payload = self._fetch_url(careers_url)
         return self.parse(payload, base_url=careers_url)
+
+    def _fetch_url(self, url: str) -> str:
+        """GET ``url`` via the transport selected from ``company.search`` flags.
+
+        ``render`` wins; otherwise SuccessFactors DEFAULTS to impersonation (to
+        sidestep the SF/Recruiting-Marketing ``403`` blocks) rather than plain
+        httpx.
+        """
+        search = self._search()
+        if search.get("render"):
+            return self.http.get_text_rendered(url, wait_selector=search.get("wait_selector"))
+        return self.http.get_text_impersonate(url)
 
     @staticmethod
     def _feed_base(feed_url: str) -> str:

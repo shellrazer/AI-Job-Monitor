@@ -245,6 +245,8 @@ class _FakeHttp:
     def __init__(self, html: str) -> None:
         self.html = html
         self.calls: list[tuple[str, str]] = []
+        # Captures the wait_selector passed to the render transport (if any).
+        self.wait_selector: str | None = None
 
     def get_text(self, url: str, **_: Any) -> str:
         self.calls.append(("httpx", url))
@@ -252,6 +254,11 @@ class _FakeHttp:
 
     def get_text_impersonate(self, url: str, **_: Any) -> str:
         self.calls.append(("cffi", url))
+        return self.html
+
+    def get_text_rendered(self, url: str, *, wait_selector: str | None = None, **_: Any) -> str:
+        self.calls.append(("render", url))
+        self.wait_selector = wait_selector
         return self.html
 
 
@@ -288,6 +295,38 @@ def test_fetch_uses_impersonate_when_configured() -> None:
 
     assert len(jobs) == 3
     assert http.calls == [("cffi", "https://careers.acme.com/jobs")]
+
+
+def test_fetch_uses_rendered_when_configured() -> None:
+    http = _FakeHttp(SAMPLE_HTML)
+    search = _default_search(
+        list_url="https://careers.acme.com/jobs",
+        render=True,
+        wait_selector="div.job-card",
+    )
+    adapter = _adapter_with_http(http, search)
+
+    jobs = adapter.fetch(["quality manager"])
+
+    assert len(jobs) == 3
+    assert http.calls == [("render", "https://careers.acme.com/jobs")]
+    # wait_selector must be threaded through to the render transport.
+    assert http.wait_selector == "div.job-card"
+
+
+def test_fetch_render_wins_over_impersonate() -> None:
+    http = _FakeHttp(SAMPLE_HTML)
+    search = _default_search(
+        list_url="https://careers.acme.com/jobs",
+        render=True,
+        impersonate=True,  # render takes precedence
+    )
+    adapter = _adapter_with_http(http, search)
+
+    adapter.fetch(["quality manager"])
+
+    assert http.calls == [("render", "https://careers.acme.com/jobs")]
+    assert http.wait_selector is None
 
 
 def test_fetch_returns_empty_without_list_url() -> None:

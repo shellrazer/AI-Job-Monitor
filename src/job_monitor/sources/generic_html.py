@@ -217,16 +217,19 @@ class GenericHtmlAdapter(BaseAdapter):
         """Fetch and parse the configured ``list_url``.
 
         The list URL is pre-built in config, so ``search_terms`` are not used to
-        construct it (the page already encodes the desired query). When
-        ``search["impersonate"]`` is truthy the request goes through curl_cffi
-        browser impersonation, which some Cloudflare-fronted sites require.
-        ``SourceBlocked`` from the HTTP client propagates to the caller.
+        construct it (the page already encodes the desired query). The transport
+        is chosen from ``company.search`` flags (``SourceBlocked`` from the HTTP
+        client propagates to the caller in every case):
 
-        TODO: JS-rendered sites (postings injected client-side) return no
-        matching items from this static fetch and therefore yield ``[]``. Such
-        sites would need an optional Playwright-backed transport to render the
-        page before parsing; that is intentionally not implemented here and is
-        off by default.
+        * ``search["render"]`` truthy -> Playwright headless render
+          (``get_text_rendered``), for JS-rendered sites whose postings are
+          injected client-side. ``search["wait_selector"]`` is passed through so
+          the render waits for the listings to materialise.
+        * elif ``search["impersonate"]`` truthy -> curl_cffi browser
+          impersonation (``get_text_impersonate``), which some Cloudflare-fronted
+          sites require.
+        * else -> plain httpx (``get_text``), the default for server-rendered
+          HTML.
         """
         search = self._search()
         list_url = search.get("list_url")
@@ -234,9 +237,10 @@ class GenericHtmlAdapter(BaseAdapter):
             return []
         list_url = str(list_url)
 
-        html = (
-            self.http.get_text_impersonate(list_url)
-            if search.get("impersonate")
-            else self.http.get_text(list_url)
-        )
+        if search.get("render"):
+            html = self.http.get_text_rendered(list_url, wait_selector=search.get("wait_selector"))
+        elif search.get("impersonate"):
+            html = self.http.get_text_impersonate(list_url)
+        else:
+            html = self.http.get_text(list_url)
         return self.parse(html)

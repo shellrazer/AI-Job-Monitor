@@ -1,0 +1,51 @@
+{
+  "refineSearch": {
+    "totalHits": 7,
+    "data": {
+      "jobs": [
+        {
+          "title": "Logistics Specialist",
+          "cityState": "Auckland, Auckland",
+          "city": "Auckland",
+          "state": "Auckland",
+          "country": "New Zealand",
+          "cityStateCountry": "Auckland, Auckland, New Zealand",
+          "jobId": "R149968",
+          "jobSeqNo": "MARSGLOBALR149968EXTERNALENGLOBAL",
+          "applyUrl": "https://mars.wd3.myworkdayjobs.com/en-US/External/job/NZL-Auckland-Auckland/Logistics-Analysis_R149968-2/apply",
+          "reqId": "R149968",
+          "descriptionTeaser": "Job Description. At Royal Canin, we’re not just delivering premium nutrition – we’re building a healthier world for cats and dogs. Join our mission-driven, pet-first organisation and take the next ...",
+          "postedDate": "2026-06-15T00:00:00.000+0000"
+        },
+        {
+          "title": "Production Operator",
+          "cityState": "Brisbane, Queensland",
+          "city": "Brisbane",
+          "state": "Queensland",
+          "country": "Australia",
+          "cityStateCountry": "Brisbane, Queensland, Australia",
+          "jobId": "R94095",
+          "jobSeqNo": "MARSGLOBALR94095EXTERNALENGLOBAL",
+          "applyUrl": "https://mars.wd3.myworkdayjobs.com/en-US/External/job/AUS-Queensland-Brisbane/Production-Operator_R94095-1/apply",
+          "reqId": "R94095",
+          "descriptionTeaser": "Job Description. Mars Birdcare – Home of beloved brands like TRILL, HARMONY & Trill Expert . Permanent Full time role based onsite Wacol . Day Shift Roster + onsite parking . Join the Team at Mars ...",
+          "postedDate": "2025-09-22T00:00:00.000+0000"
+        },
+        {
+          "title": "Production Operators - Multiple Positions",
+          "cityState": "Wodonga, Victoria",
+          "city": "Wodonga",
+          "state": "Victoria",
+          "country": "Australia",
+          "cityStateCountry": "Wodonga, Victoria, Australia",
+          "jobId": "R155929",
+          "jobSeqNo": "MARSGLOBALR155929EXTERNALENGLOBAL",
+          "applyUrl": "https://mars.wd3.myworkdayjobs.com/en-US/External/job/AUS-Victoria-Wodonga/Production-Operators---Multiple-Positions_R155929-1/apply",
+          "reqId": "R155929",
+          "descriptionTeaser": "Job Description. Join our supportive team of Production Operators - Applications are now open! Join our growing factory in Wodonga, major investment for jobs in our local community . Rotating shift...",
+          "postedDate": "2026-05-29T00:00:00.000+0000"
+        }
+      ]
+    }
+  }
+}

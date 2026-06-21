@@ -1,0 +1,146 @@
+- generic [active]:
+  - generic [ref=e1]:
+    - generic [ref=e2]:
+      - link "company logo" [ref=e4] [cursor=pointer]:
+        - /url: http://www.gategourmet.com/
+        - img "company logo" [ref=e5]
+      - link "Back to corporate site" [ref=e7] [cursor=pointer]:
+        - /url: http://www.gategourmet.com/
+      - list [ref=e12]:
+        - listitem [ref=e13]
+        - listitem [ref=e14]
+        - listitem [ref=e15]
+        - listitem [ref=e16]
+        - listitem [ref=e17]
+        - listitem [ref=e18]
+        - listitem [ref=e19]
+        - listitem [ref=e20]
+        - listitem [ref=e21]
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - generic:
+          - list:
+            - listitem:
+              - link "Careers Home" [ref=e24] [cursor=pointer]:
+                - /url: /jobtools/JnCustomLogin.Login?in_organid=18084
+            - listitem:
+              - link "View all Jobs" [ref=e25] [cursor=pointer]:
+                - /url: /jobtools/jncustomsearch.searchResults?in_organid=18084&in_jobDate=All
+            - listitem:
+              - link "Job Search" [ref=e26] [cursor=pointer]:
+                - /url: /jobtools/jncustomsearch.jobsearch?in_organid=18084
+            - listitem:
+              - link "Register" [ref=e27] [cursor=pointer]:
+                - /url: /jobtools/jncustomlogin.JobSeekerToolBoxAction?in_organId=18084&in_create_account_button=Register=
+        - generic [ref=e30]:
+          - heading "Login" [level=3] [ref=e31]
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]: Email Address
+              - textbox "Email Address" [ref=e35]
+            - generic [ref=e36]:
+              - generic [ref=e37]: Password
+              - textbox "Password" [ref=e38]
+              - link "I forgot my password" [ref=e39] [cursor=pointer]:
+                - /url: /jobtools/jncustomlogin.JobSeekerToolBoxAction?in_organId=18084&in_send_pwd_button=Send Password
+            - generic [ref=e40]:
+              - button "Login" [ref=e42] [cursor=pointer]
+              - generic [ref=e43]:
+                - text: or
+                - link "Register here." [ref=e44] [cursor=pointer]:
+                  - /url: /jobtools/jncustomlogin.JobSeekerToolBoxAction?in_organId=18084&in_create_account_button=Register
+      - generic [ref=e46]:
+        - heading "Search Results" [level=1] [ref=e47]
+        - paragraph [ref=e48]: There are no jobs that match your search criteria.
+        - generic [ref=e50]:
+          - group "Find a Job" [ref=e51]:
+            - paragraph [ref=e52]: Find a Job
+            - generic [ref=e53]:
+              - term [ref=e54]: "Keywords:"
+              - definition [ref=e55]:
+                - textbox "Keywords:" [ref=e56]
+                - link "View Search Tips" [ref=e57] [cursor=pointer]:
+                  - /url: "#search_tips"
+                  - img "View Search Tips" [ref=e58]
+            - generic [ref=e59]:
+              - term [ref=e60]: "Job Title:"
+              - definition [ref=e61]:
+                - textbox "Job Title:" [ref=e62]
+            - generic [ref=e63]:
+              - term [ref=e64]: "Position Type:"
+              - definition [ref=e65]:
+                - combobox "Position Type:" [ref=e66]:
+                  - option "Please Select" [selected]
+                  - option "Full Time"
+                  - option "Part Time"
+                  - option "Contract Position"
+                  - option "Labour Hire"
+                  - option "Casual"
+                  - option "Internal Transfer"
+            - generic [ref=e67]:
+              - term [ref=e68]: "Category:"
+              - definition [ref=e69]:
+                - combobox "Category:" [ref=e70]:
+                  - option "Please Select" [selected]
+                  - option "Transport"
+                  - option "Catering"
+                  - option "Cleaning"
+                  - option "Administration"
+                  - option "Finance"
+                  - option "Human Resources"
+                  - option "OH&S"
+                  - option "Safety"
+                  - option "Compliance & Quality Assurance"
+                  - option "Management"
+            - generic [ref=e71]:
+              - term [ref=e72]: "Location:"
+              - definition [ref=e73]:
+                - combobox "Location:" [ref=e74]:
+                  - option "Any" [selected]
+                  - option "Darwin"
+                  - option "Sydney"
+                  - option "Head Office"
+                  - option "Sydney Rail"
+                  - option "Adelaide"
+                  - option "Cairns"
+                  - option "Brisbane"
+                  - option "Pourshins - Sydney"
+                  - option "Coolangatta"
+                  - option "Melbourne"
+                  - option "Perth"
+                  - option "New Zealand"
+            - generic [ref=e75]:
+              - term [ref=e76]: "Date Advertised:"
+              - definition [ref=e77]:
+                - combobox "Date Advertised:" [ref=e78]:
+                  - option "Last 24 Hours"
+                  - option "Last 3 days"
+                  - option "Last 7 days"
+                  - option "Last 14 days"
+                  - option "All" [selected]
+            - generic [ref=e79]:
+              - term [ref=e80]: "Job Reference:"
+              - definition [ref=e81]:
+                - textbox "Job Reference:" [ref=e82]
+                - generic [ref=e83]: If unknown leave blank
+          - group "Actions" [ref=e84]:
+            - generic [ref=e85]:
+              - term [ref=e86]
+              - definition [ref=e87]:
+                - button "Search" [ref=e90] [cursor=pointer]
+    - link "Powered by Springboard" [ref=e92] [cursor=pointer]:
+      - /url: http://www.springboard.com.au
+  - link "View cookie preferences Please click here to view your cookie settings preferences for this site." [ref=e95] [cursor=pointer]:
+    - /url: "#"
+    - img "View cookie preferences" [ref=e96]
+    - text: Please click here to view your cookie settings preferences for this site.
+  - dialog "Cookie consent" [ref=e98]:
+    - generic [ref=e99]:
+      - generic [ref=e100]:
+        - heading "Cookie consent" [level=2] [ref=e101]
+        - paragraph [ref=e102]:
+          - text: We use necessary cookies to help us offer you the best online experience. These cookies are set to deliver content, maintain security, enable user choice, improve and understand site usage and to remember your settings.
+          - paragraph [ref=e103]: By continuing to use our website and/or clicking 'Accept all', you're agreeing to our use of cookies.
+      - generic [ref=e104]:
+        - button "Accept all cookies" [ref=e106] [cursor=pointer]
+        - button "Tell me more" [ref=e108] [cursor=pointer]

@@ -33,6 +33,7 @@ class RunResult:
 
     stats: RunStats
     top_jobs: list[Job] = field(default_factory=list)
+    digest_jobs: list[Job] = field(default_factory=list)  # what the email actually sent (new-only by default)
     report_path: Path | None = None
     emailed: bool = False
 
@@ -227,31 +228,42 @@ def run_pipeline(
 
             embedder = get_embedder(cfg.settings)
         embed_and_score(canonicals, cfg, embedder=embedder, today=today)
-        # 6. persist canonicals, then their duplicates linked back
+        # 6. persist canonicals, then their duplicates linked back.
+        # Record which canonicals are genuinely new (not previously persisted) BEFORE
+        # upserting, so the daily digest can show only newly-discovered roles.
+        new_ids: set[int] = set()
         for canonical, losers in groups:
+            pre_existing = dbmod.find_job_id(conn, canonical)
             cid = dbmod.upsert_job(conn, canonical)
+            if pre_existing is None and cid:
+                new_ids.add(cid)
             for loser in losers:
                 loser.status = JobStatus.DUPLICATE
                 lid = dbmod.upsert_job(conn, loser)
                 if lid:
                     dbmod.mark_duplicate(conn, lid, cid)
             stats.persisted += 1 + len(losers)
-        # 7. report + notify
+        # 7. report (full ranked dashboard) + notify (newly-discovered roles only)
         result = RunResult(stats=stats)
         top = _select_for_digest(canonicals, cfg)
         result.top_jobs = top
         if write_report:
             result.report_path = _write_report(top, cfg, now)
+        # Daily newsletter: by default email ONLY roles first seen in this run, so
+        # the user isn't re-sent the same list every day. Report stays the full list.
+        digest = [j for j in top if j.db_id in new_ids] if cfg.settings.report.email_new_only else top
+        result.digest_jobs = digest
         emit = cfg.settings.email.enabled if send_email is None else send_email
-        if emit and top:
-            html = report.render_email_html(top, generated_at=now)
-            text = report.render_email_text(top, generated_at=now)
-            n_alert = sum(1 for j in top if j.strong_alert or (j.priority_tier and j.priority_tier.value == "A+"))
-            subject = f"[Job Monitor] {len(top)} roles ({n_alert} high-priority) — {today.isoformat()}"
+        if emit and digest:  # skip sending on days with nothing new
+            html = report.render_email_html(digest, generated_at=now)
+            text = report.render_email_text(digest, generated_at=now)
+            n_alert = sum(1 for j in digest if j.strong_alert or (j.priority_tier and j.priority_tier.value == "A+"))
+            label = "new " if cfg.settings.report.email_new_only else ""
+            subject = f"[Job Monitor] {len(digest)} {label}roles ({n_alert} high-priority) — {today.isoformat()}"
             result.emailed = send_digest(
                 cfg.settings.email, subject=subject, html_body=html, text_body=text
             )
-            for job in top:
+            for job in digest:
                 if job.db_id:
                     dbmod.record_alert(
                         conn, job_id=job.db_id, run_id=run_id, channel="email",

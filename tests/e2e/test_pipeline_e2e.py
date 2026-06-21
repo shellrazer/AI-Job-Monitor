@@ -108,3 +108,24 @@ def test_pipeline_no_email_when_disabled(tmp_path, tmp_db, sample_raw_jobs, mock
     assert len(mock_smtp) == 0
     assert result.report_path is not None
     assert result.report_path.exists()
+
+
+def test_daily_digest_emails_only_new_matches(tmp_path, tmp_db, sample_raw_jobs, mock_smtp):
+    """Daily newsletter: first run emails matches; an identical re-run sends nothing new."""
+    cfg = _make_cfg(tmp_path)
+    assert cfg.settings.report.email_new_only is True
+
+    def fake_fetch(_cfg, _http, stats):
+        return list(sample_raw_jobs)
+
+    run1 = run_pipeline(cfg, embedder=FakeEmbedder(), conn=tmp_db, today=TODAY,
+                        fetch_fn=fake_fetch, write_report=False, send_email=None)
+    assert run1.emailed is True
+    assert len(run1.digest_jobs) >= 1  # the senior role is new
+
+    # Identical re-run: nothing newly discovered -> no email, empty digest.
+    run2 = run_pipeline(cfg, embedder=FakeEmbedder(), conn=tmp_db, today=TODAY,
+                        fetch_fn=fake_fetch, write_report=False, send_email=None)
+    assert run2.digest_jobs == []
+    assert run2.emailed is False
+    assert len(mock_smtp) == 1  # only run1 sent

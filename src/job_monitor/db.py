@@ -265,6 +265,26 @@ def get_job(conn: sqlite3.Connection, job_id: int) -> sqlite3.Row | None:
     return conn.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
 
 
+def find_job_id(conn: sqlite3.Connection, job: Job) -> int | None:
+    """Return the id of an already-persisted row matching this job's dedup key, else None.
+
+    Timing-independent newness check: call BEFORE upserting to know whether a job
+    is genuinely new (not previously seen) regardless of clock granularity.
+    """
+    row = conn.execute(
+        """
+        SELECT id FROM jobs
+        WHERE normalized_title=? AND company_name=?
+          AND COALESCE(location,'')=COALESCE(?, '')
+          AND COALESCE(posted_date,'')=COALESCE(?, '')
+          AND COALESCE(source_job_id, apply_url)=COALESCE(?, ?)
+        """,
+        (job.normalized_title, job.company_name, job.location, _iso(job.posted_date),
+         job.source_job_id, job.apply_url),
+    ).fetchone()
+    return int(row["id"]) if row else None
+
+
 def top_jobs(conn: sqlite3.Connection, *, limit: int = 50, min_score: float = 0.0,
              exclude_status: Iterable[str] = (JobStatus.DUPLICATE.value, JobStatus.IRRELEVANT.value,
                                               JobStatus.EXPIRED.value)) -> list[sqlite3.Row]:

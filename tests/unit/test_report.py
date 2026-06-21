@@ -10,7 +10,10 @@ import pytest
 from job_monitor.config import CompanyRatingsConfig
 from job_monitor.models import Job, PriorityTier, Source
 from job_monitor.report import (
+    _tab_groups,
     format_salary,
+    is_aggregator,
+    is_preferred,
     location_bucket,
     recruiter_mark,
     render_email_html,
@@ -19,6 +22,11 @@ from job_monitor.report import (
     stars_display,
     tier_counts,
 )
+
+# Tab headings (bilingual), in render order.
+TAB_PREFERRED = "优选公司 / Preferred Companies"
+TAB_NSW = "综合推荐 / NSW & Remote Picks"
+TAB_OTHER = "其他地区 / Other Regions"
 
 GENERATED_AT = datetime(2026, 6, 21, 7, 0)
 
@@ -40,33 +48,53 @@ def _job(**overrides) -> Job:
 
 
 def _split_jobs() -> list[Job]:
-    """Four jobs spanning both sections plus a recruiter posting."""
+    """Jobs spanning all three tabs plus a recruiter posting.
+
+    * Preferred (OFFICIAL_ATS) Sydney role -> Tab 1 only.
+    * Preferred (OFFICIAL_ATS) Brisbane role -> Tab 1 AND Tab 3.
+    * Aggregator (SEEK) Sydney role -> Tab 2.
+    * Aggregator (Jora) Melbourne role -> Tab 3.
+    * Recruiter (Michael Page, LinkedIn) Sydney role -> Tab 2.
+    """
     return [
         _job(
-            title="Sydney NQM",
+            source=Source.OFFICIAL_ATS,
+            title="Preferred Sydney NQM",
             company_name="Woolworths",
             location="Sydney NSW",
-            apply_url="https://example.com/syd",
+            apply_url="https://example.com/pref-syd",
             final_score=90.0,
             priority_tier=PriorityTier.A_PLUS,
         ),
         _job(
-            title="Melbourne QM",
+            source=Source.OFFICIAL_ATS,
+            title="Preferred Brisbane QM",
             company_name="Local Foods",
-            location="Melbourne VIC",
-            apply_url="https://example.com/mel",
-            final_score=70.0,
-            priority_tier=PriorityTier.B,
+            location="Brisbane QLD",
+            apply_url="https://example.com/pref-bne",
+            final_score=85.0,
+            priority_tier=PriorityTier.A,
         ),
         _job(
-            title="Remote QA Lead",
+            source=Source.SEEK,
+            title="Aggregator Sydney Lead",
             company_name="Cloud Foods",
-            location="Remote, Australia",
-            apply_url="https://example.com/rem",
+            location="Sydney NSW",
+            apply_url="https://example.com/agg-syd",
             final_score=80.0,
             priority_tier=PriorityTier.A,
         ),
         _job(
+            source=Source.JORA,
+            title="Aggregator Melbourne QM",
+            company_name="Other Foods",
+            location="Melbourne VIC",
+            apply_url="https://example.com/agg-mel",
+            final_score=70.0,
+            priority_tier=PriorityTier.B,
+        ),
+        _job(
+            source=Source.LINKEDIN,
             title="Recruiter Role",
             company_name="Michael Page",
             location="Sydney NSW",
@@ -110,25 +138,113 @@ def test_recruiter_mark():
 
 
 # --------------------------------------------------------------------------- #
-# render_report — sections, stars, recruiter mark                            #
+# is_preferred / is_aggregator                                                #
 # --------------------------------------------------------------------------- #
-def test_render_report_two_sections_split_by_location():
+def test_is_preferred_and_is_aggregator():
+    preferred = _job(source=Source.OFFICIAL_ATS)
+    assert is_preferred(preferred) is True
+    assert is_aggregator(preferred) is False
+
+    for src in (Source.SEEK, Source.JORA, Source.LINKEDIN, Source.INDEED):
+        agg = _job(source=src)
+        assert is_aggregator(agg) is True
+        assert is_preferred(agg) is False
+
+
+# --------------------------------------------------------------------------- #
+# _tab_groups — selection logic                                               #
+# --------------------------------------------------------------------------- #
+def test_tab_groups_selection():
+    groups = _tab_groups(_split_jobs(), RATINGS)
+    assert [g.heading for g in groups] == [TAB_PREFERRED, TAB_NSW, TAB_OTHER]
+    preferred, nsw, other = groups
+
+    def titles(section):
+        return [item.job.title for item in section.items]
+
+    # Tab 1: both OFFICIAL_ATS roles (all regions), score desc.
+    assert titles(preferred) == ["Preferred Sydney NQM", "Preferred Brisbane QM"]
+
+    # Tab 2: aggregator NSW/remote roles only, score desc.
+    assert titles(nsw) == ["Aggregator Sydney Lead", "Recruiter Role"]
+    assert "Preferred Sydney NQM" not in titles(nsw)  # preferred never lands in Tab 2
+
+    # Tab 3: other_au roles, preferred first then aggregators, each by score desc.
+    assert titles(other) == ["Preferred Brisbane QM", "Aggregator Melbourne QM"]
+
+
+def test_tab_groups_other_regions_dedupes_by_apply_url():
+    dup_url = "https://example.com/dup"
+    jobs = [
+        _job(
+            source=Source.JORA,
+            title="Melbourne A",
+            location="Melbourne VIC",
+            apply_url=dup_url,
+            final_score=70.0,
+        ),
+        _job(
+            source=Source.SEEK,
+            title="Melbourne B",
+            location="Melbourne VIC",
+            apply_url=dup_url,
+            final_score=50.0,
+        ),
+    ]
+    other = _tab_groups(jobs, RATINGS)[2]
+    urls = [item.job.apply_url for item in other.items]
+    assert urls.count(dup_url) == 1  # duplicate apply_url collapsed
+    # First occurrence (higher score) is kept.
+    assert other.items[0].job.title == "Melbourne A"
+
+
+# --------------------------------------------------------------------------- #
+# render_report — tabs, stars, recruiter mark                                #
+# --------------------------------------------------------------------------- #
+def test_render_report_three_tabs():
     html = render_report(_split_jobs(), generated_at=GENERATED_AT, ratings=RATINGS)
 
-    # Both section headings present.
-    assert "NSW & Remote / 新州与远程" in html
-    assert "Other Australia / 其他州" in html
+    # All three tab headings render (with counts).
+    assert TAB_PREFERRED in html
+    assert TAB_NSW in html
+    assert TAB_OTHER in html
+    assert f"{TAB_PREFERRED} (2)" in html
+    assert f"{TAB_NSW} (2)" in html
+    assert f"{TAB_OTHER} (2)" in html
 
-    nsw_idx = html.index("NSW & Remote / 新州与远程")
-    other_idx = html.index("Other Australia / 其他州")
-    assert nsw_idx < other_idx  # NSW section first
+    # Tabs ordered: Preferred, then NSW, then Other.
+    pref_idx = html.index(TAB_PREFERRED)
+    nsw_idx = html.index(TAB_NSW)
+    other_idx = html.index(TAB_OTHER)
+    assert pref_idx < nsw_idx < other_idx
 
-    # Sydney + remote jobs live in the NSW section (before the Other heading).
-    assert nsw_idx < html.index("Sydney NQM") < other_idx
-    assert nsw_idx < html.index("Remote QA Lead") < other_idx
-    assert nsw_idx < html.index("Recruiter Role") < other_idx
-    # Melbourne job lives in the Other Australia section.
-    assert html.index("Melbourne QM") > other_idx
+    # Self-contained tab machinery present (no external libs).
+    assert 'class="tab-btn' in html
+    assert 'class="tab-panel' in html
+    assert "addEventListener" in html
+
+
+def test_render_report_tab_membership():
+    groups = _tab_groups(_split_jobs(), RATINGS)
+    preferred, nsw, other = groups
+
+    def titles(section):
+        return [item.job.title for item in section.items]
+
+    # Preferred Sydney role is in Tab 1 and NOT in Tab 2.
+    assert "Preferred Sydney NQM" in titles(preferred)
+    assert "Preferred Sydney NQM" not in titles(nsw)
+
+    # Aggregator Sydney role is in Tab 2.
+    assert "Aggregator Sydney Lead" in titles(nsw)
+
+    # Tab 3 has the Melbourne aggregator and the Brisbane preferred, preferred first.
+    other_titles = titles(other)
+    assert "Aggregator Melbourne QM" in other_titles
+    assert "Preferred Brisbane QM" in other_titles
+    assert other_titles.index("Preferred Brisbane QM") < other_titles.index(
+        "Aggregator Melbourne QM"
+    )
 
 
 def test_render_report_stars_and_recruiter_marks():
@@ -255,14 +371,19 @@ def test_render_email_text_contains_apply_urls(sample_jobs):
         assert job.apply_url in text
         assert job.title in text
     assert "Job Monitor Digest" in text
-    # Section headings appear in the plaintext digest too.
-    assert "NSW & Remote / 新州与远程" in text
+    # All three stacked group headings appear in the plaintext digest.
+    assert TAB_PREFERRED in text
+    assert TAB_NSW in text
+    assert TAB_OTHER in text
 
 
 def test_render_email_text_sections_and_marks():
     text = render_email_text(_split_jobs(), generated_at=GENERATED_AT, ratings=RATINGS)
-    assert "NSW & Remote / 新州与远程" in text
-    assert "Other Australia / 其他州" in text
+    # Three stacked groups in order (优选公司 → 综合推荐 → 其他地区).
+    assert TAB_PREFERRED in text
+    assert TAB_NSW in text
+    assert TAB_OTHER in text
+    assert text.index(TAB_PREFERRED) < text.index(TAB_NSW) < text.index(TAB_OTHER)
     # Rated star bar + recruiter mark surface in the digest.
     assert "★★★★★ (5/5)" in text
     assert "招聘中介" in text
@@ -278,8 +399,10 @@ def test_render_email_html(sample_jobs):
     assert jobs[0].title in html
     # Inline-styled alert card present for the A+/strong job.
     assert "#d92d20" in html
-    # Section headings present in the email body.
-    assert "NSW & Remote / 新州与远程" in html
+    # The three stacked group headings appear in the email body.
+    assert TAB_PREFERRED in html
+    assert TAB_NSW in html
+    assert TAB_OTHER in html
 
 
 def test_render_report_sorts_by_score_desc():

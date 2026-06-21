@@ -16,10 +16,12 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import scorer
 from .config import CompanyRatingsConfig
-from .models import Job, PriorityTier
+from .models import Job, PriorityTier, Source
 
 __all__ = [
     "format_salary",
+    "is_aggregator",
+    "is_preferred",
     "location_bucket",
     "recruiter_mark",
     "render_email_html",
@@ -39,9 +41,12 @@ _TIER_ORDER = [PriorityTier.A_PLUS, PriorityTier.A, PriorityTier.B, PriorityTier
 
 _UNDISCLOSED = "Not disclosed / 未披露"
 
-# Location-split section headings, in render order.
-_NSW_HEADING = "NSW & Remote / 新州与远程"
-_OTHER_HEADING = "Other Australia / 其他州"
+# Tab headings (bilingual), in render order. Tab 1 = curated PDF companies
+# (OFFICIAL_ATS), Tab 2 = NSW & remote picks from the job boards, Tab 3 = the
+# rest of Australia (preferred companies first, then aggregators).
+_TAB_PREFERRED = "优选公司 / Preferred Companies"
+_TAB_NSW = "综合推荐 / NSW & Remote Picks"
+_TAB_OTHER = "其他地区 / Other Regions"
 
 # Remote markers that, when present in a location string, always land a job in
 # the NSW & Remote section regardless of the geographic classification.
@@ -80,6 +85,16 @@ def location_bucket(location: str | None) -> str:
     if scorer.classify_location(location) in ("sydney_greater", "nsw_regional"):
         return "nsw_remote"
     return "other_au"
+
+
+def is_preferred(job: Job) -> bool:
+    """True for roles from our curated PDF companies (``Source.OFFICIAL_ATS``)."""
+    return job.source == Source.OFFICIAL_ATS
+
+
+def is_aggregator(job: Job) -> bool:
+    """True for roles from the job boards (SEEK / Jora / LinkedIn / Indeed)."""
+    return job.source in {Source.SEEK, Source.JORA, Source.LINKEDIN, Source.INDEED}
 
 
 def stars_display(company_name: str | None, ratings: CompanyRatingsConfig) -> str:
@@ -162,7 +177,11 @@ class _DecoratedJob:
 
 @dataclass(frozen=True)
 class _Section:
-    """A location section: a bilingual heading and its decorated jobs."""
+    """A report tab / email section: a bilingual heading and its decorated jobs.
+
+    The template renders the heading with a count appended, e.g.
+    ``"优选公司 / Preferred Companies (12)"``.
+    """
 
     heading: str
     items: list[_DecoratedJob]
@@ -177,24 +196,54 @@ def _decorate(job: Job, ratings: CompanyRatingsConfig) -> _DecoratedJob:
     )
 
 
-def _sections(jobs: list[Job], ratings: CompanyRatingsConfig) -> list[_Section]:
-    """Split jobs into the NSW & Remote / Other Australia sections.
+def _other_regions(jobs: list[Job]) -> list[Job]:
+    """Tab 3 selection: every ``other_au`` role, deduped by ``apply_url``.
 
-    Each section is sorted by ``final_score`` descending and its jobs are
-    decorated with stars / recruiter marks so templates stay logic-light.
+    Preferred (curated-company) roles are ordered first, then aggregator roles;
+    each subgroup is sorted by ``final_score`` descending. Because a preferred
+    non-NSW role also surfaces in Tab 1, it can legitimately appear in both tabs
+    — only the *within-tab* duplicates (same ``apply_url``) are collapsed here,
+    keeping the first occurrence.
     """
-    buckets: dict[str, list[Job]] = {"nsw_remote": [], "other_au": []}
-    for job in jobs:
-        buckets[location_bucket(job.location)].append(job)
+    other = [j for j in jobs if location_bucket(j.location) == "other_au"]
+    preferred = _sorted_by_score([j for j in other if is_preferred(j)])
+    aggregators = _sorted_by_score([j for j in other if not is_preferred(j)])
+    ordered = preferred + aggregators
+
+    seen: set[str] = set()
+    deduped: list[Job] = []
+    for job in ordered:
+        if job.apply_url in seen:
+            continue
+        seen.add(job.apply_url)
+        deduped.append(job)
+    return deduped
+
+
+def _tab_groups(jobs: list[Job], ratings: CompanyRatingsConfig) -> list[_Section]:
+    """Split the already-filtered jobs into the three report tabs, in order.
+
+    1. **优选公司 / Preferred Companies** — every ``OFFICIAL_ATS`` role (all
+       regions), by ``final_score`` desc.
+    2. **综合推荐 / NSW & Remote Picks** — aggregator roles in the NSW/remote
+       bucket, by ``final_score`` desc.
+    3. **其他地区 / Other Regions** — all ``other_au`` roles, preferred companies
+       first then aggregators, deduped by ``apply_url``.
+
+    Each section's jobs are decorated with stars / recruiter marks so templates
+    stay logic-light. A preferred non-NSW role intentionally appears in both
+    Tab 1 and Tab 3.
+    """
+    preferred = _sorted_by_score([j for j in jobs if is_preferred(j)])
+    nsw_picks = _sorted_by_score(
+        [j for j in jobs if is_aggregator(j) and location_bucket(j.location) == "nsw_remote"]
+    )
+    other = _other_regions(jobs)
+
     return [
-        _Section(
-            heading=_NSW_HEADING,
-            items=[_decorate(j, ratings) for j in _sorted_by_score(buckets["nsw_remote"])],
-        ),
-        _Section(
-            heading=_OTHER_HEADING,
-            items=[_decorate(j, ratings) for j in _sorted_by_score(buckets["other_au"])],
-        ),
+        _Section(heading=_TAB_PREFERRED, items=[_decorate(j, ratings) for j in preferred]),
+        _Section(heading=_TAB_NSW, items=[_decorate(j, ratings) for j in nsw_picks]),
+        _Section(heading=_TAB_OTHER, items=[_decorate(j, ratings) for j in other]),
     ]
 
 
@@ -205,10 +254,10 @@ def render_report(
     ratings: CompanyRatingsConfig,
     subtitle: str = "",
 ) -> str:
-    """Render the full standalone HTML report page (two location sections)."""
+    """Render the full standalone HTML report page (three tabs)."""
     template = _env().get_template("report.html.j2")
     return template.render(
-        sections=_sections(jobs, ratings),
+        sections=_tab_groups(jobs, ratings),
         total=len(jobs),
         counts=tier_counts(jobs),
         generated_at=generated_at,
@@ -216,15 +265,27 @@ def render_report(
     )
 
 
+def _email_sections(jobs: list[Job], ratings: CompanyRatingsConfig) -> list[_Section]:
+    """The three tab groups, each capped to ``EMAIL_TOP_N`` for a compact email.
+
+    Email clients can't run the report's JS tabs, so the same three groups are
+    rendered as stacked sections in the same order (优选公司 → 综合推荐 → 其他地区).
+    """
+    return [
+        _Section(heading=section.heading, items=section.items[:EMAIL_TOP_N])
+        for section in _tab_groups(jobs, ratings)
+    ]
+
+
 def render_email_html(
     jobs: list[Job], *, generated_at: datetime, ratings: CompanyRatingsConfig
 ) -> str:
-    """Render a compact, inline-CSS HTML email body (two location sections)."""
-    ordered = _sorted_by_score(jobs)[:EMAIL_TOP_N]
+    """Render a compact, inline-CSS HTML email body (three stacked sections)."""
+    sections = _email_sections(jobs, ratings)
     template = _env().get_template("email.html.j2")
     return template.render(
-        sections=_sections(ordered, ratings),
-        total=len(ordered),
+        sections=sections,
+        total=sum(len(section.items) for section in sections),
         generated_at=generated_at,
     )
 
@@ -232,17 +293,17 @@ def render_email_html(
 def render_email_text(
     jobs: list[Job], *, generated_at: datetime, ratings: CompanyRatingsConfig
 ) -> str:
-    """Render the plaintext fallback digest: two location sections of top jobs."""
-    ordered = _sorted_by_score(jobs)[:EMAIL_TOP_N]
+    """Render the plaintext fallback digest: three stacked groups of top jobs."""
+    sections = _email_sections(jobs, ratings)
     lines = [
         "职位监控摘要 / Job Monitor Digest",
         f"生成时间 / Generated: {generated_at:%Y-%m-%d %H:%M}",
         "",
     ]
-    if not ordered:
+    if not any(section.items for section in sections):
         lines.append("没有匹配的职位 / No matching jobs.")
-    for section in _sections(ordered, ratings):
-        lines.append(section.heading)
+    for section in sections:
+        lines.append(f"{section.heading} ({len(section.items)})")
         if not section.items:
             lines.append("  本节暂无职位 / No roles in this section.")
             lines.append("")

@@ -64,6 +64,23 @@
     h2.section { margin: 26px 0 12px; font-size: 16px; color: #1a1a1a;
       border-bottom: 2px solid #d6dae1; padding-bottom: 6px; }
     .section-empty { font-size: 13px; color: #999; margin: 0 0 16px; }
+    .tabs {
+      display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px;
+      border-bottom: 2px solid #d6dae1;
+    }
+    .tab-btn {
+      appearance: none; border: 1px solid #d6dae1; border-bottom: none;
+      background: #eef0f3; color: #444; font: inherit; font-size: 14px;
+      font-weight: 600; cursor: pointer; padding: 9px 16px;
+      border-radius: 8px 8px 0 0; margin-bottom: -2px;
+    }
+    .tab-btn:hover { background: #e3e6ea; }
+    .tab-btn.is-active {
+      background: #fff; color: #1747b8; border-color: #d6dae1;
+      border-bottom: 2px solid #fff;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.is-active { display: block; }
     .stars { color: #e6a700; letter-spacing: 1px; }
     .recruiter {
       display: inline-block; font-size: 12px; font-weight: 600;
@@ -91,8 +108,21 @@
       <div class="empty">没有匹配的职位 / No matching jobs.</div>
     {% endif %}
 
+    <div class="tabs" role="tablist">
+      {% for section in sections %}
+        <button type="button" class="tab-btn{% if loop.first %} is-active{% endif %}"
+          role="tab" aria-controls="tab-panel-{{ loop.index }}"
+          aria-selected="{{ 'true' if loop.first else 'false' }}"
+          data-tab-target="tab-panel-{{ loop.index }}">
+          {{ section.heading }} ({{ section.items | length }})
+        </button>
+      {% endfor %}
+    </div>
+
     {% for section in sections %}
-      <h2 class="section">{{ section.heading }}</h2>
+      <section class="tab-panel{% if loop.first %} is-active{% endif %}"
+        id="tab-panel-{{ loop.index }}" role="tabpanel">
+      <h2 class="section">{{ section.heading }} ({{ section.items | length }})</h2>
       {% if not section.items %}
         <p class="section-empty">本节暂无职位 / No roles in this section.</p>
       {% endif %}
@@ -134,9 +164,33 @@
           </dl>
         </article>
       {% endfor %}
+      </section>
     {% endfor %}
 
     <footer>Job Monitor · {{ generated_at.strftime("%Y-%m-%d %H:%M") }}</footer>
   </div>
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll(".tab-btn");
+      function activate(targetId) {
+        var i;
+        for (i = 0; i < buttons.length; i++) {
+          var btn = buttons[i];
+          var isTarget = btn.getAttribute("data-tab-target") === targetId;
+          btn.classList.toggle("is-active", isTarget);
+          btn.setAttribute("aria-selected", isTarget ? "true" : "false");
+        }
+        var panels = document.querySelectorAll(".tab-panel");
+        for (i = 0; i < panels.length; i++) {
+          panels[i].classList.toggle("is-active", panels[i].id === targetId);
+        }
+      }
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener("click", function () {
+          activate(this.getAttribute("data-tab-target"));
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

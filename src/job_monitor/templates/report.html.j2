@@ -61,6 +61,15 @@
     a { color: #1747b8; word-break: break-all; }
     .empty { background: #fff; border-radius: 10px; padding: 24px;
       text-align: center; color: #777; }
+    h2.section { margin: 26px 0 12px; font-size: 16px; color: #1a1a1a;
+      border-bottom: 2px solid #d6dae1; padding-bottom: 6px; }
+    .section-empty { font-size: 13px; color: #999; margin: 0 0 16px; }
+    .stars { color: #e6a700; letter-spacing: 1px; }
+    .recruiter {
+      display: inline-block; font-size: 12px; font-weight: 600;
+      padding: 2px 9px; border-radius: 6px; margin-left: 8px;
+      vertical-align: middle; background: #fff3e0; color: #9a5b00;
+    }
     footer { color: #999; font-size: 12px; text-align: center; margin-top: 24px; }
   </style>
 </head>
@@ -70,7 +79,7 @@
       <h1>职位监控报告 / Job Monitor Report</h1>
       {% if subtitle %}<p class="subtitle">{{ subtitle }}</p>{% endif %}
       <p class="meta">生成时间 / Generated: {{ generated_at.strftime("%Y-%m-%d %H:%M") }}
-        · 共 / Total: {{ jobs|length }}</p>
+        · 共 / Total: {{ total }}</p>
       <ul class="tier-counts">
         {% for tier, count in counts.items() %}
           <li>{{ tier }}: {{ count }}</li>
@@ -78,45 +87,53 @@
       </ul>
     </header>
 
-    {% if not jobs %}
+    {% if total == 0 %}
       <div class="empty">没有匹配的职位 / No matching jobs.</div>
     {% endif %}
 
-    {% for job in jobs %}
-      {% set is_alert = job.strong_alert or (job.priority_tier and job.priority_tier.value == "A+") %}
-      <article class="card{% if is_alert %} card--alert{% endif %}">
-        <h2>
-          {{ job.title }}
-          {% if job.priority_tier %}
-            <span class="badge{% if is_alert %} badge--alert{% endif %}">{{ job.priority_tier.value }}</span>
-          {% endif %}
-          {% if job.strong_alert %}<span class="badge badge--alert">强烈推荐 / Strong</span>{% endif %}
-        </h2>
-        <p class="company-line">{{ job.company_name }}{% if job.location %} · {{ job.location }}{% endif %}</p>
-        <dl class="fields">
-          <dt>职位 / Title</dt><dd>{{ job.title }}</dd>
-          <dt>公司 / Company</dt><dd>{{ job.company_name }}</dd>
-          <dt>地点 / Location</dt><dd>{{ job.location or "—" }}</dd>
-          <dt>薪资 / Salary</dt><dd>{{ salary_of(job) }}</dd>
-          <dt>来源 / Source</dt><dd>{{ job.source.value }}</dd>
-          <dt>发布日期 / Posted</dt><dd>{{ job.posted_date.isoformat() if job.posted_date else "—" }}</dd>
-          <dt>申请链接 / Apply</dt><dd><a href="{{ job.apply_url }}">{{ job.apply_url }}</a></dd>
-          <dt>Final score</dt><dd>{{ "%.1f"|format(job.final_score) if job.final_score is not none else "—" }}</dd>
-          <dt>优先级 / Priority</dt><dd>{{ job.priority_tier.value if job.priority_tier else "—" }}</dd>
-          <dt>匹配原因 / Match reasons</dt>
-          <dd>
-            {% if job.match_reasons %}
-              <ul class="reasons">{% for r in job.match_reasons %}<li>{{ r }}</li>{% endfor %}</ul>
-            {% else %}—{% endif %}
-          </dd>
-          <dt>简历建议 / Resume tips</dt>
-          <dd>
-            {% if job.resume_tips %}
-              <ul class="tips">{% for t in job.resume_tips %}<li>{{ t }}</li>{% endfor %}</ul>
-            {% else %}—{% endif %}
-          </dd>
-        </dl>
-      </article>
+    {% for section in sections %}
+      <h2 class="section">{{ section.heading }}</h2>
+      {% if not section.items %}
+        <p class="section-empty">本节暂无职位 / No roles in this section.</p>
+      {% endif %}
+      {% for item in section.items %}
+        {% set job = item.job %}
+        {% set is_alert = job.strong_alert or (job.priority_tier and job.priority_tier.value == "A+") %}
+        <article class="card{% if is_alert %} card--alert{% endif %}">
+          <h2>
+            {{ job.title }}
+            {% if job.priority_tier %}
+              <span class="badge{% if is_alert %} badge--alert{% endif %}">{{ job.priority_tier.value }}</span>
+            {% endif %}
+            {% if job.strong_alert %}<span class="badge badge--alert">强烈推荐 / Strong</span>{% endif %}
+          </h2>
+          <p class="company-line">{{ job.company_name }}{% if job.location %} · {{ job.location }}{% endif %}{% if item.recruiter %}<span class="recruiter">{{ item.recruiter }}</span>{% endif %}</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>{{ job.title }}</dd>
+            <dt>公司 / Company</dt><dd>{{ job.company_name }}</dd>
+            <dt>评分 / Rating</dt><dd>{% if item.stars %}<span class="stars">{{ item.stars }}</span>{% elif item.recruiter %}{{ item.recruiter }}{% else %}—{% endif %}</dd>
+            <dt>地点 / Location</dt><dd>{{ job.location or "—" }}</dd>
+            <dt>薪资 / Salary</dt><dd>{{ salary_of(job) }}</dd>
+            <dt>来源 / Source</dt><dd>{{ job.source.value }}</dd>
+            <dt>发布日期 / Posted</dt><dd>{{ job.posted_date.isoformat() if job.posted_date else "—" }}</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="{{ job.apply_url }}">{{ job.apply_url }}</a></dd>
+            <dt>Final score</dt><dd>{{ "%.1f"|format(job.final_score) if job.final_score is not none else "—" }}</dd>
+            <dt>优先级 / Priority</dt><dd>{{ job.priority_tier.value if job.priority_tier else "—" }}</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              {% if job.match_reasons %}
+                <ul class="reasons">{% for r in job.match_reasons %}<li>{{ r }}</li>{% endfor %}</ul>
+              {% else %}—{% endif %}
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              {% if job.resume_tips %}
+                <ul class="tips">{% for t in job.resume_tips %}<li>{{ t }}</li>{% endfor %}</ul>
+              {% else %}—{% endif %}
+            </dd>
+          </dl>
+        </article>
+      {% endfor %}
     {% endfor %}
 
     <footer>Job Monitor · {{ generated_at.strftime("%Y-%m-%d %H:%M") }}</footer>

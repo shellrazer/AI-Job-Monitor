@@ -60,6 +60,7 @@ __all__ = [
     "compute_semantic",
     "detect_signals",
     "final_score",
+    "is_recruiter_company",
     "priority_tier",
     "resume_tips",
     "score_company",
@@ -533,6 +534,12 @@ _RECRUITER_NAMES = re.compile(
     r"robert walters|robert half|adecco|\bhello recruitment\b|recruit\w*|\bagency\b|"
     r"talent\b|staffing"
 )
+
+
+def is_recruiter_company(company_name: str | None) -> bool:
+    """True if the posting's company name looks like a recruiter / staffing agency
+    (so the real employer is undisclosed). Used to flag jobs in the report."""
+    return bool(company_name and _RECRUITER_NAMES.search(company_name.lower()))
 
 
 def classify_company(

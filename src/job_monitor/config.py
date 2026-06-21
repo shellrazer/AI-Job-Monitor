@@ -179,6 +179,27 @@ class ProfileConfig(BaseModel):
 
 
 # --------------------------------------------------------------------------- #
+# company_ratings.yaml                                                        #
+# --------------------------------------------------------------------------- #
+class CompanyRatingsConfig(BaseModel):
+    """User/wife-editable 1-5 star ratings per company (keys normalized at load)."""
+
+    default_stars: int = 3
+    star_boost: float = 2.5
+    ratings: dict[str, int] = Field(default_factory=dict)  # normalized-name -> stars
+
+    def stars_for(self, company_name: str | None) -> int:
+        """Return the 1-5 rating for a company (default_stars if unrated)."""
+        from job_monitor.dedup import _normalize_company
+
+        return self.ratings.get(_normalize_company(company_name or ""), self.default_stars)
+
+    def boost_for(self, company_name: str | None) -> float:
+        """Score adjustment for a company = (stars - default) * star_boost."""
+        return (self.stars_for(company_name) - self.default_stars) * self.star_boost
+
+
+# --------------------------------------------------------------------------- #
 # Aggregate                                                                   #
 # --------------------------------------------------------------------------- #
 class AppConfig(BaseModel):
@@ -187,6 +208,7 @@ class AppConfig(BaseModel):
     keywords: KeywordsConfig
     scoring: ScoringConfig
     profile: ProfileConfig
+    ratings: CompanyRatingsConfig = Field(default_factory=CompanyRatingsConfig)
 
     def validate_email_ready(self) -> None:
         """Raise if email is enabled but credentials are missing."""
@@ -199,6 +221,22 @@ class AppConfig(BaseModel):
             )
 
 
+def _load_ratings(cdir: Path) -> CompanyRatingsConfig:
+    """Load company_ratings.yaml (optional), normalizing the company-name keys."""
+    path = cdir / "company_ratings.yaml"
+    if not path.exists():
+        return CompanyRatingsConfig()
+    from job_monitor.dedup import _normalize_company
+
+    raw = _load_yaml(path)
+    norm = {_normalize_company(k): int(v) for k, v in (raw.get("ratings") or {}).items() if k}
+    return CompanyRatingsConfig(
+        default_stars=int(raw.get("default_stars", 3)),
+        star_boost=float(raw.get("star_boost", 2.5)),
+        ratings=norm,
+    )
+
+
 def load_config(config_dir: str | Path = DEFAULT_CONFIG_DIR) -> AppConfig:
     """Load every config file from ``config_dir`` into a validated :class:`AppConfig`."""
     cdir = Path(config_dir)
@@ -208,4 +246,5 @@ def load_config(config_dir: str | Path = DEFAULT_CONFIG_DIR) -> AppConfig:
         keywords=KeywordsConfig(**_load_yaml(cdir / "keywords.yaml")),
         scoring=ScoringConfig(**_load_yaml(cdir / "scoring.yaml")),
         profile=ProfileConfig(**_load_yaml(cdir / "profile.yaml")),
+        ratings=_load_ratings(cdir),
     )

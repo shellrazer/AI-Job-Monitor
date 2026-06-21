@@ -136,7 +136,9 @@ def report_cmd(
     out_dir.mkdir(parents=True, exist_ok=True)
     now = datetime.now()
     path = out_dir / cfg.settings.report.filename_template.format(date=now.strftime("%Y%m%d-%H%M%S"))
-    path.write_text(report_mod.render_report(jobs, generated_at=now), encoding="utf-8")
+    path.write_text(
+        report_mod.render_report(jobs, generated_at=now, ratings=cfg.ratings), encoding="utf-8"
+    )
     console.print(f"[green]Wrote {len(jobs)} jobs[/] to {path}")
 
 

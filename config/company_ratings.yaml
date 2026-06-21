@@ -1,0 +1,66 @@
+# Company star ratings (1-5) — EDIT THESE with you & your wife's knowledge.
+# Keys are company names (matched case-insensitively, ignoring Pty/Ltd/Group/
+# Australia suffixes — so "PepsiCo" matches "PepsiCo Australia"). Higher stars
+# rank a company's roles higher in the report.
+#
+# default_stars : rating used for any company not listed below (and not a recruiter).
+# star_boost    : points added to a role's final score per star above/below default
+#                 (e.g. 2.5 -> a 5-star company gets +5, a 1-star gets -5).
+# Recruiter/HR-agency postings (real employer unknown) are auto-detected and shown
+# with a 🕵 mark in the report — you don't rate those here.
+
+default_stars: 3
+star_boost: 2.5
+
+ratings:
+  # Global FMCG / agribusiness giants
+  "Nestle": 5
+  "PepsiCo": 5
+  "Mars": 5
+  "Mondelez": 5
+  "Cadbury": 5
+  "Kellanova": 5
+  "Kellogg's": 5
+  "Kerry Group": 5
+  "Cargill": 5
+  "ADM": 5
+  # Large AU food / dairy / meat / grain
+  "Bega Group": 4
+  "Saputo": 4
+  "Goodman Fielder": 4
+  "George Weston Foods": 4
+  "Tip Top": 4
+  "The Arnott's Group": 4
+  "JBS Australia": 4
+  "Teys Australia": 4
+  "Ingham's": 4
+  "GrainCorp": 4
+  "Fonterra": 4
+  "Lactalis": 4
+  "SunRice": 4
+  "Primo Foods": 4
+  "Andrews Meat": 3
+  "Norco": 3
+  "Baiada": 3
+  # Beverage
+  "Coca-Cola Europacific Partners": 4
+  "Lion": 4
+  "Asahi Beverages": 4
+  "Suntory Oceania": 4
+  "Treasury Wine Estates": 4
+  # Retail / grocery
+  "Woolworths Group": 4
+  "Coles Group": 4
+  "ALDI Australia": 4
+  "Metcash": 4
+  "Costco Australia": 3
+  "Harris Farm Markets": 3
+  # Meal kit / foodservice / catering
+  "HelloFresh": 3
+  "Youfoodz": 3
+  "Marley Spoon": 3
+  "Compass Group": 3
+  "PFD Food Services": 3
+  "Bidfood": 3
+  "dnata Catering": 3
+  "Gate Gourmet": 3

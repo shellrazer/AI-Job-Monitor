@@ -179,6 +179,11 @@ def embed_and_score(jobs: list[Job], cfg: AppConfig, *, embedder: Any, today: da
         job.strong_alert = result.strong_alert
         job.match_reasons = result.match_reasons
         job.resume_tips = result.resume_tips
+        # Company star-rating boost (you/your wife's preference nudges the ranking).
+        boost = cfg.ratings.boost_for(job.company_name)
+        if boost and job.final_score is not None:
+            job.final_score = max(0.0, min(100.0, job.final_score + boost))
+            job.priority_tier = scorer.priority_tier(job.final_score, scoring=cfg.scoring)
         if result.hard_excluded:
             job.status = JobStatus.IRRELEVANT
 
@@ -255,8 +260,8 @@ def run_pipeline(
         result.digest_jobs = digest
         emit = cfg.settings.email.enabled if send_email is None else send_email
         if emit and digest:  # skip sending on days with nothing new
-            html = report.render_email_html(digest, generated_at=now)
-            text = report.render_email_text(digest, generated_at=now)
+            html = report.render_email_html(digest, generated_at=now, ratings=cfg.ratings)
+            text = report.render_email_text(digest, generated_at=now, ratings=cfg.ratings)
             n_alert = sum(1 for j in digest if j.strong_alert or (j.priority_tier and j.priority_tier.value == "A+"))
             label = "new " if cfg.settings.report.email_new_only else ""
             subject = f"[Job Monitor] {len(digest)} {label}roles ({n_alert} high-priority) — {today.isoformat()}"
@@ -296,6 +301,6 @@ def _write_report(jobs: list[Job], cfg: AppConfig, now: datetime) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     fname = cfg.settings.report.filename_template.format(date=now.strftime("%Y%m%d-%H%M%S"))
     path = out_dir / fname
-    html = report.render_report(jobs, generated_at=now, subtitle=f"{len(jobs)} roles")
+    html = report.render_report(jobs, generated_at=now, ratings=cfg.ratings, subtitle=f"{len(jobs)} roles")
     path.write_text(html, encoding="utf-8")
     return path

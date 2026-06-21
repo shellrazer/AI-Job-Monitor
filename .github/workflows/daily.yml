@@ -1,0 +1,89 @@
+name: AI-Job-Monitor — Daily
+
+# Runs the pipeline once a day, then commits the generated report + database back
+# to the repo (so you get a versioned daily history and the "new-only" email digest
+# has prior state to diff against). Manual runs available via "Run workflow".
+#
+# Note on coverage in CI: the company ATS APIs (Workday / Phenom / SmartRecruiters /
+# Greenhouse / Lever / SuccessFactors) work fine from GitHub's runners, but the
+# Cloudflare-protected boards (SEEK / Jora / LinkedIn) may be blocked from data-centre
+# IPs — those sources just degrade gracefully (skipped). For full board coverage run
+# locally via launchd (deploy/com.user.jobmonitor.plist).
+
+on:
+  schedule:
+    # 20:00 UTC ≈ 06:00 AEST / 07:00 AEDT (Sydney). Adjust as you like.
+    - cron: "0 20 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ai-job-monitor-daily
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python 3.12
+        run: uv python install 3.12
+
+      - name: Install dependencies (incl. Playwright extra)
+        run: uv sync --extra browser
+
+      - name: Install Chromium (for JS-rendered ATS sites)
+        run: uv run playwright install --with-deps chromium
+
+      - name: Cache embedding model
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            ~/.job_monitor/models
+          key: hf-all-minilm-l6-v2-v1
+
+      - name: Restore prior database (for cross-run dedup + new-only digest)
+        run: |
+          mkdir -p ~/.job_monitor
+          if [ -f data/jobs.sqlite ]; then cp data/jobs.sqlite ~/.job_monitor/jobs.sqlite; fi
+
+      - name: Run the pipeline
+        env:
+          # To email the daily digest: set email.enabled=true in config/settings.yaml,
+          # add these two repo secrets, and drop the --no-email flag below.
+          JOB_MONITOR_GMAIL_USER: ${{ secrets.JOB_MONITOR_GMAIL_USER }}
+          JOB_MONITOR_GMAIL_APP_PASSWORD: ${{ secrets.JOB_MONITOR_GMAIL_APP_PASSWORD }}
+        run: uv run job-monitor run --no-email
+
+      - name: Collect outputs into the repo
+        run: |
+          mkdir -p data reports
+          cp ~/.job_monitor/jobs.sqlite data/jobs.sqlite
+          latest="$(ls -t ~/.job_monitor/reports/*.html 2>/dev/null | head -1 || true)"
+          if [ -n "$latest" ]; then
+            cp "$latest" "reports/$(basename "$latest")"
+            cp "$latest" reports/latest.html
+          fi
+
+      - name: Commit & push results
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f data/jobs.sqlite reports/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: daily job run $(date -u +%F) [skip ci]"
+            git push
+          fi

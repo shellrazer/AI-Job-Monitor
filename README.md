@@ -1,8 +1,13 @@
-# Job Monitor — Australian Food-Industry Senior Quality Roles
+# AI-Job-Monitor — Australian Food-Industry Senior Quality Roles
 
-A low-maintenance system that monitors company ATS/careers feeds and job boards (SEEK, Jora),
-matches postings against a fixed senior food-quality candidate profile using local embeddings +
-rule-based scoring, deduplicates, and delivers a daily ranked HTML report + email digest.
+A low-maintenance system that monitors company ATS/careers feeds and job boards (SEEK, Jora,
+LinkedIn), matches postings against a fixed senior food-quality candidate profile using local
+embeddings + rule-based scoring, deduplicates across sources, and delivers a ranked 3-tab HTML
+report + daily email digest. Runs locally (launchd) or daily in GitHub Actions
+(`.github/workflows/daily.yml`).
+
+> The Python package and CLI remain `job_monitor` / `job-monitor` (an `ai-job-monitor` CLI alias
+> is also installed); only the project/repo name is **AI-Job-Monitor**.
 
 See the design plan for full context. Target roles: Senior/Site/National/Group Quality Manager,
 Food Safety & Quality Manager, Supplier Quality / Vendor Assurance Manager, etc. (Sydney/NSW first,

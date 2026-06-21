@@ -1,7 +1,7 @@
 [project]
-name = "job-monitor"
+name = "ai-job-monitor"
 version = "0.1.0"
-description = "Australian food-industry senior quality job monitoring, matching, and alerting system"
+description = "AI-Job-Monitor — Australian food-industry senior quality job monitoring, matching, and alerting system"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
@@ -21,6 +21,7 @@ dependencies = [
 
 [project.scripts]
 job-monitor = "job_monitor.cli:app"
+ai-job-monitor = "job_monitor.cli:app"
 
 [project.optional-dependencies]
 browser = ["playwright>=1.44"]

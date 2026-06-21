@@ -1,0 +1,44 @@
+# Runtime settings. Secrets come from environment variables (never commit them).
+
+db_path: "~/.job_monitor/jobs.sqlite"
+
+report:
+  output_dir: "~/.job_monitor/reports"
+  filename_template: "report_{date}.html"
+  open_after_run: false
+  min_tier: "C"            # include tiers C and above in report/email
+
+email:
+  enabled: false           # set true once env creds are exported
+  smtp_host: "smtp.gmail.com"
+  smtp_port: 587
+  sender: "${JOB_MONITOR_GMAIL_USER}"
+  app_password: "${JOB_MONITOR_GMAIL_APP_PASSWORD}"
+  recipients:
+    - "zhe.nie@rokt.com"
+
+embeddings:
+  model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  model_dir: "~/.job_monitor/models"
+  dim: 384
+
+http:
+  user_agent: "JobMonitor/0.1 (+personal job search; contact zhe.nie@rokt.com)"
+  per_host_rate_limit_rps: 0.5
+  timeout_seconds: 20
+  max_retries: 4
+  backoff_base_seconds: 1.5
+  cache_dir: "~/.job_monitor/http_cache"
+  cache_ttl_seconds: 3600
+  respect_robots: true
+  impersonate: "chrome"    # curl_cffi TLS fingerprint for SEEK/Jora
+
+# Location filtering preference (Sydney/NSW first per spec). Used for ranking
+# context; the scorer's location table does the actual weighting.
+locations_include:
+  - "Sydney NSW"
+  - "Greater Sydney"
+  - "NSW"
+  - "Australia"
+
+run_hour_local: 7

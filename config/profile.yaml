@@ -1,0 +1,64 @@
+# Candidate profile (spec §9.2). full_text is embedded once per run and compared
+# against every job description via cosine similarity. Structured fields feed
+# rule-based signals in the scorer.
+full_text: >
+  Experienced Food Safety and Quality leader with global FMCG and agribusiness
+  background. Current Quality & Food Safety Manager at Bunge, leading QFS team and
+  laboratory, managing quality systems and food safety activities. Former National
+  Quality Manager at PepsiCo, managing quality operations across eight snack
+  manufacturing plants. Experienced in multi-site quality leadership, food
+  manufacturing quality systems, plant quality operations, supplier and co-packer
+  quality, auditing, FSSC 22000, KPI accuracy, HACCP, GMP, GFSI-style quality
+  systems, regulatory compliance, CAPA, laboratory management, supplier quality,
+  customer audits, and cross-functional manufacturing support. Target roles include
+  Senior Quality Manager, Site Quality Manager, National Quality Manager, Group
+  Quality Manager, Supplier Quality Manager, Vendor Assurance Manager, Food Safety
+  & Quality Manager, Technical Manager Food, Regulatory Affairs Manager Food, and
+  Quality Systems leadership roles in large food, snack, beverage, grain, dairy,
+  meat, bakery, FMCG and agribusiness companies.
+
+years_experience: 15
+current_titles:
+  - "Quality & Food Safety Manager"
+  - "National Quality Manager"
+target_titles:
+  - "Senior Quality Manager"
+  - "Site Quality Manager"
+  - "National Quality Manager"
+  - "Group Quality Manager"
+  - "Food Safety & Quality Manager"
+  - "Supplier Quality Manager"
+  - "Vendor Assurance Manager"
+  - "Regulatory Affairs Manager Food"
+  - "Site Technical Manager"
+  - "Quality Systems Manager"
+skills:
+  - "FSSC 22000"
+  - "HACCP"
+  - "GMP"
+  - "GFSI"
+  - "SQF"
+  - "BRCGS"
+  - "multi-site quality"
+  - "supplier quality"
+  - "co-packer quality"
+  - "vendor assurance"
+  - "internal and external audit"
+  - "CAPA"
+  - "laboratory management"
+  - "regulatory compliance"
+industries:
+  - "Food Manufacturing"
+  - "FMCG"
+  - "Agribusiness"
+  - "Dairy"
+  - "Beverage"
+  - "Grain"
+  - "Snack"
+  - "Meat"
+locations:
+  - "Sydney NSW"
+  - "Greater Sydney"
+  - "NSW"
+salary_floor: 130000
+work_rights: "Australian work rights"

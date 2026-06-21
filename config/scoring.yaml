@@ -1,0 +1,87 @@
+# Spec §10-12 scoring model, as editable data.
+# final_score = 0.40*semantic + 0.30*seniority + 0.20*industry_company + 0.10*location_salary
+# Each component is normalized to 0-100; final is 0-100.
+#
+# The scorer (scorer.py) ships these same tables as in-module defaults; values
+# here override them so the model can be retuned without code changes.
+
+weights:
+  semantic: 0.40
+  seniority: 0.30
+  industry_company: 0.20
+  location_salary: 0.10
+
+# Promote a `senior` + in-domain quality/food-safety title with no manager/officer
+# head-noun (e.g. "Senior Food Quality Specialist") to the Senior QM tier (+25).
+# Required for the spec's Example 2 (~82 / A) to reconcile. See scorer docstring.
+promote_senior_specialist: true
+
+# Spec §10.1 — single best (highest-precedence) match wins; normalized via points*100/30.
+seniority_points:
+  national_group_head: 30
+  site_quality_manager: 28
+  senior_quality_manager: 25
+  food_safety_quality_manager: 25
+  supplier_quality_manager: 22
+  regulatory_affairs_manager_food: 20
+  site_technical_manager: 20
+  qa_manager: 15
+  senior_specialist_quality_lead: 10
+  qa_officer_coordinator: 3
+  other: 0
+
+# Spec §10.2 — single best industry match (sector + JD text).
+industry_points:
+  food_manufacturing_fmcg: 25
+  food_subsector: 25            # dairy/meat/poultry/bakery/beverage/grain/snack
+  retailer_supplier_quality: 22
+  foodservice: 15              # foodservice/meal kit/central kitchen
+  pharma_meddevice: 5
+  out_of_domain: -50           # software/construction/NDIS/healthcare
+  unclear: 0
+
+# Spec §10.3 — additive responsibility signals (folded into the 0.20 component).
+responsibility_points:
+  multi_site_national: 20
+  manages_quality_team: 15
+  laboratory: 10
+  site_leadership: 15
+  supplier_vendor_assurance: 15
+  co_packer: 15
+  customer_retailer_audit: 10
+  food_safety_cert: 15
+  regulatory_compliance: 10
+  capa_nc_traceability: 10
+
+# Spec §10.4 — single best company-type match.
+company_points:
+  large_food_group: 15
+  large_retail_food: 12
+  mid_food_manufacturer: 8
+  recruiter_anonymous_food: 5
+  unclear: 0
+
+# Spec §10.5 — single best location match.
+location_points:
+  sydney_greater: 15
+  nsw_regional: 10
+  melbourne_brisbane: 8
+  other_au: 5
+  overseas: -20
+
+# Spec §10.6 — banded on the upper salary bound (AUD). [lower_inclusive, points],
+# evaluated high -> low. 100k-110k falls through to 0 (neutral).
+salary_bands:
+  - [170000, 15]
+  - [150000, 12]
+  - [130000, 10]
+  - [110000, 5]
+  - [0, -10]
+
+# Spec §11 — final_score -> priority tier. [min_inclusive, tier], evaluated high -> low.
+tier_bands:
+  - [85, "A+"]
+  - [75, "A"]
+  - [60, "B"]
+  - [45, "C"]
+  - [0, "D"]

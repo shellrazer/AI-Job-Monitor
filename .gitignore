@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Project data / secrets (never commit)
+*.sqlite
+*.sqlite-*
+.env
+config/secrets.yaml
+http_cache/
+reports/
+models/
+
+# OS / editor
+.DS_Store
+.claude/

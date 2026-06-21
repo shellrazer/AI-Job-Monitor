@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Daily launchd job for job-monitor.
+
+  Install:
+    1. Edit the two absolute paths below (uv binary + project dir) and the env vars.
+    2. cp deploy/com.user.jobmonitor.plist ~/Library/LaunchAgents/
+    3. launchctl load ~/Library/LaunchAgents/com.user.jobmonitor.plist
+    4. launchctl start com.user.jobmonitor   # run once now to test
+  Logs: /tmp/job-monitor.log and /tmp/job-monitor.err
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.jobmonitor</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/znie/.local/bin/uv</string>
+        <string>run</string>
+        <string>job-monitor</string>
+        <string>run</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/znie/Code/job_monitor</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>JOB_MONITOR_GMAIL_USER</key>
+        <string>you@gmail.com</string>
+        <key>JOB_MONITOR_GMAIL_APP_PASSWORD</key>
+        <string>your-16-char-app-password</string>
+    </dict>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>7</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/job-monitor.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/job-monitor.err</string>
+</dict>
+</plist>

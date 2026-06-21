@@ -1,0 +1,219 @@
+# Master source list (spec §4 + §7). Each entry binds an adapter + search params.
+#
+# adapter values: workday | successfactors | seek | jora | generic_html
+# priority_tier: P1 (big food/FMCG/agribusiness + verified endpoints), P2, P3.
+#
+# IMPORTANT: ATS platform/tenant/slug assumptions MUST be confirmed with
+# `uv run job-monitor validate`. Several spec assumptions were already wrong
+# (GWF = Springboard, Coles = Phenom). Entries whose endpoints are unverified are
+# marked `# UNVERIFIED` — they may report blocked/empty until corrected.
+
+companies:
+  # ----------------------------------------------------------------------- #
+  # Workday (verified public CXS JSON endpoint)                             #
+  # ----------------------------------------------------------------------- #
+  - company_id: bega
+    name: "Bega Group"
+    sector: "Dairy / Food Manufacturing"
+    priority_tier: P1
+    careers_url: "https://begacheese.wd3.myworkdayjobs.com/Bega_Careers"
+    ats_platform: workday
+    adapter: workday
+    active: true
+    search:
+      base_url: "https://begacheese.wd3.myworkdayjobs.com"
+      cxs_tenant: "begacheese"
+      cxs_site: "Bega_Careers"
+      search_terms: ["quality", "food safety", "technical"]
+
+  - company_id: saputo
+    name: "Saputo Dairy Australia"
+    sector: "Dairy"
+    priority_tier: P1
+    careers_url: "https://saputo.wd5.myworkdayjobs.com/Saputo_External_Careers"
+    ats_platform: workday
+    adapter: workday
+    active: true
+    search:
+      base_url: "https://saputo.wd5.myworkdayjobs.com"
+      cxs_tenant: "saputo"
+      cxs_site: "Saputo_External_Careers"
+      search_terms: ["quality", "food safety"]
+
+  # ----------------------------------------------------------------------- #
+  # SuccessFactors (Recruiting-Marketing RSS/sitemap feed)  # UNVERIFIED     #
+  # ----------------------------------------------------------------------- #
+  - company_id: graincorp
+    name: "GrainCorp"
+    sector: "Grain / Agribusiness"
+    priority_tier: P1
+    careers_url: "https://jobs.graincorp.com.au/"
+    ats_platform: successfactors
+    adapter: successfactors
+    active: true
+    search:
+      careers_url: "https://jobs.graincorp.com.au/"
+      search_terms: ["quality", "food safety", "technical"]
+
+  - company_id: nestle_au
+    name: "Nestlé Australia"
+    sector: "FMCG / Food Manufacturing"
+    priority_tier: P1
+    careers_url: "https://www.nestle.com.au/en/jobs"
+    ats_platform: successfactors
+    adapter: successfactors
+    active: true
+    search:
+      careers_url: "https://jobs.nestle.com/"
+      search_terms: ["quality manager", "food safety"]
+
+  - company_id: jbs_au
+    name: "JBS Australia"
+    sector: "Meat"
+    priority_tier: P1
+    careers_url: "https://careers.jbssa.com.au/"
+    ats_platform: successfactors
+    adapter: successfactors
+    active: true
+    search:
+      careers_url: "https://careers.jbssa.com.au/"
+      search_terms: ["quality", "food safety"]
+
+  - company_id: arnotts
+    name: "The Arnott's Group"
+    sector: "Snack / Bakery"
+    priority_tier: P1
+    careers_url: "https://careers.arnotts.com/"
+    ats_platform: successfactors
+    adapter: successfactors
+    active: true
+    search:
+      careers_url: "https://careers.arnotts.com/"
+      search_terms: ["quality", "food safety"]
+
+  # ----------------------------------------------------------------------- #
+  # Other ATS via config-driven HTML (Springboard/Phenom/Avature/PageUp)    #
+  # # UNVERIFIED selectors — confirm with `validate` before relying on them #
+  # ----------------------------------------------------------------------- #
+  - company_id: gwf
+    name: "George Weston Foods / Tip Top"
+    sector: "Bakery / Food Manufacturing"
+    priority_tier: P1
+    careers_url: "https://gwf.springboard.com.au/"
+    ats_platform: springboard
+    adapter: generic_html
+    active: true
+    search:
+      list_url: "https://gwf.springboard.com.au/jobtools/jncustomsearch.searchResults?in_organid=18931&in_jobDate=All"
+      selectors:
+        item: "tr.data-row, div.job-row, article"
+        title: "a.job-link, h3, h2"
+        location: "td.location, span.location"
+        link: "a@href"
+      base_url: "https://gwf.springboard.com.au"
+
+  - company_id: coles
+    name: "Coles Group"
+    sector: "Retail / Private Label"
+    priority_tier: P2
+    careers_url: "https://colescareers.com.au/"
+    ats_platform: phenom
+    adapter: generic_html
+    active: true
+    search:
+      list_url: "https://colescareers.com.au/au/en/search-results?keywords=quality"
+      selectors:
+        item: "li.jobs-list-item, div.job-tile"
+        title: "a.au-target, h3, [data-ph-at-id='job-link']"
+        location: "span.job-location, .au-target-job-location"
+        link: "a@href"
+      base_url: "https://colescareers.com.au"
+
+  - company_id: fonterra
+    name: "Fonterra Australia"
+    sector: "Dairy"
+    priority_tier: P2
+    careers_url: "https://careers.fonterra.com/careers/SearchJobs/"
+    ats_platform: avature
+    adapter: generic_html
+    active: false   # UNVERIFIED — JS rendered; enable after validate
+    search:
+      list_url: "https://careers.fonterra.com/careers/SearchJobs/quality"
+      selectors:
+        item: "li.list__item, article.article--result"
+        title: "a.link, h3"
+        location: "span.list__item-location"
+        link: "a@href"
+      base_url: "https://careers.fonterra.com"
+
+  # ----------------------------------------------------------------------- #
+  # SEEK saved searches (spec §7) — aggregator scrape via curl_cffi/Playwright
+  # ----------------------------------------------------------------------- #
+  - company_id: seek_senior_quality
+    name: "SEEK — Senior/Site/National Quality Manager (Sydney)"
+    sector: "aggregator"
+    priority_tier: P1
+    ats_platform: seek
+    adapter: seek
+    active: true
+    search:
+      keywords: "Food Safety Quality Manager OR Site Quality Manager OR Senior Quality Manager OR National Quality Manager OR Group Quality Manager"
+      where: "All Sydney NSW"
+
+  - company_id: seek_qa_food_mfg
+    name: "SEEK — QA Manager Food Manufacturing (NSW)"
+    sector: "aggregator"
+    priority_tier: P1
+    ats_platform: seek
+    adapter: seek
+    active: true
+    search:
+      keywords: "QA Manager food manufacturing OR Quality Assurance Manager HACCP OR Quality Manager FMCG"
+      where: "All Sydney NSW"
+
+  - company_id: seek_supplier_quality
+    name: "SEEK — Supplier Quality / Vendor Assurance (Australia)"
+    sector: "aggregator"
+    priority_tier: P1
+    ats_platform: seek
+    adapter: seek
+    active: true
+    search:
+      keywords: "Supplier Quality Manager OR Vendor Assurance Manager OR Product Quality Manager food OR Senior Food Quality Specialist"
+      where: "Australia"
+
+  - company_id: seek_regulatory
+    name: "SEEK — Regulatory / Compliance Manager Food (Australia)"
+    sector: "aggregator"
+    priority_tier: P2
+    ats_platform: seek
+    adapter: seek
+    active: true
+    search:
+      keywords: "Regulatory Affairs Manager food OR Food Safety Compliance Manager OR Quality Compliance Manager food"
+      where: "Australia"
+
+  # ----------------------------------------------------------------------- #
+  # Jora searches — aggregator scrape via curl_cffi/Playwright              #
+  # ----------------------------------------------------------------------- #
+  - company_id: jora_quality_manager
+    name: "Jora — Quality Manager food (Sydney)"
+    sector: "aggregator"
+    priority_tier: P2
+    ats_platform: jora
+    adapter: jora
+    active: true
+    search:
+      q: "quality manager food"
+      l: "Sydney NSW"
+
+  - company_id: jora_food_safety
+    name: "Jora — Food Safety Quality Manager (Australia)"
+    sector: "aggregator"
+    priority_tier: P2
+    ats_platform: jora
+    adapter: jora
+    active: true
+    search:
+      q: "food safety quality manager"
+      l: "Australia"

@@ -1,0 +1,34 @@
+<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,'PingFang SC','Microsoft YaHei',sans-serif;max-width:640px;margin:0 auto;color:#1a1a1a;">
+  <h1 style="font-size:19px;margin:0 0 4px;">职位监控摘要 / Job Monitor Digest</h1>
+  <p style="color:#777;font-size:13px;margin:0 0 16px;">生成时间 / Generated: {{ generated_at.strftime("%Y-%m-%d %H:%M") }} · Top {{ jobs|length }}</p>
+
+  {% for job in jobs %}
+    {% set is_alert = job.strong_alert or (job.priority_tier and job.priority_tier.value == "A+") %}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px;border-collapse:collapse;">
+      <tr>
+        <td style="padding:14px 16px;background:{{ '#fff7f6' if is_alert else '#ffffff' }};border:1px solid #e3e6ea;border-left:4px solid {{ '#d92d20' if is_alert else '#c7ccd4' }};border-radius:6px;">
+          <div style="font-size:16px;font-weight:600;margin:0 0 2px;">
+            {{ job.title }}
+            {% if job.priority_tier %}
+              <span style="font-size:11px;font-weight:700;padding:1px 7px;border-radius:5px;margin-left:6px;background:{{ '#fde7e5' if is_alert else '#e7eefc' }};color:{{ '#b42318' if is_alert else '#1747b8' }};">{{ job.priority_tier.value }}</span>
+            {% endif %}
+            {% if job.strong_alert %}<span style="font-size:11px;font-weight:700;padding:1px 7px;border-radius:5px;margin-left:4px;background:#fde7e5;color:#b42318;">强烈推荐 / Strong</span>{% endif %}
+          </div>
+          <div style="font-size:13px;color:#444;margin:0 0 6px;">
+            {{ job.company_name }}{% if job.location %} · {{ job.location }}{% endif %}
+          </div>
+          <div style="font-size:13px;color:#333;">
+            薪资 / Salary: {{ salary_of(job) }}<br>
+            来源 / Source: {{ job.source.value }}
+            {% if job.final_score is not none %} · Final score: {{ "%.1f"|format(job.final_score) }}{% endif %}
+          </div>
+          <div style="font-size:13px;margin-top:8px;">
+            <a href="{{ job.apply_url }}" style="color:#1747b8;">申请链接 / Apply</a>
+          </div>
+        </td>
+      </tr>
+    </table>
+  {% endfor %}
+
+  <p style="color:#999;font-size:12px;text-align:center;margin-top:18px;">Job Monitor</p>
+</div>

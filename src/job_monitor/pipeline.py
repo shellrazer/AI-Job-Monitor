@@ -137,13 +137,16 @@ def embed_and_score(jobs: list[Job], cfg: AppConfig, *, embedder: Any, today: da
     from job_monitor.embeddings import cosine
 
     profile_vec = embedder.encode(cfg.profile.full_text)
-    # AU-only filter (Part B): clearly-overseas jobs are marked irrelevant and
-    # skipped entirely (no embedding / scoring). They still persist for audit but
-    # are excluded from the report (which filters out IRRELEVANT). Empty / unknown
-    # / AU locations are conservatively kept.
+    # Precision gates (Part B), applied BEFORE embedding so excluded jobs never
+    # enter the batch. A job is dropped when its location is clearly overseas OR
+    # its title is not quality/QA/food-safety relevant. Dropped jobs are marked
+    # IRRELEVANT (still persisted for audit) but excluded from the report/tabs
+    # (which filter out IRRELEVANT). Empty / ambiguous / AU locations are kept.
     scorable: list[Job] = []
     for job in jobs:
-        if scorer.classify_location(job.location) == "overseas":
+        overseas = scorer.classify_location(job.location) == "overseas"
+        relevant = scorer.is_quality_relevant(job.title, job.description or "")
+        if overseas or not relevant:
             job.status = JobStatus.IRRELEVANT
         else:
             scorable.append(job)
@@ -248,6 +251,10 @@ def run_pipeline(
                 if lid:
                     dbmod.mark_duplicate(conn, lid, cid)
             stats.persisted += 1 + len(losers)
+        # 6b. Re-gate ALL stored 'new' jobs (incl. stale rows from prior runs that
+        # weren't re-fetched this run) so the DB-backed report never shows overseas
+        # or non-quality roles. Human-set statuses are preserved.
+        regate_existing(conn)
         # 7. report (full ranked dashboard) + notify (newly-discovered roles only)
         result = RunResult(stats=stats)
         top = _select_for_digest(canonicals, cfg)
@@ -281,6 +288,24 @@ def run_pipeline(
     finally:
         if owns_conn:
             conn.close()
+
+
+def regate_existing(conn: sqlite3.Connection) -> int:
+    """Re-apply the overseas + quality-relevance gates to all stored 'new' jobs.
+
+    Catches stale rows persisted by earlier runs (before the gates existed, or not
+    re-fetched this run) and marks foreign / non-quality roles IRRELEVANT so the
+    DB-backed report stays clean. Idempotent; preserves human-set statuses.
+    """
+    rows = conn.execute("SELECT id, title, location, description FROM jobs WHERE status = 'new'").fetchall()
+    changed = 0
+    for r in rows:
+        overseas = scorer.classify_location(r["location"]) == "overseas"
+        if overseas or not scorer.is_quality_relevant(r["title"], r["description"] or ""):
+            conn.execute("UPDATE jobs SET status=? WHERE id=?", (JobStatus.IRRELEVANT.value, r["id"]))
+            changed += 1
+    conn.commit()
+    return changed
 
 
 def _select_for_digest(jobs: list[Job], cfg: AppConfig) -> list[Job]:

@@ -8,8 +8,8 @@ from datetime import date
 import numpy as np
 
 from job_monitor.config import load_config
-from job_monitor.models import JobStatus
-from job_monitor.pipeline import run_pipeline
+from job_monitor.models import Job, JobStatus, Source
+from job_monitor.pipeline import regate_existing, run_pipeline
 
 TODAY = date(2026, 6, 21)
 
@@ -129,3 +129,32 @@ def test_daily_digest_emails_only_new_matches(tmp_path, tmp_db, sample_raw_jobs,
     assert run2.digest_jobs == []
     assert run2.emailed is False
     assert len(mock_smtp) == 1  # only run1 sent
+
+
+def _stored_job(tmp_db, title, location):
+    from job_monitor import db as dbmod
+
+    job = Job(
+        source=Source.OFFICIAL_ATS, title=title, normalized_title=title.lower(),
+        company_name="Bega Group", apply_url=f"https://x/{hashlib.sha256(title.encode()).hexdigest()[:8]}",
+        description_hash=hashlib.sha256(title.encode()).hexdigest(), location=location,
+        description="", final_score=50.0,
+    )
+    return dbmod.upsert_job(tmp_db, job)
+
+
+def test_regate_existing_cleans_stale_rows(tmp_db):
+    """Stale 'new' rows that are overseas or non-quality get marked irrelevant; good ones stay."""
+    good = _stored_job(tmp_db, "Quality Manager", "Sydney NSW")
+    overseas = _stored_job(tmp_db, "Quality Manager", "Franklin, WI")
+    nonquality = _stored_job(tmp_db, "Production Operator", "Melbourne VIC")
+
+    changed = regate_existing(tmp_db)
+    assert changed == 2
+
+    def status(jid):
+        return tmp_db.execute("SELECT status FROM jobs WHERE id=?", (jid,)).fetchone()[0]
+
+    assert status(good) == JobStatus.NEW.value
+    assert status(overseas) == JobStatus.IRRELEVANT.value
+    assert status(nonquality) == JobStatus.IRRELEVANT.value

@@ -23,6 +23,8 @@ from job_monitor.scorer import (
     compute_semantic,
     detect_signals,
     final_score,
+    is_australian_location,
+    is_quality_relevant,
     priority_tier,
     resume_tips,
     score_company,
@@ -243,6 +245,43 @@ def test_site_technical_manager_not_site_quality_manager() -> None:
 
 
 # --------------------------------------------------------------------------- #
+# Quality-relevance gate.                                                     #
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize(
+    "title",
+    [
+        "Quality Control Manager",
+        "Site Quality Manager",
+        "Food Safety & Quality Manager",
+        "QA Officer",
+        "Senior Food Quality Specialist",
+        "Technical Manager",
+        "Supplier Quality Manager",
+        "Regulatory Affairs Manager Food",
+    ],
+)
+def test_is_quality_relevant_true(title: str) -> None:
+    assert is_quality_relevant(title) is True
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "Production Operator",
+        "Field Sales Management Sr Leader",
+        "Safety Coordinator - Work Health and Safety",
+        "Case Sealer/Flavour Technician",
+        "Warehouse Operator",
+        "Maintenance Engineer",
+        "Logistics Coordinator",
+    ],
+)
+def test_is_quality_relevant_false(title: str) -> None:
+    # Note: bare workplace-safety wording (WHS/OHS) must NOT count as relevant.
+    assert is_quality_relevant(title) is False
+
+
+# --------------------------------------------------------------------------- #
 # Location & salary bands.                                                    #
 # --------------------------------------------------------------------------- #
 @pytest.mark.parametrize(
@@ -277,13 +316,57 @@ def test_classify_location(location: str | None, key: str) -> None:
 
 
 def test_classify_location_overseas_filtered() -> None:
-    # Spot-check the spec's overseas examples (these are filtered by the pipeline).
-    overseas = ["Hung Yen, Vietnam", "Auckland, New Zealand", "Toledo", "Rayong Plant", "Chicago, IL", "London"]
+    # Spot-check overseas examples (these are filtered by the pipeline), including
+    # global-ATS-tenant locations with no AU signal at all.
+    overseas = [
+        "Hung Yen, Vietnam", "Auckland, New Zealand", "Toledo", "Rayong Plant", "Chicago, IL",
+        "London", "Franklin, WI", "Troy, NC", "Ho Chi Minh City",
+    ]
     for loc in overseas:
         assert classify_location(loc) == "overseas", loc
     # AU / empty / ambiguous stay non-overseas.
-    for loc in ["Sydney", "Melbourne VIC", "Newcastle", "Perth WA", "Australia", "", None]:
+    for loc in ["Sydney", "Melbourne VIC", "Newcastle", "Perth WA", "Australia", "Remote", "", None]:
         assert classify_location(loc) != "overseas", loc
+
+
+@pytest.mark.parametrize(
+    "location",
+    [
+        "Sydney NSW",
+        "Melbourne VIC",
+        "Perth WA",
+        "Tatura VIC",
+        "Brisbane, Australia",
+        "Remote",
+        "Queensland",
+        "New South Wales",
+        "Adelaide SA",
+        "Hybrid - Macquarie Park",
+        "Work from home",
+        "",
+        None,
+    ],
+)
+def test_is_australian_location_true(location: str | None) -> None:
+    assert is_australian_location(location) is True
+
+
+@pytest.mark.parametrize(
+    "location",
+    [
+        "Franklin, WI",
+        "Troy, NC",
+        "Ho Chi Minh City",
+        "Toledo",
+        "Rayong Plant",
+        "Chicago, IL",
+        "London",
+        "Auckland, New Zealand",
+        "Hung Yen, Vietnam",
+    ],
+)
+def test_is_australian_location_false(location: str) -> None:
+    assert is_australian_location(location) is False
 
 
 @pytest.mark.parametrize(

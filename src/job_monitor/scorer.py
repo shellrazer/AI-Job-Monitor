@@ -60,6 +60,8 @@ __all__ = [
     "compute_semantic",
     "detect_signals",
     "final_score",
+    "is_australian_location",
+    "is_quality_relevant",
     "is_recruiter_company",
     "priority_tier",
     "resume_tips",
@@ -254,6 +256,35 @@ def score_seniority(category: str, *, scoring: ScoringConfig | None = None) -> f
     points = (_seniority_points(scoring) if scoring else _DEFAULT_SENIORITY_POINTS)
     pts = points.get(category, 0)
     return _clamp(pts * 100 / 30, 0, 100)
+
+
+# --------------------------------------------------------------------------- #
+# 1b. Quality-relevance gate (Part B)                                         #
+# --------------------------------------------------------------------------- #
+# Title-level quality / QA / food-safety vocabulary. Deliberately EXCLUDES bare
+# workplace-safety wording ("safety", "WHS", "OHS", "work health and safety") —
+# only "food safety" counts — so a WHS coordinator is not treated as relevant.
+_QUALITY_TITLE = re.compile(
+    r"\bquality\b|\bqa\b|q\.a|quality assurance|quality control|\bqc\b|"
+    r"food safety|\bhaccp\b|\bbrcgs\b|\bbrc\b|\bsqf\b|\bfssc\b|\bgmp\b|"
+    r"food technolog|quality systems|product integrity|technical manager|"
+    r"regulatory affairs|vendor assurance|supplier quality|"
+    r"quality and compliance|quality & compliance"
+)
+
+
+def is_quality_relevant(title: str, jd_text: str = "") -> bool:
+    """True if the *title* indicates a quality / QA / food-safety / technical role.
+
+    Relevance is decided on the TITLE only (the ``jd_text`` argument is accepted
+    for signature stability / future use): either the title maps to a non-"other"
+    seniority category, or it matches the quality-title vocabulary. Bare
+    workplace-safety wording (WHS/OHS/"work health and safety") does NOT count —
+    only "food safety" does.
+    """
+    if canonical_seniority(title) != "other":
+        return True
+    return bool(_QUALITY_TITLE.search(title.lower()))
 
 
 # --------------------------------------------------------------------------- #
@@ -650,34 +681,119 @@ def score_company(
 # --------------------------------------------------------------------------- #
 # 4. Location / salary (spec §10.5-§10.6, the 0.10 component)                 #
 # --------------------------------------------------------------------------- #
-# Clearly non-Australian locations (countries, well-known overseas cities/regions,
-# and US state codes). Matching any of these classifies the job as overseas so the
-# AU-only filter excludes it. Be conservative: only explicit non-AU hits fire.
-_OVERSEAS = re.compile(
-    r"\bvietnam\b|\bnew zealand\b|\bauckland\b|wellington|christchurch|"
-    r"\bnz\b|\bthailand\b|\brayong\b|\bbangkok\b|\bphilippines\b|\bmanila\b|"
-    r"\bindonesia\b|jakarta|\bmalaysia\b|kuala lumpur|\bsingapore\b|\bchina\b|"
-    r"shanghai|beijing|\bindia\b|mumbai|\bjapan\b|tokyo|\bkorea\b|"
-    r"\busa\b|united states|\bu\.s\.a?\.?\b|\bchicago\b|\btoledo\b|new york|"
-    r"\bcalifornia\b|\btexas\b|\bil\b|\bca\b|\bny\b|\btx\b|\boh\b|"
-    r"united kingdom|\buk\b|\blondon\b|manchester|\bireland\b|dublin|"
-    r"\bcanada\b|toronto|\bgermany\b|\bfrance\b|\bnetherlands\b|"
-    r"hung yen|\bplant\b.*\b(vietnam|thailand|china|indonesia)\b"
+# --- AU location allowlist (Part B) ---------------------------------------- #
+# We classify as overseas by EXCLUSION: a non-empty location with no Australian
+# signal at all is overseas. This is robust against global ATS tenants that post
+# US/EU/Asia roles ("Franklin, WI", "Ho Chi Minh City", "Rayong Plant") which an
+# explicit blocklist could never fully enumerate.
+_AU_REMOTE_MARKERS = (
+    "remote",
+    "work from home",
+    "work-from-home",
+    "wfh",
+    "anywhere",
+    "hybrid",
 )
+_AU_STATE_NAMES = (
+    "new south wales",
+    "victoria",
+    "queensland",
+    "western australia",
+    "south australia",
+    "tasmania",
+    "northern territory",
+    "australian capital territory",
+)
+_AU_STATE_CODES = re.compile(r"\b(?:nsw|vic|qld|wa|sa|tas|nt|act)\b")
+_AU_CITIES = (
+    "sydney",
+    "melbourne",
+    "brisbane",
+    "perth",
+    "adelaide",
+    "canberra",
+    "hobart",
+    "darwin",
+    "gold coast",
+    "sunshine coast",
+    "newcastle",
+    "wollongong",
+    "geelong",
+    "central coast",
+    "gosford",
+    "wyong",
+    "parramatta",
+    "penrith",
+    "blacktown",
+    "liverpool",
+    "macquarie park",
+    "norwest",
+    "tatura",
+    "shepparton",
+    "bendigo",
+    "ballarat",
+    "toowoomba",
+    "townsville",
+    "cairns",
+    "mackay",
+    "rockhampton",
+    "wagga",
+    "tamworth",
+    "orange",
+    "dubbo",
+    "albury",
+    "launceston",
+    "bunbury",
+    "lidcombe",
+    "smithfield",
+    "wetherill park",
+    "rooty hill",
+    "dandenong",
+    "pyrmont",
+    "yatala",
+    "carole park",
+)
+_AU_STANDALONE_AUS = re.compile(r"\baus\b")
+
+
+def is_australian_location(location: str | None) -> bool:
+    """True if *location* carries any Australian signal (or is ambiguous/empty).
+
+    Empty / unknown locations return True (ambiguous — we don't over-filter). A
+    non-empty location is Australian if it mentions Australia, a remote/WFH
+    marker, an AU state (full name or word-boundary code), or a known AU
+    city/region. Everything else (a real, non-AU place) returns False.
+    """
+    if not location or not location.strip():
+        return True
+    loc = location.lower()
+
+    if "australia" in loc or "australian" in loc or _AU_STANDALONE_AUS.search(loc):
+        return True
+    if any(marker in loc for marker in _AU_REMOTE_MARKERS):
+        return True
+    if any(name in loc for name in _AU_STATE_NAMES):
+        return True
+    if _AU_STATE_CODES.search(loc):
+        return True
+    return any(city in loc for city in _AU_CITIES)
 
 
 def classify_location(location: str | None) -> str:
-    """Single best location key.
+    """Single best location key (allowlist-based AU gate).
 
-    Empty / unknown / ambiguous locations stay in the neutral AU bucket
-    (``other_au``). Only locations matching the explicit overseas vocabulary are
-    classified ``overseas`` (and subsequently filtered by the pipeline).
+    A non-empty location with NO Australian signal is ``overseas`` (and is
+    subsequently filtered by the pipeline). Otherwise we bucket the AU location
+    into sydney_greater / nsw_regional / melbourne_brisbane / other_au; empty /
+    ambiguous locations stay in the neutral ``other_au`` bucket.
     """
+    if location and location.strip() and not is_australian_location(location):
+        return "overseas"
     if not location or not location.strip():
         return "other_au"
     loc = location.lower()
 
-    # AU classification takes precedence so AU states/cities are never mis-flagged.
+    # AU classification: most-specific region first.
     if re.search(r"sydney|parramatta|western sydney|macquarie park|norwest|north ryde", loc):
         return "sydney_greater"
     if re.search(r"newcastle|wollongong|orange|central coast|regional nsw|\bnsw regional\b", loc):
@@ -687,18 +803,7 @@ def classify_location(location: str | None) -> str:
     # NSW metro that is not specifically tagged above still counts as Sydney-greater.
     if re.search(r"\bnsw\b|new south wales", loc):
         return "sydney_greater"
-    if re.search(
-        r"perth|adelaide|hobart|darwin|canberra|\bwa\b|\bsa\b|\btas\b|\bact\b|\bnt\b|australia",
-        loc,
-    ):
-        return "other_au"
-
-    # Clearly overseas (countries, known overseas cities/regions, US state codes).
-    if _OVERSEAS.search(loc):
-        return "overseas"
-
-    # Ambiguous / unrecognized -> stay neutral-AU so we never filter a real AU
-    # suburb we simply don't have a pattern for.
+    # Any other recognized-AU location (other states, remote, "Australia", etc.).
     return "other_au"
 
 

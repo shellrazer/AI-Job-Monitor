@@ -1,0 +1,3862 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Job Monitor Report</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #f4f5f7;
+      color: #1a1a1a;
+      line-height: 1.45;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; }
+    header.summary {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    header.summary h1 { margin: 0 0 4px; font-size: 20px; }
+    header.summary .subtitle { color: #555; font-size: 14px; margin: 0 0 12px; }
+    header.summary .meta { color: #777; font-size: 13px; }
+    .tier-counts { margin: 10px 0 0; padding: 0; list-style: none;
+      display: flex; flex-wrap: wrap; gap: 8px; }
+    .tier-counts li {
+      font-size: 13px; padding: 3px 10px; border-radius: 999px;
+      background: #eef0f3; color: #333;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+      border-left: 5px solid #c7ccd4;
+    }
+    .card--alert {
+      border-left-color: #d92d20;
+      background: #fff7f6;
+    }
+    .card h2 { margin: 0 0 4px; font-size: 17px; }
+    .card .company-line { color: #444; font-size: 14px; margin: 0 0 12px; }
+    .badge {
+      display: inline-block; font-size: 12px; font-weight: 600;
+      padding: 2px 9px; border-radius: 6px; margin-left: 8px;
+      vertical-align: middle; background: #e7eefc; color: #1747b8;
+    }
+    .badge--alert { background: #fde7e5; color: #b42318; }
+    dl.fields { margin: 0; display: grid; grid-template-columns: 180px 1fr;
+      gap: 4px 12px; font-size: 14px; }
+    dl.fields dt { color: #666; font-weight: 600; }
+    dl.fields dd { margin: 0; }
+    ul.reasons, ul.tips { margin: 4px 0 0; padding-left: 20px; }
+    ul.reasons li, ul.tips li { font-size: 14px; }
+    a { color: #1747b8; word-break: break-all; }
+    .empty { background: #fff; border-radius: 10px; padding: 24px;
+      text-align: center; color: #777; }
+    h2.section { margin: 26px 0 12px; font-size: 16px; color: #1a1a1a;
+      border-bottom: 2px solid #d6dae1; padding-bottom: 6px; }
+    .section-empty { font-size: 13px; color: #999; margin: 0 0 16px; }
+    .tabs {
+      display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px;
+      border-bottom: 2px solid #d6dae1;
+    }
+    .tab-btn {
+      appearance: none; border: 1px solid #d6dae1; border-bottom: none;
+      background: #eef0f3; color: #444; font: inherit; font-size: 14px;
+      font-weight: 600; cursor: pointer; padding: 9px 16px;
+      border-radius: 8px 8px 0 0; margin-bottom: -2px;
+    }
+    .tab-btn:hover { background: #e3e6ea; }
+    .tab-btn.is-active {
+      background: #fff; color: #1747b8; border-color: #d6dae1;
+      border-bottom: 2px solid #fff;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.is-active { display: block; }
+    .stars { color: #e6a700; letter-spacing: 1px; }
+    .recruiter {
+      display: inline-block; font-size: 12px; font-weight: 600;
+      padding: 2px 9px; border-radius: 6px; margin-left: 8px;
+      vertical-align: middle; background: #fff3e0; color: #9a5b00;
+    }
+    footer { color: #999; font-size: 12px; text-align: center; margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="summary">
+      <h1>职位监控报告 / Job Monitor Report</h1>
+      <p class="subtitle">86 roles</p>
+      <p class="meta">生成时间 / Generated: 2026-06-22 11:11
+        · 共 / Total: 86</p>
+      <ul class="tier-counts">
+        
+          <li>A: 6</li>
+        
+          <li>B: 44</li>
+        
+          <li>C: 36</li>
+        
+      </ul>
+    </header>
+
+    
+
+    <div class="tabs" role="tablist">
+      
+        <button type="button" class="tab-btn is-active"
+          role="tab" aria-controls="tab-panel-1"
+          aria-selected="true"
+          data-tab-target="tab-panel-1">
+          优选公司 / Preferred Companies (13)
+        </button>
+      
+        <button type="button" class="tab-btn"
+          role="tab" aria-controls="tab-panel-2"
+          aria-selected="false"
+          data-tab-target="tab-panel-2">
+          综合推荐 / NSW & Remote Picks (35)
+        </button>
+      
+        <button type="button" class="tab-btn"
+          role="tab" aria-controls="tab-panel-3"
+          aria-selected="false"
+          data-tab-target="tab-panel-3">
+          其他地区 / Other Regions (51)
+        </button>
+      
+    </div>
+
+    
+      <section class="tab-panel is-active"
+        id="tab-panel-1" role="tabpanel">
+      <h2 class="section">优选公司 / Preferred Companies (13)</h2>
+      
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Control Manager
+            
+              <span class="badge badge--alert">A</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Kerry Group Australia · Queensland</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Control Manager</dd>
+            <dt>公司 / Company</dt><dd>Kerry Group Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Queensland</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-18</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://career5.successfactors.eu/careers?company=kerryluxemP&career_ns=job_application&career_job_req_id=65126&jobPipeline=PhenomCareerSite">https://career5.successfactors.eu/careers?company=kerryluxemP&career_ns=job_application&career_job_req_id=65126&jobPipeline=PhenomCareerSite</a></dd>
+            <dt>Final score</dt><dd>74.6</dd>
+            <dt>优先级 / Priority</dt><dd>A</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Highlight Bunge QFS lab management</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Inspector - Coles Group - Townsville Distribution Centre
+            
+              <span class="badge badge--alert">A</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Coles Group · Location
+                    
+                    
+                    Townsville, Queensland, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Inspector - Coles Group - Townsville Distribution Centre</dd>
+            <dt>公司 / Company</dt><dd>Coles Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Location
+                    
+                    
+                    Townsville, Queensland, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://colescareers.com.au/au/en/job/188111/Quality-Inspector-Coles-Group-Townsville-Distribution-Centre">https://colescareers.com.au/au/en/job/188111/Quality-Inspector-Coles-Group-Townsville-Distribution-Centre</a></dd>
+            <dt>Final score</dt><dd>70.9</dd>
+            <dt>优先级 / Priority</dt><dd>A</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: national group head</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Inspector - Coles Group - Laverton Cold Distribution Centre
+            
+              <span class="badge badge--alert">A</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Coles Group · Location
+                    
+                    
+                    Truganina   Melbourne, Victoria, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Inspector - Coles Group - Laverton Cold Distribution Centre</dd>
+            <dt>公司 / Company</dt><dd>Coles Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Location
+                    
+                    
+                    Truganina   Melbourne, Victoria, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://colescareers.com.au/au/en/job/190049/Quality-Inspector-Coles-Group-Laverton-Cold-Distribution-Centre">https://colescareers.com.au/au/en/job/190049/Quality-Inspector-Coles-Group-Laverton-Cold-Distribution-Centre</a></dd>
+            <dt>Final score</dt><dd>68.8</dd>
+            <dt>优先级 / Priority</dt><dd>A</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: national group head</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Process Quality Technologist
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Kerry Group Australia · Queensland</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Process Quality Technologist</dd>
+            <dt>公司 / Company</dt><dd>Kerry Group Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Queensland</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://career5.successfactors.eu/careers?company=kerryluxemP&career_ns=job_application&career_job_req_id=63912&jobPipeline=PhenomCareerSite">https://career5.successfactors.eu/careers?company=kerryluxemP&career_ns=job_application&career_job_req_id=63912&jobPipeline=PhenomCareerSite</a></dd>
+            <dt>Final score</dt><dd>56.7</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li><li>Detail CAPA, non-conformance, traceability and recall readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Food Safety Coordinator
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">PepsiCo Australia · Tingalpa, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Food Safety Coordinator</dd>
+            <dt>公司 / Company</dt><dd>PepsiCo Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Tingalpa, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-04-17</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://globalcareers-pepsico.icims.com/jobs/449299/login">https://globalcareers-pepsico.icims.com/jobs/449299/login</a></dd>
+            <dt>Final score</dt><dd>52.7</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Food Safety Quality Assurance Officer PM
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">JBS Australia (incl. Primo Foods)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Food Safety Quality Assurance Officer PM</dd>
+            <dt>公司 / Company</dt><dd>JBS Australia (incl. Primo Foods)</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.jbssa.com.au/job/Melbourne-Food-Safety-Quality-Assurance-Officer-PM-VIC-3012/1362806666/">https://careers.jbssa.com.au/job/Melbourne-Food-Safety-Quality-Assurance-Officer-PM-VIC-3012/1362806666/</a></dd>
+            <dt>Final score</dt><dd>52.1</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager Toledo
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Suntory Oceania</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager Toledo</dd>
+            <dt>公司 / Company</dt><dd>Suntory Oceania</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.suntorybeverageandfood.com/job/Toledo-Quality-Manager-Toledo-45007/1354909655/">https://careers.suntorybeverageandfood.com/job/Toledo-Quality-Manager-Toledo-45007/1354909655/</a></dd>
+            <dt>Final score</dt><dd>52.0</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Food Safety & Quality Assurance Officer (FSQA) Officer
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">JBS Australia (incl. Primo Foods)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Food Safety & Quality Assurance Officer (FSQA) Officer</dd>
+            <dt>公司 / Company</dt><dd>JBS Australia (incl. Primo Foods)</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.jbssa.com.au/job/Townsville-Food-Safety-&-Quality-Assurance-Officer-%28FSQA%29-Officer-QLD-4811/1361613966/">https://careers.jbssa.com.au/job/Townsville-Food-Safety-&-Quality-Assurance-Officer-%28FSQA%29-Officer-QLD-4811/1361613966/</a></dd>
+            <dt>Final score</dt><dd>51.5</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            ANZ Head of Regulatory Affairs – Food & Beverages
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">PepsiCo Australia · Chatswood, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>ANZ Head of Regulatory Affairs – Food & Beverages</dd>
+            <dt>公司 / Company</dt><dd>PepsiCo Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Chatswood, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://globalcareers-pepsico.icims.com/jobs/457878/login">https://globalcareers-pepsico.icims.com/jobs/457878/login</a></dd>
+            <dt>Final score</dt><dd>47.8</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Supplier Quality Assurance Associate Scientist (12‑Month Fixed Term Contract)
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">PepsiCo Australia · Chatswood, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Supplier Quality Assurance Associate Scientist (12‑Month Fixed Term Contract)</dd>
+            <dt>公司 / Company</dt><dd>PepsiCo Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Chatswood, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-05-27</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://globalcareers-pepsico.icims.com/jobs/453428/login">https://globalcareers-pepsico.icims.com/jobs/453428/login</a></dd>
+            <dt>Final score</dt><dd>43.9</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Supplier / co-packer quality scope</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Highlight co-packer & supplier quality from PepsiCo/Bunge</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Specialist - Environmental & Sanitation
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Bega Group · Hobart (TAS)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Specialist - Environmental & Sanitation</dd>
+            <dt>公司 / Company</dt><dd>Bega Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Hobart (TAS)</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-15</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://begacheese.wd3.myworkdayjobs.com/en-US/Bega_Careers/job/Hobart-TAS/Quality-Specialist---Environmental---Sanitation_JR-7309">https://begacheese.wd3.myworkdayjobs.com/en-US/Bega_Careers/job/Hobart-TAS/Quality-Specialist---Environmental---Sanitation_JR-7309</a></dd>
+            <dt>Final score</dt><dd>43.3</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Regulatory Affairs Senior Scientist (12 Months Fixed Term Contract)
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">PepsiCo Australia · Chatswood, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Regulatory Affairs Senior Scientist (12 Months Fixed Term Contract)</dd>
+            <dt>公司 / Company</dt><dd>PepsiCo Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Chatswood, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-04-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://globalcareers-pepsico.icims.com/jobs/442886/login">https://globalcareers-pepsico.icims.com/jobs/442886/login</a></dd>
+            <dt>Final score</dt><dd>38.9</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Assistant
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">JBS Australia (incl. Primo Foods)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Assistant</dd>
+            <dt>公司 / Company</dt><dd>JBS Australia (incl. Primo Foods)</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.jbssa.com.au/job/Sydney-Quality-Assurance-Assistant-NSW-2141/1362996866/">https://careers.jbssa.com.au/job/Sydney-Quality-Assurance-Assistant-NSW-2141/1362996866/</a></dd>
+            <dt>Final score</dt><dd>38.1</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+      </section>
+    
+      <section class="tab-panel"
+        id="tab-panel-2" role="tabpanel">
+      <h2 class="section">综合推荐 / NSW & Remote Picks (35)</h2>
+      
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Group Quality Assurance Manager
+            
+              <span class="badge badge--alert">A</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Shirley Parsons · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Group Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Shirley Parsons</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-17</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/group-quality-assurance-manager-at-shirley-parsons-4429790327">https://au.linkedin.com/jobs/view/group-quality-assurance-manager-at-shirley-parsons-4429790327</a></dd>
+            <dt>Final score</dt><dd>70.7</dd>
+            <dt>优先级 / Priority</dt><dd>A</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: national group head</li><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Senior Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Healthcare Professionals Group · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Senior Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Healthcare Professionals Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-09-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/senior-quality-assurance-manager-at-healthcare-professionals-group-4425945617">https://au.linkedin.com/jobs/view/senior-quality-assurance-manager-at-healthcare-professionals-group-4425945617</a></dd>
+            <dt>Final score</dt><dd>64.4</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: senior quality manager</li><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager - Sheridan Group
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Hanes Brands Australasia · Pyrmont, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager - Sheridan Group</dd>
+            <dt>公司 / Company</dt><dd>Hanes Brands Australasia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Pyrmont, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-05-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-assurance-manager-sheridan-group-at-hanes-brands-australasia-4331102936">https://au.linkedin.com/jobs/view/quality-assurance-manager-sheridan-group-at-hanes-brands-australasia-4331102936</a></dd>
+            <dt>Final score</dt><dd>64.2</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: national group head</li><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            QA Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Cordina Foods · Wyong NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>QA Manager</dd>
+            <dt>公司 / Company</dt><dd>Cordina Foods</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Wyong NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/QA-Manager-c42316b3317f2597b33a4b9d6c3bf36a">https://au.jora.com/job/QA-Manager-c42316b3317f2597b33a4b9d6c3bf36a</a></dd>
+            <dt>Final score</dt><dd>62.0</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">B E Campbell Group · Wetherill Park NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>B E Campbell Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Wetherill Park NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/Quality-Assurance-Manager-3916165459502074fb245dcbec3f530e">https://au.jora.com/job/Quality-Assurance-Manager-3916165459502074fb245dcbec3f530e</a></dd>
+            <dt>Final score</dt><dd>61.7</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Foreground team leadership and site-level QA ownership</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Site Quality Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Michael Page · Rooty Hill, Sydney NSW<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Site Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Michael Page</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Rooty Hill, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92406890">https://www.seek.com.au/job/92406890</a></dd>
+            <dt>Final score</dt><dd>61.6</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: site quality manager</li><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Product Quality Manager - Seafood
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Tassal Operations · Lidcombe, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Product Quality Manager - Seafood</dd>
+            <dt>公司 / Company</dt><dd>Tassal Operations</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Lidcombe, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92680503">https://www.seek.com.au/job/92680503</a></dd>
+            <dt>Final score</dt><dd>61.3</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Multi-site / national quality scope</li><li>Site leadership / quality systems ownership</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Emphasize PepsiCo national quality across 8 plants</li><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Miller Leith · Revesby NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Miller Leith</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Revesby NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/Quality-Assurance-Manager-92c0ff41c351be28e8940bae783de815">https://au.jora.com/job/Quality-Assurance-Manager-92c0ff41c351be28e8940bae783de815</a></dd>
+            <dt>Final score</dt><dd>59.1</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Foreground team leadership and site-level QA ownership</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Product Quality Manager - Seafood
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Tassal Group · Lidcombe, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Product Quality Manager - Seafood</dd>
+            <dt>公司 / Company</dt><dd>Tassal Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Lidcombe, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-12-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/product-quality-manager-seafood-at-tassal-group-4427681673">https://au.linkedin.com/jobs/view/product-quality-manager-seafood-at-tassal-group-4427681673</a></dd>
+            <dt>Final score</dt><dd>58.8</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager - Permanent FT
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Challenger Services Group · Blacktown NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager - Permanent FT</dd>
+            <dt>公司 / Company</dt><dd>Challenger Services Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Blacktown NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/Quality-Assurance-Manager-819c083f88649024d5265bdff7d597d0">https://au.jora.com/job/Quality-Assurance-Manager-819c083f88649024d5265bdff7d597d0</a></dd>
+            <dt>Final score</dt><dd>56.8</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Product Quality Manager - Seafood
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Kinsley Power Systems · City of Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Product Quality Manager - Seafood</dd>
+            <dt>公司 / Company</dt><dd>Kinsley Power Systems</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>City of Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/Product-Quality-Manager-7caecd388a1fa661af952138c30072ad">https://au.jora.com/job/Product-Quality-Manager-7caecd388a1fa661af952138c30072ad</a></dd>
+            <dt>Final score</dt><dd>56.4</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">EQ Food · Minto, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>EQ Food</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Minto, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-12-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-assurance-manager-at-eq-food-4426694701">https://au.linkedin.com/jobs/view/quality-assurance-manager-at-eq-food-4426694701</a></dd>
+            <dt>Final score</dt><dd>55.2</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Real Pet Food Company · Ingleburn, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Real Pet Food Company</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Ingleburn, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-05-27</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-assurance-manager-at-real-pet-food-company-4419131880">https://au.linkedin.com/jobs/view/quality-assurance-manager-at-real-pet-food-company-4419131880</a></dd>
+            <dt>Final score</dt><dd>55.2</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Group Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Shirley Parsons · Sefton, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Group Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Shirley Parsons</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sefton, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92773239">https://www.seek.com.au/job/92773239</a></dd>
+            <dt>Final score</dt><dd>53.3</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: national group head</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            QA/QC Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">JLE Group · Newcastle, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>QA/QC Manager</dd>
+            <dt>公司 / Company</dt><dd>JLE Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Newcastle, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-05-18</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/qa-qc-manager-at-jle-group-4415471793">https://au.linkedin.com/jobs/view/qa-qc-manager-at-jle-group-4415471793</a></dd>
+            <dt>Final score</dt><dd>51.9</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Senior Regulatory & Compliance Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Elements Recruitment Australia · Sydney, New South Wales, Australia<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Senior Regulatory & Compliance Manager</dd>
+            <dt>公司 / Company</dt><dd>Elements Recruitment Australia</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-17</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/senior-regulatory-compliance-manager-at-elements-recruitment-australia-4429770080">https://au.linkedin.com/jobs/view/senior-regulatory-compliance-manager-at-elements-recruitment-australia-4429770080</a></dd>
+            <dt>Final score</dt><dd>49.1</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            QC (Quality Control) Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Nature's Care · Belrose, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>QC (Quality Control) Manager</dd>
+            <dt>公司 / Company</dt><dd>Nature's Care</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Belrose, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92688856">https://www.seek.com.au/job/92688856</a></dd>
+            <dt>Final score</dt><dd>47.6</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager - Hands-On Manufacturing Role
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Avida · Emu Plains, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager - Hands-On Manufacturing Role</dd>
+            <dt>公司 / Company</dt><dd>Avida</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Emu Plains, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92310222">https://www.seek.com.au/job/92310222</a></dd>
+            <dt>Final score</dt><dd>47.4</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager — Cosmetic & Personal Care Manufacturing
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">ICONS Rauxel Pty Ltd. · Hornsby, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager — Cosmetic & Personal Care Manufacturing</dd>
+            <dt>公司 / Company</dt><dd>ICONS Rauxel Pty Ltd.</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Hornsby, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92458567">https://www.seek.com.au/job/92458567</a></dd>
+            <dt>Final score</dt><dd>45.6</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Assistant
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">JBS · Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Assistant</dd>
+            <dt>公司 / Company</dt><dd>JBS</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92795617">https://www.seek.com.au/job/92795617</a></dd>
+            <dt>Final score</dt><dd>43.8</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Design & Build Recruitment · Wetherill Park, Sydney NSW<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Design & Build Recruitment</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Wetherill Park, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>AUD 150,000 / year</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92315171">https://www.seek.com.au/job/92315171</a></dd>
+            <dt>Final score</dt><dd>43.3</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Salary >= $130k</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Systems Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Hibbs and Associates · Auburn, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Systems Manager</dd>
+            <dt>公司 / Company</dt><dd>Hibbs and Associates</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Auburn, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92590214">https://www.seek.com.au/job/92590214</a></dd>
+            <dt>Final score</dt><dd>42.4</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance & Compliance Supervisor
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Hakka Foods · Silverwater, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance & Compliance Supervisor</dd>
+            <dt>公司 / Company</dt><dd>Hakka Foods</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Silverwater, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-22</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-assurance-compliance-supervisor-at-hakka-foods-4430365389">https://au.linkedin.com/jobs/view/quality-assurance-compliance-supervisor-at-hakka-foods-4430365389</a></dd>
+            <dt>Final score</dt><dd>40.8</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            QA Lead – Food Safety & Quality Assurance
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Bayside Group · City of Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>QA Lead – Food Safety & Quality Assurance</dd>
+            <dt>公司 / Company</dt><dd>Bayside Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>City of Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/QA-Lead-Food-57d7cf98914e39049fe24a1cefcf35ea">https://au.jora.com/job/QA-Lead-Food-57d7cf98914e39049fe24a1cefcf35ea</a></dd>
+            <dt>Final score</dt><dd>40.7</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager (12month Fixed Term – Maternity Leave Cover)
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Excelsia College · Pennant Hills, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager (12month Fixed Term – Maternity Leave Cover)</dd>
+            <dt>公司 / Company</dt><dd>Excelsia College</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Pennant Hills, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92823693">https://www.seek.com.au/job/92823693</a></dd>
+            <dt>Final score</dt><dd>40.2</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Project Quality Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Seymour Whyte Constructions · Newcastle, Newcastle, Maitland & Hunter NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Project Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Seymour Whyte Constructions</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Newcastle, Newcastle, Maitland & Hunter NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Annual reviewed salary + Project Bonus</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92787294">https://www.seek.com.au/job/92787294</a></dd>
+            <dt>Final score</dt><dd>40.2</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">CSR Limited · Wetherill Park, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>CSR Limited</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Wetherill Park, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92751904">https://www.seek.com.au/job/92751904</a></dd>
+            <dt>Final score</dt><dd>39.9</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality & Compliance Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Melbar Aged Care · Sydney Olympic Park, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality & Compliance Manager</dd>
+            <dt>公司 / Company</dt><dd>Melbar Aged Care</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney Olympic Park, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92438395">https://www.seek.com.au/job/92438395</a></dd>
+            <dt>Final score</dt><dd>39.6</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance & Compliance Supervisor
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Vic's Premium Quality Meat · Mascot, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance & Compliance Supervisor</dd>
+            <dt>公司 / Company</dt><dd>Vic's Premium Quality Meat</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Mascot, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>AUD 120,000 - AUD 140,000 / year</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92737035">https://www.seek.com.au/job/92737035</a></dd>
+            <dt>Final score</dt><dd>39.6</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Salary >= $130k</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Centre Manager 2IC – Quality & Compliance / Nominated Supervisor
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Harbord Public School P&C · Freshwater, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Centre Manager 2IC – Quality & Compliance / Nominated Supervisor</dd>
+            <dt>公司 / Company</dt><dd>Harbord Public School P&C</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Freshwater, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92333902">https://www.seek.com.au/job/92333902</a></dd>
+            <dt>Final score</dt><dd>39.5</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Associate
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">LIPA Pharmaceuticals · Minto, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Associate</dd>
+            <dt>公司 / Company</dt><dd>LIPA Pharmaceuticals</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Minto, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92825233">https://www.seek.com.au/job/92825233</a></dd>
+            <dt>Final score</dt><dd>39.4</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Sonder Executive · Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Sonder Executive</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Competitive Salary</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92302150">https://www.seek.com.au/job/92302150</a></dd>
+            <dt>Final score</dt><dd>38.8</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Governance Manager (Fixed-Term)
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Excelsia College · Pennant Hills, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Governance Manager (Fixed-Term)</dd>
+            <dt>公司 / Company</dt><dd>Excelsia College</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Pennant Hills, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92823249">https://www.seek.com.au/job/92823249</a></dd>
+            <dt>Final score</dt><dd>38.7</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">B&E Foods · Blacktown, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>B&E Foods</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Blacktown, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92851820">https://www.seek.com.au/job/92851820</a></dd>
+            <dt>Final score</dt><dd>38.5</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Health, Safety & Quality Manager ANZ
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">LAPP Australia · Eastern Creek, Sydney NSW</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Health, Safety & Quality Manager ANZ</dd>
+            <dt>公司 / Company</dt><dd>LAPP Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Eastern Creek, Sydney NSW</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92785040">https://www.seek.com.au/job/92785040</a></dd>
+            <dt>Final score</dt><dd>38.2</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+      </section>
+    
+      <section class="tab-panel"
+        id="tab-panel-3" role="tabpanel">
+      <h2 class="section">其他地区 / Other Regions (51)</h2>
+      
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Control Manager
+            
+              <span class="badge badge--alert">A</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Kerry Group Australia · Queensland</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Control Manager</dd>
+            <dt>公司 / Company</dt><dd>Kerry Group Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Queensland</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-18</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://career5.successfactors.eu/careers?company=kerryluxemP&career_ns=job_application&career_job_req_id=65126&jobPipeline=PhenomCareerSite">https://career5.successfactors.eu/careers?company=kerryluxemP&career_ns=job_application&career_job_req_id=65126&jobPipeline=PhenomCareerSite</a></dd>
+            <dt>Final score</dt><dd>74.6</dd>
+            <dt>优先级 / Priority</dt><dd>A</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Highlight Bunge QFS lab management</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Inspector - Coles Group - Townsville Distribution Centre
+            
+              <span class="badge badge--alert">A</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Coles Group · Location
+                    
+                    
+                    Townsville, Queensland, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Inspector - Coles Group - Townsville Distribution Centre</dd>
+            <dt>公司 / Company</dt><dd>Coles Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Location
+                    
+                    
+                    Townsville, Queensland, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://colescareers.com.au/au/en/job/188111/Quality-Inspector-Coles-Group-Townsville-Distribution-Centre">https://colescareers.com.au/au/en/job/188111/Quality-Inspector-Coles-Group-Townsville-Distribution-Centre</a></dd>
+            <dt>Final score</dt><dd>70.9</dd>
+            <dt>优先级 / Priority</dt><dd>A</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: national group head</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Inspector - Coles Group - Laverton Cold Distribution Centre
+            
+              <span class="badge badge--alert">A</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Coles Group · Location
+                    
+                    
+                    Truganina   Melbourne, Victoria, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Inspector - Coles Group - Laverton Cold Distribution Centre</dd>
+            <dt>公司 / Company</dt><dd>Coles Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Location
+                    
+                    
+                    Truganina   Melbourne, Victoria, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://colescareers.com.au/au/en/job/190049/Quality-Inspector-Coles-Group-Laverton-Cold-Distribution-Centre">https://colescareers.com.au/au/en/job/190049/Quality-Inspector-Coles-Group-Laverton-Cold-Distribution-Centre</a></dd>
+            <dt>Final score</dt><dd>68.8</dd>
+            <dt>优先级 / Priority</dt><dd>A</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: national group head</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Process Quality Technologist
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Kerry Group Australia · Queensland</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Process Quality Technologist</dd>
+            <dt>公司 / Company</dt><dd>Kerry Group Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Queensland</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://career5.successfactors.eu/careers?company=kerryluxemP&career_ns=job_application&career_job_req_id=63912&jobPipeline=PhenomCareerSite">https://career5.successfactors.eu/careers?company=kerryluxemP&career_ns=job_application&career_job_req_id=63912&jobPipeline=PhenomCareerSite</a></dd>
+            <dt>Final score</dt><dd>56.7</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li><li>Detail CAPA, non-conformance, traceability and recall readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Food Safety Coordinator
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">PepsiCo Australia · Tingalpa, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Food Safety Coordinator</dd>
+            <dt>公司 / Company</dt><dd>PepsiCo Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Tingalpa, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-04-17</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://globalcareers-pepsico.icims.com/jobs/449299/login">https://globalcareers-pepsico.icims.com/jobs/449299/login</a></dd>
+            <dt>Final score</dt><dd>52.7</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Food Safety Quality Assurance Officer PM
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">JBS Australia (incl. Primo Foods)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Food Safety Quality Assurance Officer PM</dd>
+            <dt>公司 / Company</dt><dd>JBS Australia (incl. Primo Foods)</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.jbssa.com.au/job/Melbourne-Food-Safety-Quality-Assurance-Officer-PM-VIC-3012/1362806666/">https://careers.jbssa.com.au/job/Melbourne-Food-Safety-Quality-Assurance-Officer-PM-VIC-3012/1362806666/</a></dd>
+            <dt>Final score</dt><dd>52.1</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager Toledo
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Suntory Oceania</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager Toledo</dd>
+            <dt>公司 / Company</dt><dd>Suntory Oceania</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.suntorybeverageandfood.com/job/Toledo-Quality-Manager-Toledo-45007/1354909655/">https://careers.suntorybeverageandfood.com/job/Toledo-Quality-Manager-Toledo-45007/1354909655/</a></dd>
+            <dt>Final score</dt><dd>52.0</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Food Safety & Quality Assurance Officer (FSQA) Officer
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">JBS Australia (incl. Primo Foods)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Food Safety & Quality Assurance Officer (FSQA) Officer</dd>
+            <dt>公司 / Company</dt><dd>JBS Australia (incl. Primo Foods)</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.jbssa.com.au/job/Townsville-Food-Safety-&-Quality-Assurance-Officer-%28FSQA%29-Officer-QLD-4811/1361613966/">https://careers.jbssa.com.au/job/Townsville-Food-Safety-&-Quality-Assurance-Officer-%28FSQA%29-Officer-QLD-4811/1361613966/</a></dd>
+            <dt>Final score</dt><dd>51.5</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            ANZ Head of Regulatory Affairs – Food & Beverages
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">PepsiCo Australia · Chatswood, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>ANZ Head of Regulatory Affairs – Food & Beverages</dd>
+            <dt>公司 / Company</dt><dd>PepsiCo Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Chatswood, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://globalcareers-pepsico.icims.com/jobs/457878/login">https://globalcareers-pepsico.icims.com/jobs/457878/login</a></dd>
+            <dt>Final score</dt><dd>47.8</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Supplier Quality Assurance Associate Scientist (12‑Month Fixed Term Contract)
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">PepsiCo Australia · Chatswood, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Supplier Quality Assurance Associate Scientist (12‑Month Fixed Term Contract)</dd>
+            <dt>公司 / Company</dt><dd>PepsiCo Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Chatswood, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-05-27</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://globalcareers-pepsico.icims.com/jobs/453428/login">https://globalcareers-pepsico.icims.com/jobs/453428/login</a></dd>
+            <dt>Final score</dt><dd>43.9</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Supplier / co-packer quality scope</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Highlight co-packer & supplier quality from PepsiCo/Bunge</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Specialist - Environmental & Sanitation
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Bega Group · Hobart (TAS)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Specialist - Environmental & Sanitation</dd>
+            <dt>公司 / Company</dt><dd>Bega Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Hobart (TAS)</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-15</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://begacheese.wd3.myworkdayjobs.com/en-US/Bega_Careers/job/Hobart-TAS/Quality-Specialist---Environmental---Sanitation_JR-7309">https://begacheese.wd3.myworkdayjobs.com/en-US/Bega_Careers/job/Hobart-TAS/Quality-Specialist---Environmental---Sanitation_JR-7309</a></dd>
+            <dt>Final score</dt><dd>43.3</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Regulatory Affairs Senior Scientist (12 Months Fixed Term Contract)
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">PepsiCo Australia · Chatswood, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Regulatory Affairs Senior Scientist (12 Months Fixed Term Contract)</dd>
+            <dt>公司 / Company</dt><dd>PepsiCo Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Chatswood, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-04-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://globalcareers-pepsico.icims.com/jobs/442886/login">https://globalcareers-pepsico.icims.com/jobs/442886/login</a></dd>
+            <dt>Final score</dt><dd>38.9</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Assistant
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">JBS Australia (incl. Primo Foods)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Assistant</dd>
+            <dt>公司 / Company</dt><dd>JBS Australia (incl. Primo Foods)</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.jbssa.com.au/job/Sydney-Quality-Assurance-Assistant-NSW-2141/1362996866/">https://careers.jbssa.com.au/job/Sydney-Quality-Assurance-Assistant-NSW-2141/1362996866/</a></dd>
+            <dt>Final score</dt><dd>38.1</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            National Quality Manager - Food Can
+            
+              <span class="badge badge--alert">A</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Visy · Melbourne VIC</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>National Quality Manager - Food Can</dd>
+            <dt>公司 / Company</dt><dd>Visy</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Melbourne VIC</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/National-Quality-Manager-f7df816b21647f17d9ab164a1b7b1411">https://au.jora.com/job/National-Quality-Manager-f7df816b21647f17d9ab164a1b7b1411</a></dd>
+            <dt>Final score</dt><dd>74.6</dd>
+            <dt>优先级 / Priority</dt><dd>A</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: national group head</li><li>Multi-site / national quality scope</li><li>Site leadership / quality systems ownership</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Emphasize PepsiCo national quality across 8 plants</li><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Supplier Quality Manager
+            
+              <span class="badge badge--alert">A</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Chobani Australia · Dandenong, Victoria, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Supplier Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Chobani Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Dandenong, Victoria, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-02-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/supplier-quality-manager-at-chobani-australia-4422483850">https://au.linkedin.com/jobs/view/supplier-quality-manager-at-chobani-australia-4422483850</a></dd>
+            <dt>Final score</dt><dd>67.0</dd>
+            <dt>优先级 / Priority</dt><dd>A</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Supplier / co-packer quality scope</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Highlight co-packer & supplier quality from PepsiCo/Bunge</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            QA Manager - FMCG - Food manufacturing
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Sindorf Marsh · Brisbane QLD</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>QA Manager - FMCG - Food manufacturing</dd>
+            <dt>公司 / Company</dt><dd>Sindorf Marsh</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Brisbane QLD</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/QA-Manager-FMCG-e28981946c6e64353a072f300bc11430">https://au.jora.com/job/QA-Manager-FMCG-e28981946c6e64353a072f300bc11430</a></dd>
+            <dt>Final score</dt><dd>63.4</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li><li>Detail CAPA, non-conformance, traceability and recall readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            QA Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Hays Recruitment · Yandina QLD<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>QA Manager</dd>
+            <dt>公司 / Company</dt><dd>Hays Recruitment</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Yandina QLD</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/QA-Manager-6f0d3e426026449349f92b0de0e3da27">https://au.jora.com/job/QA-Manager-6f0d3e426026449349f92b0de0e3da27</a></dd>
+            <dt>Final score</dt><dd>61.2</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Supplier / co-packer quality scope</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Highlight co-packer & supplier quality from PepsiCo/Bunge</li><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Highlight Bunge QFS lab management</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            QA Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Jana Cameron Recruitment · Nambour QLD<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>QA Manager</dd>
+            <dt>公司 / Company</dt><dd>Jana Cameron Recruitment</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Nambour QLD</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/QA-Manager-95fbf2680a2dd61d1900321d8c97bf78">https://au.jora.com/job/QA-Manager-95fbf2680a2dd61d1900321d8c97bf78</a></dd>
+            <dt>Final score</dt><dd>61.1</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Burst Foods Pty Ltd · Melbourne VIC</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Burst Foods Pty Ltd</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Melbourne VIC</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/Quality-Manager-dcc14c2d2fe3ef51bf0783f85f9bcc44">https://au.jora.com/job/Quality-Manager-dcc14c2d2fe3ef51bf0783f85f9bcc44</a></dd>
+            <dt>Final score</dt><dd>58.4</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Multi-site / national quality scope</li><li>Site leadership / quality systems ownership</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Emphasize PepsiCo national quality across 8 plants</li><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Control Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Kerry · Brisbane, Queensland, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Control Manager</dd>
+            <dt>公司 / Company</dt><dd>Kerry</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★★ (5/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Brisbane, Queensland, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-18</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-control-manager-at-kerry-4430190412">https://au.linkedin.com/jobs/view/quality-control-manager-at-kerry-4430190412</a></dd>
+            <dt>Final score</dt><dd>57.5</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Allied Pinnacle · Yatala QLD</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Allied Pinnacle</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Yatala QLD</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/Quality-Manager-d96c159e478791aa722670f8f3c719fd">https://au.jora.com/job/Quality-Manager-d96c159e478791aa722670f8f3c719fd</a></dd>
+            <dt>Final score</dt><dd>55.8</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Site leadership / quality systems ownership</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Biomecentric · Molendinar, Gold Coast QLD</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Biomecentric</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Molendinar, Gold Coast QLD</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92689056">https://www.seek.com.au/job/92689056</a></dd>
+            <dt>Final score</dt><dd>54.3</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Blackbook Recruitment · Sunshine Coast, Queensland, Australia<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Blackbook Recruitment</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Sunshine Coast, Queensland, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-15</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-assurance-manager-at-blackbook-recruitment-4426461205">https://au.linkedin.com/jobs/view/quality-assurance-manager-at-blackbook-recruitment-4426461205</a></dd>
+            <dt>Final score</dt><dd>54.1</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Aurora Cannabis Inc. · Brisbane, Queensland, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Aurora Cannabis Inc.</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Brisbane, Queensland, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-04-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-assurance-manager-at-aurora-cannabis-inc-4424472202">https://au.linkedin.com/jobs/view/quality-assurance-manager-at-aurora-cannabis-inc-4424472202</a></dd>
+            <dt>Final score</dt><dd>54.1</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager – GMP Pharmaceutical Manufacturing
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Care Essentials Pharmaust Pty Ltd · Malaga, Perth WA</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager – GMP Pharmaceutical Manufacturing</dd>
+            <dt>公司 / Company</dt><dd>Care Essentials Pharmaust Pty Ltd</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Malaga, Perth WA</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92843737">https://www.seek.com.au/job/92843737</a></dd>
+            <dt>Final score</dt><dd>54.1</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Blackbook Executive · Sunshine Coast QLD<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Blackbook Executive</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Sunshine Coast QLD</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92737665">https://www.seek.com.au/job/92737665</a></dd>
+            <dt>Final score</dt><dd>53.5</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Swisse Wellness (part of H&H Group) · Deer Park, Victoria, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Swisse Wellness (part of H&H Group)</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Deer Park, Victoria, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-05-25</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-manager-at-swisse-wellness-part-of-h-h-group-4405935891">https://au.linkedin.com/jobs/view/quality-manager-at-swisse-wellness-part-of-h-h-group-4405935891</a></dd>
+            <dt>Final score</dt><dd>53.3</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Kinrise · Dandenong South, Victoria, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Kinrise</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Dandenong South, Victoria, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-17</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-manager-at-kinrise-4418553537">https://au.linkedin.com/jobs/view/quality-manager-at-kinrise-4418553537</a></dd>
+            <dt>Final score</dt><dd>53.3</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Site leadership / quality systems ownership</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">mexec · Melbourne, Victoria, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>mexec</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Melbourne, Victoria, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-19</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-manager-at-mexec-4430907192">https://au.linkedin.com/jobs/view/quality-manager-at-mexec-4430907192</a></dd>
+            <dt>Final score</dt><dd>53.3</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Site leadership / quality systems ownership</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Major Event Response & Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Auto & General Australia · Brisbane, Queensland, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Major Event Response & Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Auto & General Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Brisbane, Queensland, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-13</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/major-event-response-quality-assurance-manager-at-auto-general-australia-4386878334">https://au.linkedin.com/jobs/view/major-event-response-quality-assurance-manager-at-auto-general-australia-4386878334</a></dd>
+            <dt>Final score</dt><dd>53.1</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card">
+          <h2>
+            Food Regulatory Affairs Manager
+            
+              <span class="badge">B</span>
+            
+            
+          </h2>
+          <p class="company-line">Chobani Australia · Dandenong, Victoria, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Food Regulatory Affairs Manager</dd>
+            <dt>公司 / Company</dt><dd>Chobani Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Dandenong, Victoria, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-04-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/food-regulatory-affairs-manager-at-chobani-australia-4423095962">https://au.linkedin.com/jobs/view/food-regulatory-affairs-manager-at-chobani-australia-4423095962</a></dd>
+            <dt>Final score</dt><dd>52.9</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              —
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Blackbook Executive · Beenleigh, Brisbane QLD<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Blackbook Executive</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Beenleigh, Brisbane QLD</dd>
+            <dt>薪资 / Salary</dt><dd>AUD 120,000 - AUD 125,000 / year</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92864576">https://www.seek.com.au/job/92864576</a></dd>
+            <dt>Final score</dt><dd>52.9</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Control Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">James Hutton Institute Scientific Services · Dundee, Queensland, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Control Manager</dd>
+            <dt>公司 / Company</dt><dd>James Hutton Institute Scientific Services</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Dundee, Queensland, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-09-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-control-manager-at-james-hutton-institute-scientific-services-4426512510">https://au.linkedin.com/jobs/view/quality-control-manager-at-james-hutton-institute-scientific-services-4426512510</a></dd>
+            <dt>Final score</dt><dd>52.5</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Improvement Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Chobani Australia · Dandenong, Victoria, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Improvement Manager</dd>
+            <dt>公司 / Company</dt><dd>Chobani Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Dandenong, Victoria, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-12-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-improvement-manager-at-chobani-australia-4415346026">https://au.linkedin.com/jobs/view/quality-improvement-manager-at-chobani-australia-4415346026</a></dd>
+            <dt>Final score</dt><dd>52.3</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager / Deputy Chief Engineer
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Business Review Group · Canberra, Australian Capital Territory, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager / Deputy Chief Engineer</dd>
+            <dt>公司 / Company</dt><dd>Business Review Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Canberra, Australian Capital Territory, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-12-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-manager-deputy-chief-engineer-at-business-review-group-4189339228">https://au.linkedin.com/jobs/view/quality-manager-deputy-chief-engineer-at-business-review-group-4189339228</a></dd>
+            <dt>Final score</dt><dd>51.8</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Site leadership / quality systems ownership</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager, Yatala
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Allied Pinnacle · Logan, Queensland, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager, Yatala</dd>
+            <dt>公司 / Company</dt><dd>Allied Pinnacle</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Logan, Queensland, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-16</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-manager-yatala-at-allied-pinnacle-4427790522">https://au.linkedin.com/jobs/view/quality-manager-yatala-at-allied-pinnacle-4427790522</a></dd>
+            <dt>Final score</dt><dd>51.2</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Site leadership / quality systems ownership</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            QA Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Americold Logistics, LLC. · Hilton, Western Australia, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>QA Manager</dd>
+            <dt>公司 / Company</dt><dd>Americold Logistics, LLC.</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Hilton, Western Australia, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-16</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/qa-manager-at-americold-logistics-llc-4428016510">https://au.linkedin.com/jobs/view/qa-manager-at-americold-logistics-llc-4428016510</a></dd>
+            <dt>Final score</dt><dd>51.2</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            QA Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Design & Build Recruitment · Perth, Western Australia, Australia<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>QA Manager</dd>
+            <dt>公司 / Company</dt><dd>Design & Build Recruitment</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Perth, Western Australia, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-15</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/qa-manager-at-design-build-recruitment-4425767267">https://au.linkedin.com/jobs/view/qa-manager-at-design-build-recruitment-4425767267</a></dd>
+            <dt>Final score</dt><dd>51.2</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Sonder Executive · Brisbane QLD</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Sonder Executive</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Brisbane QLD</dd>
+            <dt>薪资 / Salary</dt><dd>Competitive Salary</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92850216">https://www.seek.com.au/job/92850216</a></dd>
+            <dt>Final score</dt><dd>50.6</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Manager Operations & Systems QA AUS
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">BioNTech SE · Melbourne, Victoria, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Manager Operations & Systems QA AUS</dd>
+            <dt>公司 / Company</dt><dd>BioNTech SE</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Melbourne, Victoria, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-03-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/manager-operations-systems-qa-aus-at-biontech-se-4366161275">https://au.linkedin.com/jobs/view/manager-operations-systems-qa-aus-at-biontech-se-4366161275</a></dd>
+            <dt>Final score</dt><dd>50.3</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Compliance & Quality Manager – Insurance Building & Restoration
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">RSG Recruitment · Carrum Downs, Melbourne VIC<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Compliance & Quality Manager – Insurance Building & Restoration</dd>
+            <dt>公司 / Company</dt><dd>RSG Recruitment</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Carrum Downs, Melbourne VIC</dd>
+            <dt>薪资 / Salary</dt><dd>AUD 95,000 - AUD 110,000 / year</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92669575">https://www.seek.com.au/job/92669575</a></dd>
+            <dt>Final score</dt><dd>47.8</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Foreground team leadership and site-level QA ownership</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card">
+          <h2>
+            Regulatory Affairs Manager
+            
+              <span class="badge">C</span>
+            
+            
+          </h2>
+          <p class="company-line">Blackbook Recruitment · Melbourne, Victoria, Australia<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Regulatory Affairs Manager</dd>
+            <dt>公司 / Company</dt><dd>Blackbook Recruitment</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Melbourne, Victoria, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-03-06</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/regulatory-affairs-manager-at-blackbook-recruitment-4419654017">https://au.linkedin.com/jobs/view/regulatory-affairs-manager-at-blackbook-recruitment-4419654017</a></dd>
+            <dt>Final score</dt><dd>46.7</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              —
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card">
+          <h2>
+            QA Manager
+            
+              <span class="badge">C</span>
+            
+            
+          </h2>
+          <p class="company-line">Americold Logistics · Spearwood, Perth WA</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>QA Manager</dd>
+            <dt>公司 / Company</dt><dd>Americold Logistics</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Spearwood, Perth WA</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92738895">https://www.seek.com.au/job/92738895</a></dd>
+            <dt>Final score</dt><dd>41.7</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              —
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Production Lead
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Quality · Shepparton VIC</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Production Lead</dd>
+            <dt>公司 / Company</dt><dd>Quality</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Shepparton VIC</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/Production-Lead-fba607493010b14e08796de99bc4b485">https://au.jora.com/job/Production-Lead-fba607493010b14e08796de99bc4b485</a></dd>
+            <dt>Final score</dt><dd>41.1</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li><li>Detail CAPA, non-conformance, traceability and recall readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Mills Recruitment · Perth WA<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Mills Recruitment</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Perth WA</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92798825">https://www.seek.com.au/job/92798825</a></dd>
+            <dt>Final score</dt><dd>40.8</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Manager Quality Assurance
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Public Transport Authority of Western Australia · Perth WA</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Manager Quality Assurance</dd>
+            <dt>公司 / Company</dt><dd>Public Transport Authority of Western Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Perth WA</dd>
+            <dt>薪资 / Salary</dt><dd>AUD 126,659 - AUD 149,012 / year</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92567179">https://www.seek.com.au/job/92567179</a></dd>
+            <dt>Final score</dt><dd>40.8</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Salary >= $130k</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality & Compliance Officer
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Driscolls Australia · Docklands, Melbourne VIC</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality & Compliance Officer</dd>
+            <dt>公司 / Company</dt><dd>Driscolls Australia</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Docklands, Melbourne VIC</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92360233">https://www.seek.com.au/job/92360233</a></dd>
+            <dt>Final score</dt><dd>40.3</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card">
+          <h2>
+            Quality Assurance Team Leader
+            
+              <span class="badge">C</span>
+            
+            
+          </h2>
+          <p class="company-line">Scalzo Foods · Brimbank VIC</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Team Leader</dd>
+            <dt>公司 / Company</dt><dd>Scalzo Foods</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Brimbank VIC</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>jora</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.jora.com/job/Quality-Assurance-Team-Leader-0ed5fd6f246def9cff58ffeaff905be1">https://au.jora.com/job/Quality-Assurance-Team-Leader-0ed5fd6f246def9cff58ffeaff905be1</a></dd>
+            <dt>Final score</dt><dd>40.2</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              —
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Foreground team leadership and site-level QA ownership</li><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card">
+          <h2>
+            Assistant QA Manager - Apparel
+            
+              <span class="badge">C</span>
+            
+            
+          </h2>
+          <p class="company-line">Planning Talent · Melbourne VIC<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Assistant QA Manager - Apparel</dd>
+            <dt>公司 / Company</dt><dd>Planning Talent</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Melbourne VIC</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92818117">https://www.seek.com.au/job/92818117</a></dd>
+            <dt>Final score</dt><dd>39.1</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              —
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Technical Resources · Perth WA</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Technical Resources</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Perth WA</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92851886">https://www.seek.com.au/job/92851886</a></dd>
+            <dt>Final score</dt><dd>38.8</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge">C</span>
+            
+            
+          </h2>
+          <p class="company-line">Tropico Fruits Pty Ltd · Yandina, Sunshine Coast QLD</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Tropico Fruits Pty Ltd</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Yandina, Sunshine Coast QLD</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>seek</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://www.seek.com.au/job/92846552">https://www.seek.com.au/job/92846552</a></dd>
+            <dt>Final score</dt><dd>38.1</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              —
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+      </section>
+    
+
+    <footer>Job Monitor · 2026-06-22 11:11</footer>
+  </div>
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll(".tab-btn");
+      function activate(targetId) {
+        var i;
+        for (i = 0; i < buttons.length; i++) {
+          var btn = buttons[i];
+          var isTarget = btn.getAttribute("data-tab-target") === targetId;
+          btn.classList.toggle("is-active", isTarget);
+          btn.setAttribute("aria-selected", isTarget ? "true" : "false");
+        }
+        var panels = document.querySelectorAll(".tab-panel");
+        for (i = 0; i < panels.length; i++) {
+          panels[i].classList.toggle("is-active", panels[i].id === targetId);
+        }
+      }
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener("click", function () {
+          activate(this.getAttribute("data-tab-target"));
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

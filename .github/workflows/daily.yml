@@ -66,11 +66,11 @@ jobs:
 
       - name: Run the monitor
         env:
-          # To email the digest: set email.enabled=true in config/settings.yaml,
-          # add these repo secrets, and remove --no-email below.
+          # email.enabled=true in config/settings.yaml -> these repo secrets are REQUIRED,
+          # else the run fails fast (validate_email_ready). Add them in repo Settings -> Secrets.
           JOB_MONITOR_GMAIL_USER: ${{ secrets.JOB_MONITOR_GMAIL_USER }}
           JOB_MONITOR_GMAIL_APP_PASSWORD: ${{ secrets.JOB_MONITOR_GMAIL_APP_PASSWORD }}
-        run: uv run job-monitor run --no-email
+        run: uv run job-monitor run
 
       - name: Debug DB after run
         run: ls -lah ~/.job_monitor/jobs.sqlite

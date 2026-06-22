@@ -10,13 +10,14 @@ report:
   email_new_only: true     # daily email = only roles newly discovered since last run (report stays full list)
 
 email:
-  enabled: false           # set true once env creds are exported
+  enabled: true            # requires JOB_MONITOR_GMAIL_USER + JOB_MONITOR_GMAIL_APP_PASSWORD in env/secrets
   smtp_host: "smtp.gmail.com"
   smtp_port: 587
   sender: "${JOB_MONITOR_GMAIL_USER}"
   app_password: "${JOB_MONITOR_GMAIL_APP_PASSWORD}"
   recipients:
-    - "zhe.nie@rokt.com"
+    - "niezhe.kit@gmail.com"
+    - "bowang0712@gmail.com"
 
 embeddings:
   model_name: "sentence-transformers/all-MiniLM-L6-v2"

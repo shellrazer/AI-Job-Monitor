@@ -11,7 +11,7 @@ report:
   nsw_only: true           # show only NSW/Sydney + remote + unknown-region; hide roles clearly in another state
 
 email:
-  enabled: true            # requires JOB_MONITOR_GMAIL_USER + JOB_MONITOR_GMAIL_APP_PASSWORD in env/secrets
+  enabled: false           # auto-send OFF (review locally); requires JOB_MONITOR_GMAIL_USER + JOB_MONITOR_GMAIL_APP_PASSWORD in env/secrets
   smtp_host: "smtp.gmail.com"
   smtp_port: 587
   sender: "${JOB_MONITOR_GMAIL_USER}"

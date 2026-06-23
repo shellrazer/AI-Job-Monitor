@@ -70,7 +70,7 @@ jobs:
           # else the run fails fast (validate_email_ready). Add them in repo Settings -> Secrets.
           JOB_MONITOR_GMAIL_USER: ${{ secrets.JOB_MONITOR_GMAIL_USER }}
           JOB_MONITOR_GMAIL_APP_PASSWORD: ${{ secrets.JOB_MONITOR_GMAIL_APP_PASSWORD }}
-        run: uv run job-monitor run
+        run: uv run job-monitor run --no-email   # auto-send OFF; report is committed instead
 
       - name: Debug DB after run
         run: ls -lah ~/.job_monitor/jobs.sqlite

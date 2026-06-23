@@ -255,6 +255,7 @@ def run_pipeline(
         # weren't re-fetched this run) so the DB-backed report never shows overseas
         # or non-quality roles. Human-set statuses are preserved.
         regate_existing(conn)
+        repair_orphan_duplicates(conn)  # heal any duplicate rows left unlinked by older runs
         # 7. report (full ranked dashboard) + notify (newly-discovered roles only)
         result = RunResult(stats=stats)
         top = _select_for_digest(canonicals, cfg)
@@ -306,6 +307,55 @@ def regate_existing(conn: sqlite3.Connection) -> int:
             changed += 1
     conn.commit()
     return changed
+
+
+def repair_orphan_duplicates(conn: sqlite3.Connection) -> tuple[int, int]:
+    """Heal duplicate rows left orphaned by the old upsert bug (status='duplicate'
+    but duplicate_of IS NULL — so a whole role could be hidden with no surviving
+    canonical). Per (normalized_title, company): if a scored non-duplicate sibling
+    exists, link the orphans to it; otherwise promote the most-preferred-source
+    orphan back to 'new' (so the next run re-scores it) and link the rest to it.
+    Returns (relinked, promoted). Idempotent.
+    """
+    from job_monitor.models import SOURCE_PREFERENCE, Source
+
+    rows = conn.execute(
+        "SELECT id, source, normalized_title, company_name FROM jobs "
+        "WHERE status='duplicate' AND duplicate_of IS NULL"
+    ).fetchall()
+    groups: dict[tuple[str, str], list[sqlite3.Row]] = {}
+    for r in rows:
+        groups.setdefault((r["normalized_title"], r["company_name"]), []).append(r)
+
+    relinked = promoted = 0
+    for (nt, co), orphans in groups.items():
+        canon = conn.execute(
+            "SELECT id FROM jobs WHERE normalized_title=? AND company_name=? "
+            "AND status NOT IN ('duplicate','irrelevant') "
+            "ORDER BY (final_score IS NULL), final_score DESC LIMIT 1",
+            (nt, co),
+        ).fetchone()
+        if canon:
+            cid = int(canon["id"])
+        else:  # no surviving canonical — promote the best-source orphan to 'new'
+            def _rank(r: sqlite3.Row) -> int:
+                try:
+                    return SOURCE_PREFERENCE.get(Source(r["source"]), len(SOURCE_PREFERENCE))
+                except ValueError:
+                    return len(SOURCE_PREFERENCE)
+
+            best = min(orphans, key=_rank)
+            cid = int(best["id"])
+            conn.execute("UPDATE jobs SET status='new', duplicate_of=NULL WHERE id=?", (cid,))
+            promoted += 1
+        for r in orphans:
+            if int(r["id"]) != cid:
+                conn.execute(
+                    "UPDATE jobs SET status='duplicate', duplicate_of=? WHERE id=?", (cid, r["id"])
+                )
+                relinked += 1
+    conn.commit()
+    return relinked, promoted
 
 
 def _select_for_digest(jobs: list[Job], cfg: AppConfig) -> list[Job]:

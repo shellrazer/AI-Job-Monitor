@@ -219,6 +219,10 @@ def upsert_job(conn: sqlite3.Connection, job: Job) -> int:
     update_cols = ", ".join(
         f"{k}=excluded.{k}" for k in params if k not in ("source_job_id",)
     )
+    # RETURNING gives the affected row id for BOTH the INSERT and the ON CONFLICT
+    # DO UPDATE path. (cur.lastrowid is unreliable here: SQLite leaves it at the
+    # previous INSERT's rowid on a conflict-update, which silently returned the
+    # WRONG id and orphaned duplicates — duplicate_of pointed nowhere.)
     cur = conn.execute(
         f"""
         INSERT INTO jobs ({cols}) VALUES ({placeholders})
@@ -226,25 +230,12 @@ def upsert_job(conn: sqlite3.Connection, job: Job) -> int:
                     COALESCE(location, ''), COALESCE(posted_date, ''),
                     COALESCE(source_job_id, apply_url))
         DO UPDATE SET {update_cols}, last_seen=datetime('now')
+        RETURNING id
         """,
         params,
     )
+    row = cur.fetchone()
     conn.commit()
-    if cur.lastrowid:
-        job.db_id = cur.lastrowid
-        return cur.lastrowid
-    # On UPDATE, lastrowid may be 0 — look up the existing id.
-    row = conn.execute(
-        """
-        SELECT id FROM jobs
-        WHERE normalized_title=? AND company_name=?
-          AND COALESCE(location,'')=COALESCE(?, '')
-          AND COALESCE(posted_date,'')=COALESCE(?, '')
-          AND COALESCE(source_job_id, apply_url)=COALESCE(?, ?)
-        """,
-        (job.normalized_title, job.company_name, job.location, _iso(job.posted_date),
-         job.source_job_id, job.apply_url),
-    ).fetchone()
     job.db_id = int(row["id"]) if row else None
     return job.db_id or 0
 

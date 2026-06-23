@@ -203,3 +203,38 @@ def test_regate_existing_cleans_stale_rows(tmp_db):
     assert status(good) == JobStatus.NEW.value
     assert status(overseas) == JobStatus.IRRELEVANT.value
     assert status(nonquality) == JobStatus.IRRELEVANT.value
+
+
+def test_upsert_returns_affected_row_not_stale_lastrowid(tmp_db):
+    """Updating an existing row must return ITS id, not a stale lastrowid from a
+    prior insert (the bug that orphaned duplicates)."""
+    from job_monitor import db as dbmod
+
+    id_a = _stored_job(tmp_db, "Quality Manager", "Sydney NSW")  # insert -> id_a
+    _stored_job(tmp_db, "QA Manager", "Sydney NSW")              # insert -> id_b (lastrowid now id_b)
+    again = Job(
+        source=Source.OFFICIAL_ATS, title="Quality Manager", normalized_title="quality manager",
+        company_name="Bega Group",
+        apply_url=f"https://x/{hashlib.sha256(b'Quality Manager').hexdigest()[:8]}",
+        description_hash=hashlib.sha256(b"Quality Manager").hexdigest(), location="Sydney NSW",
+        final_score=61.0,
+    )
+    assert dbmod.upsert_job(tmp_db, again) == id_a  # not the stale id_b
+
+
+def test_repair_orphan_duplicates_promotes_when_no_canonical(tmp_db):
+    """A role whose every copy is orphaned (duplicate + duplicate_of NULL) gets one
+    copy promoted back to 'new' so it isn't permanently hidden."""
+    from job_monitor.pipeline import repair_orphan_duplicates
+
+    a = _stored_job(tmp_db, "Production & QA lead", "Sydney NSW")
+    b = _stored_job(tmp_db, "Production & QA lead", "Sydney CBD NSW")
+    for jid in (a, b):
+        tmp_db.execute("UPDATE jobs SET status='duplicate', duplicate_of=NULL WHERE id=?", (jid,))
+    tmp_db.commit()
+
+    relinked, promoted = repair_orphan_duplicates(tmp_db)
+    assert promoted == 1
+    assert relinked == 1
+    statuses = sorted(r["status"] for r in tmp_db.execute("SELECT status FROM jobs WHERE id IN (?,?)", (a, b)))
+    assert statuses == ["duplicate", "new"]  # one resurfaced, one linked

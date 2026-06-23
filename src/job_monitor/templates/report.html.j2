@@ -104,10 +104,11 @@
       </ul>
     </header>
 
-    {% if total == 0 %}
-      <div class="empty">没有匹配的职位 / No matching jobs.</div>
+    {% if not sections %}
+      <div class="empty">无匹配职位 / No matches</div>
     {% endif %}
 
+    {% if sections %}
     <div class="tabs" role="tablist">
       {% for section in sections %}
         <button type="button" class="tab-btn{% if loop.first %} is-active{% endif %}"
@@ -118,14 +119,12 @@
         </button>
       {% endfor %}
     </div>
+    {% endif %}
 
     {% for section in sections %}
       <section class="tab-panel{% if loop.first %} is-active{% endif %}"
         id="tab-panel-{{ loop.index }}" role="tabpanel">
       <h2 class="section">{{ section.heading }} ({{ section.items | length }})</h2>
-      {% if not section.items %}
-        <p class="section-empty">本节暂无职位 / No roles in this section.</p>
-      {% endif %}
       {% for item in section.items %}
         {% set job = item.job %}
         {% set is_alert = job.strong_alert or (job.priority_tier and job.priority_tier.value == "A+") %}

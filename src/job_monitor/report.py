@@ -21,6 +21,7 @@ from .models import Job, PriorityTier, Source
 __all__ = [
     "format_salary",
     "is_aggregator",
+    "is_other_region",
     "is_preferred",
     "location_bucket",
     "recruiter_mark",
@@ -85,6 +86,18 @@ def location_bucket(location: str | None) -> str:
     if scorer.classify_location(location) in ("sydney_greater", "nsw_regional"):
         return "nsw_remote"
     return "other_au"
+
+
+def is_other_region(location: str | None) -> bool:
+    """True only for a location *clearly* in another AU state (not NSW/remote/ambiguous).
+
+    Delegates to :func:`scorer.classify_location`: a ``melbourne_brisbane`` key
+    means a Melbourne/Brisbane/Perth/QLD/VIC/etc. signal with no NSW signal. NSW
+    (sydney_greater / nsw_regional), remote, and UNKNOWN-region (``other_au`` —
+    empty, bare "Australia", unknown suburb) all return False so they are KEPT by
+    the NSW-only view.
+    """
+    return scorer.classify_location(location) == "melbourne_brisbane"
 
 
 def is_preferred(job: Job) -> bool:
@@ -197,18 +210,15 @@ def _decorate(job: Job, ratings: CompanyRatingsConfig) -> _DecoratedJob:
 
 
 def _other_regions(jobs: list[Job]) -> list[Job]:
-    """Tab 3 selection: every ``other_au`` role, deduped by ``apply_url``.
+    """Tab 3 selection: every clearly-other-state role (any source), score desc.
 
-    Preferred (curated-company) roles are ordered first, then aggregator roles;
-    each subgroup is sorted by ``final_score`` descending. Because a preferred
-    non-NSW role also surfaces in Tab 1, it can legitimately appear in both tabs
-    — only the *within-tab* duplicates (same ``apply_url``) are collapsed here,
-    keeping the first occurrence.
+    A role counts here when :func:`is_other_region` is True — i.e. a Melbourne/
+    Brisbane/etc. signal with no NSW signal. UNKNOWN-region roles (empty, bare
+    "Australia", remote) are NOT here; they belong in Tab 2. Deduped by
+    ``apply_url`` (keeping the first / highest-scored occurrence) so a preferred
+    other-state role that also appears in Tab 1 is not double-listed within Tab 3.
     """
-    other = [j for j in jobs if location_bucket(j.location) == "other_au"]
-    preferred = _sorted_by_score([j for j in other if is_preferred(j)])
-    aggregators = _sorted_by_score([j for j in other if not is_preferred(j)])
-    ordered = preferred + aggregators
+    ordered = _sorted_by_score([j for j in jobs if is_other_region(j.location)])
 
     seen: set[str] = set()
     deduped: list[Job] = []
@@ -225,18 +235,20 @@ def _tab_groups(jobs: list[Job], ratings: CompanyRatingsConfig) -> list[_Section
 
     1. **优选公司 / Preferred Companies** — every ``OFFICIAL_ATS`` role (all
        regions), by ``final_score`` desc.
-    2. **综合推荐 / NSW & Remote Picks** — aggregator roles in the NSW/remote
-       bucket, by ``final_score`` desc.
-    3. **其他地区 / Other Regions** — all ``other_au`` roles, preferred companies
-       first then aggregators, deduped by ``apply_url``.
+    2. **综合推荐 / NSW & Remote Picks** — aggregator roles that are NOT clearly
+       in another state, by ``final_score`` desc. By design this now also carries
+       UNKNOWN-region aggregator roles (empty / bare "Australia" / remote), since
+       the only thing filtered out is a clear other-state signal.
+    3. **其他地区 / Other Regions** — every clearly-other-state role (any source),
+       deduped by ``apply_url``, by ``final_score`` desc.
 
     Each section's jobs are decorated with stars / recruiter marks so templates
-    stay logic-light. A preferred non-NSW role intentionally appears in both
-    Tab 1 and Tab 3.
+    stay logic-light. A preferred other-state role intentionally appears in both
+    Tab 1 and Tab 3. Empty sections are skipped at render time by the templates.
     """
     preferred = _sorted_by_score([j for j in jobs if is_preferred(j)])
     nsw_picks = _sorted_by_score(
-        [j for j in jobs if is_aggregator(j) and location_bucket(j.location) == "nsw_remote"]
+        [j for j in jobs if is_aggregator(j) and not is_other_region(j.location)]
     )
     other = _other_regions(jobs)
 
@@ -247,6 +259,11 @@ def _tab_groups(jobs: list[Job], ratings: CompanyRatingsConfig) -> list[_Section
     ]
 
 
+def _non_empty(sections: list[_Section]) -> list[_Section]:
+    """Drop sections with no items so empty tabs/headings never render."""
+    return [s for s in sections if s.items]
+
+
 def render_report(
     jobs: list[Job],
     *,
@@ -254,10 +271,15 @@ def render_report(
     ratings: CompanyRatingsConfig,
     subtitle: str = "",
 ) -> str:
-    """Render the full standalone HTML report page (three tabs)."""
+    """Render the full standalone HTML report page (only non-empty tabs).
+
+    Empty tab groups are skipped entirely (no button, no panel), so under the
+    NSW-only view — where the 其他地区 group is empty — the page shows a clean
+    two-tab layout. When every group is empty a single "No matches" note shows.
+    """
     template = _env().get_template("report.html.j2")
     return template.render(
-        sections=_tab_groups(jobs, ratings),
+        sections=_non_empty(_tab_groups(jobs, ratings)),
         total=len(jobs),
         counts=tier_counts(jobs),
         generated_at=generated_at,
@@ -266,15 +288,18 @@ def render_report(
 
 
 def _email_sections(jobs: list[Job], ratings: CompanyRatingsConfig) -> list[_Section]:
-    """The three tab groups, each capped to ``EMAIL_TOP_N`` for a compact email.
+    """The non-empty tab groups, each capped to ``EMAIL_TOP_N`` for a compact email.
 
-    Email clients can't run the report's JS tabs, so the same three groups are
-    rendered as stacked sections in the same order (优选公司 → 综合推荐 → 其他地区).
+    Email clients can't run the report's JS tabs, so the groups are rendered as
+    stacked sections in the same order (优选公司 → 综合推荐 → 其他地区). Empty
+    groups are skipped, so the NSW-only view drops the 其他地区 section entirely.
     """
-    return [
-        _Section(heading=section.heading, items=section.items[:EMAIL_TOP_N])
-        for section in _tab_groups(jobs, ratings)
-    ]
+    return _non_empty(
+        [
+            _Section(heading=section.heading, items=section.items[:EMAIL_TOP_N])
+            for section in _tab_groups(jobs, ratings)
+        ]
+    )
 
 
 def render_email_html(
@@ -300,14 +325,10 @@ def render_email_text(
         f"生成时间 / Generated: {generated_at:%Y-%m-%d %H:%M}",
         "",
     ]
-    if not any(section.items for section in sections):
-        lines.append("没有匹配的职位 / No matching jobs.")
+    if not sections:
+        lines.append("无匹配职位 / No matches")
     for section in sections:
         lines.append(f"{section.heading} ({len(section.items)})")
-        if not section.items:
-            lines.append("  本节暂无职位 / No roles in this section.")
-            lines.append("")
-            continue
         for item in section.items:
             job = item.job
             tier = job.priority_tier.value if job.priority_tier else "—"

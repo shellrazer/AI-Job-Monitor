@@ -132,6 +132,10 @@ def report_cmd(
             final_score=r["final_score"], strong_alert=bool(r["strong_alert"]),
             priority_tier=PriorityTier(r["priority_tier"]) if r["priority_tier"] else None,
         ))
+    # NSW-only view (view-level, toggleable): hide roles clearly in another state;
+    # keep NSW/Sydney + remote + unknown-region.
+    if cfg.settings.report.nsw_only:
+        jobs = [j for j in jobs if not report_mod.is_other_region(j.location)]
     out_dir = expand_path(cfg.settings.report.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     now = datetime.now()

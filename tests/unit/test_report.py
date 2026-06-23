@@ -13,6 +13,7 @@ from job_monitor.report import (
     _tab_groups,
     format_salary,
     is_aggregator,
+    is_other_region,
     is_preferred,
     location_bucket,
     recruiter_mark,
@@ -48,11 +49,12 @@ def _job(**overrides) -> Job:
 
 
 def _split_jobs() -> list[Job]:
-    """Jobs spanning all three tabs plus a recruiter posting.
+    """Jobs spanning all three tabs plus a recruiter and an unknown-region posting.
 
     * Preferred (OFFICIAL_ATS) Sydney role -> Tab 1 only.
     * Preferred (OFFICIAL_ATS) Brisbane role -> Tab 1 AND Tab 3.
     * Aggregator (SEEK) Sydney role -> Tab 2.
+    * Aggregator (Indeed) unknown-region role (location=None) -> Tab 2 (NOT Tab 3).
     * Aggregator (Jora) Melbourne role -> Tab 3.
     * Recruiter (Michael Page, LinkedIn) Sydney role -> Tab 2.
     """
@@ -83,6 +85,15 @@ def _split_jobs() -> list[Job]:
             apply_url="https://example.com/agg-syd",
             final_score=80.0,
             priority_tier=PriorityTier.A,
+        ),
+        _job(
+            source=Source.INDEED,
+            title="Aggregator Unknown Region",
+            company_name="Mystery Foods",
+            location=None,
+            apply_url="https://example.com/agg-unknown",
+            final_score=72.0,
+            priority_tier=PriorityTier.B,
         ),
         _job(
             source=Source.JORA,
@@ -152,6 +163,22 @@ def test_is_preferred_and_is_aggregator():
 
 
 # --------------------------------------------------------------------------- #
+# is_other_region                                                             #
+# --------------------------------------------------------------------------- #
+def test_is_other_region():
+    # Clearly another AU state -> True.
+    assert is_other_region("Melbourne VIC") is True
+    assert is_other_region("Brisbane") is True
+    assert is_other_region("Queensland") is True
+    # NSW / Sydney / remote / unknown-region / empty -> kept (False).
+    assert is_other_region("Chatswood, Australia") is False
+    assert is_other_region("Sydney NSW") is False
+    assert is_other_region("Remote") is False
+    assert is_other_region(None) is False
+    assert is_other_region("") is False
+
+
+# --------------------------------------------------------------------------- #
 # _tab_groups — selection logic                                               #
 # --------------------------------------------------------------------------- #
 def test_tab_groups_selection():
@@ -165,11 +192,18 @@ def test_tab_groups_selection():
     # Tab 1: both OFFICIAL_ATS roles (all regions), score desc.
     assert titles(preferred) == ["Preferred Sydney NQM", "Preferred Brisbane QM"]
 
-    # Tab 2: aggregator NSW/remote roles only, score desc.
-    assert titles(nsw) == ["Aggregator Sydney Lead", "Recruiter Role"]
+    # Tab 2: aggregator roles NOT clearly in another state, score desc. The
+    # unknown-region aggregator (location=None) lands here, NOT in Tab 3.
+    assert titles(nsw) == [
+        "Aggregator Sydney Lead",
+        "Aggregator Unknown Region",
+        "Recruiter Role",
+    ]
     assert "Preferred Sydney NQM" not in titles(nsw)  # preferred never lands in Tab 2
+    assert "Aggregator Melbourne QM" not in titles(nsw)  # clear other-state excluded
 
-    # Tab 3: other_au roles, preferred first then aggregators, each by score desc.
+    # Tab 3: clearly-other-state roles (any source), score desc. The Brisbane
+    # preferred (85) outranks the Melbourne aggregator (70).
     assert titles(other) == ["Preferred Brisbane QM", "Aggregator Melbourne QM"]
 
 
@@ -209,7 +243,7 @@ def test_render_report_three_tabs():
     assert TAB_NSW in html
     assert TAB_OTHER in html
     assert f"{TAB_PREFERRED} (2)" in html
-    assert f"{TAB_NSW} (2)" in html
+    assert f"{TAB_NSW} (3)" in html
     assert f"{TAB_OTHER} (2)" in html
 
     # Tabs ordered: Preferred, then NSW, then Other.
@@ -237,8 +271,12 @@ def test_render_report_tab_membership():
 
     # Aggregator Sydney role is in Tab 2.
     assert "Aggregator Sydney Lead" in titles(nsw)
+    # Unknown-region aggregator stays in Tab 2 (kept), not Tab 3.
+    assert "Aggregator Unknown Region" in titles(nsw)
+    assert "Aggregator Unknown Region" not in titles(other)
 
-    # Tab 3 has the Melbourne aggregator and the Brisbane preferred, preferred first.
+    # Tab 3 has the Melbourne aggregator and the Brisbane preferred (preferred
+    # ordered first here because it scores higher, not by source).
     other_titles = titles(other)
     assert "Aggregator Melbourne QM" in other_titles
     assert "Preferred Brisbane QM" in other_titles
@@ -267,11 +305,42 @@ def test_render_report_stars_and_recruiter_marks():
     assert "招聘中介" in html2
 
 
-def test_render_report_section_empty_placeholder():
-    nsw_only = [_job(location="Sydney NSW", final_score=50.0)]
-    html = render_report(nsw_only, generated_at=GENERATED_AT, ratings=RATINGS)
-    # Other Australia section is empty -> shows the muted placeholder.
-    assert "No roles in this section" in html
+def test_render_report_empty_tab_is_skipped():
+    # No clearly-other-state jobs -> the 其他地区 tab/heading is dropped entirely,
+    # leaving a clean two-tab (preferred + NSW) view.
+    nsw_jobs = [
+        _job(
+            source=Source.OFFICIAL_ATS,
+            title="Preferred Sydney",
+            company_name="Woolworths",
+            location="Sydney NSW",
+            apply_url="https://example.com/p",
+            final_score=80.0,
+            priority_tier=PriorityTier.A,
+        ),
+        _job(
+            source=Source.SEEK,
+            title="Aggregator Sydney",
+            company_name="Cloud Foods",
+            location="Sydney NSW",
+            apply_url="https://example.com/a",
+            final_score=70.0,
+            priority_tier=PriorityTier.B,
+        ),
+    ]
+    html = render_report(nsw_jobs, generated_at=GENERATED_AT, ratings=RATINGS)
+    assert TAB_PREFERRED in html
+    assert TAB_NSW in html
+    # Empty Other Regions tab disappears: no heading, no leftover placeholder.
+    assert TAB_OTHER not in html
+    assert "No roles in this section" not in html
+
+
+def test_render_report_all_empty_shows_no_matches():
+    # All three groups empty -> single muted "No matches" note, no tabs.
+    html = render_report([], generated_at=GENERATED_AT, ratings=RATINGS)
+    assert "无匹配职位 / No matches" in html
+    assert 'class="tab-btn' not in html
 
 
 def test_render_report_contains_titles_urls_and_scores(sample_jobs):
@@ -318,7 +387,7 @@ def test_render_report_alert_class_for_strong_or_a_plus(sample_jobs):
 
 def test_render_report_empty():
     html = render_report([], generated_at=GENERATED_AT, ratings=RATINGS)
-    assert "No matching jobs" in html
+    assert "No matches" in html
 
 
 def test_tier_counts():
@@ -371,10 +440,11 @@ def test_render_email_text_contains_apply_urls(sample_jobs):
         assert job.apply_url in text
         assert job.title in text
     assert "Job Monitor Digest" in text
-    # All three stacked group headings appear in the plaintext digest.
+    # sample_jobs are all Sydney -> only the preferred + NSW groups render; the
+    # empty 其他地区 group is skipped.
     assert TAB_PREFERRED in text
     assert TAB_NSW in text
-    assert TAB_OTHER in text
+    assert TAB_OTHER not in text
 
 
 def test_render_email_text_sections_and_marks():
@@ -399,10 +469,11 @@ def test_render_email_html(sample_jobs):
     assert jobs[0].title in html
     # Inline-styled alert card present for the A+/strong job.
     assert "#d92d20" in html
-    # The three stacked group headings appear in the email body.
+    # sample_jobs are all Sydney -> preferred + NSW groups render; the empty
+    # 其他地区 group is skipped.
     assert TAB_PREFERRED in html
     assert TAB_NSW in html
-    assert TAB_OTHER in html
+    assert TAB_OTHER not in html
 
 
 def test_render_report_sorts_by_score_desc():

@@ -705,54 +705,48 @@ _AU_STATE_NAMES = (
     "australian capital territory",
 )
 _AU_STATE_CODES = re.compile(r"\b(?:nsw|vic|qld|wa|sa|tas|nt|act)\b")
-_AU_CITIES = (
-    "sydney",
-    "melbourne",
-    "brisbane",
-    "perth",
-    "adelaide",
-    "canberra",
-    "hobart",
-    "darwin",
-    "gold coast",
-    "sunshine coast",
-    "newcastle",
-    "wollongong",
-    "geelong",
-    "central coast",
-    "gosford",
-    "wyong",
-    "parramatta",
-    "penrith",
-    "blacktown",
-    "liverpool",
-    "macquarie park",
-    "norwest",
-    "tatura",
-    "shepparton",
-    "bendigo",
-    "ballarat",
-    "toowoomba",
-    "townsville",
-    "cairns",
-    "mackay",
-    "rockhampton",
-    "wagga",
-    "tamworth",
-    "orange",
-    "dubbo",
-    "albury",
-    "launceston",
-    "bunbury",
-    "lidcombe",
-    "smithfield",
-    "wetherill park",
-    "rooty hill",
-    "dandenong",
-    "pyrmont",
-    "yatala",
-    "carole park",
+# Greater Sydney suburbs / hubs (-> sydney_greater).
+_SYDNEY_SUBURBS = (
+    "sydney", "parramatta", "chatswood", "north sydney", "macquarie park", "north ryde",
+    "ryde", "rhodes", "epping", "eastwood", "hornsby", "st leonards", "lane cove", "artarmon",
+    "crows nest", "mascot", "alexandria", "rosebery", "waterloo", "surry hills", "redfern",
+    "pyrmont", "ultimo", "homebush", "lidcombe", "auburn", "silverwater", "rydalmere", "granville",
+    "merrylands", "smithfield", "wetherill park", "fairfield", "liverpool", "prestons", "moorebank",
+    "ingleburn", "minto", "campbelltown", "penrith", "st marys", "blacktown", "seven hills",
+    "eastern creek", "rooty hill", "mount druitt", "castle hill", "baulkham hills", "bella vista",
+    "norwest", "kellyville", "rouse hill", "frenchs forest", "brookvale", "dee why", "bankstown",
+    "padstow", "revesby", "kingsgrove", "rockdale", "kogarah", "hurstville", "miranda", "caringbah",
+    "taren point", "marrickville", "leichhardt", "gladesville", "hunters hill", "wentworthville",
+    "greystanes", "erskine park", "kemps creek", "marsden park", "smeaton grange", "gregory hills",
+    "edmondson park", "chipping norton", "villawood", "chullora", "olympic park", "western sydney",
+    "greater sydney", "northern beaches", "sutherland",
 )
+# NSW regional towns (-> nsw_regional).
+_NSW_REGIONAL = (
+    "newcastle", "wollongong", "gosford", "central coast", "wyong", "tuggerah", "maitland",
+    "cessnock", "port macquarie", "coffs harbour", "tamworth", "orange", "bathurst", "dubbo",
+    "wagga", "albury", "lismore", "ballina", "byron", "nowra", "goulburn", "queanbeyan", "griffith",
+    "leeton", "armidale", "taree", "kempsey", "grafton", "broken hill", "mudgee", "parkes", "forbes",
+    "moree", "narrabri", "gunnedah", "singleton", "muswellbrook", "scone", "raymond terrace",
+    "nelson bay", "batemans bay", "ulladulla", "bega", "eden", "cooma", "regional nsw", "nsw regional",
+)
+# Non-NSW AU cities/towns (-> melbourne_brisbane / other_au). Used for AU recognition
+# and to win over a bare Sydney-suburb-name collision (e.g. "Manly QLD").
+_OTHER_AU_CITIES = (
+    "melbourne", "brisbane", "perth", "adelaide", "canberra", "hobart", "darwin", "gold coast",
+    "sunshine coast", "geelong", "ballarat", "bendigo", "toowoomba", "townsville", "cairns",
+    "mackay", "rockhampton", "launceston", "bunbury", "tatura", "shepparton", "dandenong",
+    "yatala", "carole park", "tingalpa",
+)
+_AU_CITIES = _SYDNEY_SUBURBS + _NSW_REGIONAL + _OTHER_AU_CITIES
+_OTHER_STATE_RE = re.compile(
+    r"melbourne|brisbane|perth|adelaide|canberra|hobart|darwin|gold coast|sunshine coast|"
+    r"geelong|ballarat|bendigo|toowoomba|townsville|cairns|mackay|rockhampton|launceston|bunbury|"
+    r"tatura|shepparton|dandenong|yatala|carole park|tingalpa|"
+    r"\bvic\b|victoria|\bqld\b|queensland|\bwa\b|western australia|\bsa\b|south australia|"
+    r"\btas\b|tasmania|\bnt\b|northern territory|\bact\b|australian capital territory"
+)
+_NSW_RE = re.compile(r"\bnsw\b|new south wales")
 _AU_STANDALONE_AUS = re.compile(r"\baus\b")
 
 
@@ -792,18 +786,22 @@ def classify_location(location: str | None) -> str:
     if not location or not location.strip():
         return "other_au"
     loc = location.lower()
+    has_nsw = bool(_NSW_RE.search(loc))
+    has_other_state = bool(_OTHER_STATE_RE.search(loc))
 
-    # AU classification: most-specific region first.
-    if re.search(r"sydney|parramatta|western sydney|macquarie park|norwest|north ryde", loc):
-        return "sydney_greater"
-    if re.search(r"newcastle|wollongong|orange|central coast|regional nsw|\bnsw regional\b", loc):
-        return "nsw_regional"
-    if re.search(r"melbourne|brisbane|\bvic\b|victoria|\bqld\b|queensland|gold coast", loc):
+    # A clear OTHER-state signal with NO NSW signal wins first, so e.g. "Manly QLD"
+    # (a Sydney suburb name) is correctly Brisbane, not Sydney.
+    if has_other_state and not has_nsw:
         return "melbourne_brisbane"
-    # NSW metro that is not specifically tagged above still counts as Sydney-greater.
-    if re.search(r"\bnsw\b|new south wales", loc):
+    if "greater sydney" in loc or "western sydney" in loc or any(s in loc for s in _SYDNEY_SUBURBS):
         return "sydney_greater"
-    # Any other recognized-AU location (other states, remote, "Australia", etc.).
+    if any(t in loc for t in _NSW_REGIONAL):
+        return "nsw_regional"
+    if has_nsw:  # NSW metro not matched to a specific suburb above
+        return "sydney_greater"
+    if has_other_state:
+        return "melbourne_brisbane"
+    # Recognized-AU but no specific region (e.g. bare "Australia", remote): ambiguous.
     return "other_au"
 
 

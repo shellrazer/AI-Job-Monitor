@@ -309,13 +309,21 @@ def regate_existing(conn: sqlite3.Connection) -> int:
 
 
 def _select_for_digest(jobs: list[Job], cfg: AppConfig) -> list[Job]:
-    """Filter to report-worthy jobs (>= min_tier, not irrelevant) sorted by score desc."""
+    """Filter to report-worthy jobs (>= min_tier, not irrelevant) sorted by score desc.
+
+    When ``report.nsw_only`` is set (the default), also drop roles clearly in
+    another AU state (``report.is_other_region``). NSW/Sydney, regional NSW,
+    remote, and UNKNOWN-region roles are kept — this is a view-level filter, not
+    an IRRELEVANT mark, so it stays toggleable via config.
+    """
     min_rank = _TIER_RANK.get(cfg.settings.report.min_tier.upper(), 3)
+    nsw_only = cfg.settings.report.nsw_only
     eligible = [
         j for j in jobs
         if j.status != JobStatus.IRRELEVANT
         and j.priority_tier is not None
         and _TIER_RANK.get(j.priority_tier.value, 4) <= min_rank
+        and not (nsw_only and report.is_other_region(j.location))
     ]
     eligible.sort(key=lambda j: j.final_score or 0.0, reverse=True)
     return eligible

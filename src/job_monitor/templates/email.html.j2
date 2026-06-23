@@ -2,11 +2,12 @@
   <h1 style="font-size:19px;margin:0 0 4px;">职位监控摘要 / Job Monitor Digest</h1>
   <p style="color:#777;font-size:13px;margin:0 0 16px;">生成时间 / Generated: {{ generated_at.strftime("%Y-%m-%d %H:%M") }} · Top {{ total }}</p>
 
+  {% if not sections %}
+    <p style="font-size:14px;color:#999;margin:0 0 14px;">无匹配职位 / No matches</p>
+  {% endif %}
+
   {% for section in sections %}
     <h2 style="font-size:15px;margin:22px 0 10px;padding-bottom:5px;border-bottom:2px solid #d6dae1;color:#1a1a1a;">{{ section.heading }} ({{ section.items | length }})</h2>
-    {% if not section.items %}
-      <p style="font-size:13px;color:#999;margin:0 0 14px;">本节暂无职位 / No roles in this section.</p>
-    {% endif %}
     {% for item in section.items %}
       {% set job = item.job %}
       {% set is_alert = job.strong_alert or (job.priority_tier and job.priority_tier.value == "A+") %}

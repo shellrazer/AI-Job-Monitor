@@ -206,13 +206,15 @@ def _adapter_with_http(http: Any, search: dict[str, Any]) -> SuccessFactorsAdapt
 def test_fetch_defaults_to_impersonate() -> None:
     # No render / no feed_url -> SuccessFactors defaults to impersonation
     # (sidesteps the SF/Recruiting-Marketing 403 blocks, e.g. Nestlé).
+    # max_pages=1 keeps this focused on transport selection (pagination has its
+    # own test); the HTML path now stamps startrow=0 onto the careers URL.
     http = _FakeHttp(HTML_FIXTURE)
-    adapter = _adapter_with_http(http, {})
+    adapter = _adapter_with_http(http, {"max_pages": 1})
 
     jobs = adapter.fetch(["quality"])
 
     assert len(jobs) == 2
-    assert http.calls == [("cffi", CAREERS_URL)]
+    assert http.calls == [("cffi", f"{CAREERS_URL}?startrow=0")]
 
 
 def test_fetch_feed_url_uses_impersonate_by_default() -> None:
@@ -228,24 +230,26 @@ def test_fetch_feed_url_uses_impersonate_by_default() -> None:
 
 def test_fetch_uses_rendered_when_configured() -> None:
     http = _FakeHttp(HTML_FIXTURE)
-    adapter = _adapter_with_http(http, {"render": True, "wait_selector": "ul.results"})
+    adapter = _adapter_with_http(
+        http, {"render": True, "wait_selector": "ul.results", "max_pages": 1}
+    )
 
     jobs = adapter.fetch(["quality"])
 
     assert len(jobs) == 2
-    assert http.calls == [("render", CAREERS_URL)]
+    assert http.calls == [("render", f"{CAREERS_URL}?startrow=0")]
     # wait_selector must be threaded through to the render transport.
     assert http.wait_selector == "ul.results"
 
 
 def test_fetch_render_wins_over_impersonate() -> None:
     http = _FakeHttp(HTML_FIXTURE)
-    adapter = _adapter_with_http(http, {"render": True, "impersonate": True})
+    adapter = _adapter_with_http(http, {"render": True, "impersonate": True, "max_pages": 1})
 
     adapter.fetch(["quality"])
 
     # render takes precedence even when impersonate is also set.
-    assert http.calls == [("render", CAREERS_URL)]
+    assert http.calls == [("render", f"{CAREERS_URL}?startrow=0")]
     assert http.wait_selector is None
 
 
@@ -261,3 +265,75 @@ def test_fetch_returns_empty_without_careers_or_feed_url() -> None:
 
     assert adapter.fetch(["quality"]) == []
     assert http.calls == []
+
+
+# --------------------------------------------------------------------------- #
+# startrow pagination (HTML careers_url path)                                 #
+# --------------------------------------------------------------------------- #
+def _page_html(*paths: str) -> str:
+    anchors = "".join(f'<li><a href="{p}">{p.strip("/").split("/")[1]}</a></li>' for p in paths)
+    return f"<!DOCTYPE html><html><body><ul>{anchors}</ul></body></html>"
+
+
+# startrow=0 -> jobs 1,2,3 ; startrow=25 -> jobs 3 (overlap) + 4,5 ; startrow=50 -> empty.
+_PAGE0 = _page_html("/job/Quality-Manager/1/", "/job/Food-Safety/2/", "/job/QA-Lead/3/")
+_PAGE1 = _page_html("/job/QA-Lead/3/", "/job/Auditor/4/", "/job/Technologist/5/")
+_PAGE2 = "<!DOCTYPE html><html><body><ul></ul></body></html>"
+
+
+class _PagedHttp:
+    """Fake client returning distinct HTML keyed by the ``startrow`` query value."""
+
+    def __init__(self, pages: dict[str, str]) -> None:
+        self.pages = pages  # startrow value (str) -> HTML
+        self.calls: list[tuple[str, str]] = []
+
+    def _payload_for(self, url: str) -> str:
+        from urllib.parse import parse_qs, urlsplit
+
+        startrow = parse_qs(urlsplit(url).query).get("startrow", ["0"])[0]
+        return self.pages.get(startrow, "")
+
+    def get_text(self, url: str, **_: Any) -> str:
+        self.calls.append(("httpx", url))
+        return self._payload_for(url)
+
+    def get_text_impersonate(self, url: str, **_: Any) -> str:
+        self.calls.append(("cffi", url))
+        return self._payload_for(url)
+
+    def get_text_rendered(self, url: str, *, wait_selector: str | None = None, **_: Any) -> str:
+        self.calls.append(("render", url))
+        return self._payload_for(url)
+
+
+def test_fetch_html_paginates_and_dedupes_across_startrow_pages() -> None:
+    http = _PagedHttp({"0": _PAGE0, "25": _PAGE1, "50": _PAGE2})
+    adapter = _adapter_with_http(http, {"max_pages": 3})
+
+    jobs = adapter.fetch(["quality"])
+
+    # 5 distinct postings; the overlapping QA-Lead (job 3) appears exactly once.
+    urls = [j.apply_url for j in jobs]
+    assert len(jobs) == 5
+    assert len(set(urls)) == 5
+    qa_lead = [u for u in urls if "/QA-Lead/3/" in u]
+    assert len(qa_lead) == 1
+
+    # Walked startrow=0 then 25, then stopped at the empty startrow=50 page.
+    startrows = [c[1].split("startrow=")[1] for c in http.calls]
+    assert startrows == ["0", "25", "50"]
+
+
+def test_fetch_feed_url_is_single_fetch_regardless_of_max_pages() -> None:
+    feed_url = "https://jobs.graincorp.com.au/rssfeed/"
+    # RSS feed returns everything in one response, so a large max_pages must NOT
+    # paginate; _FakeHttp returns the same RSS payload for any URL it is asked.
+    http = _FakeHttp(RSS_FIXTURE)
+    adapter = _adapter_with_http(http, {"feed_url": feed_url, "max_pages": 5})
+
+    jobs = adapter.fetch(["quality"])
+
+    assert len(jobs) == 2
+    # Exactly ONE fetch despite max_pages=5.
+    assert http.calls == [("cffi", feed_url)]

@@ -38,17 +38,35 @@ it can be exercised against an HTML fixture, while
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, ClassVar
-from urllib.parse import urljoin
+from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
 from selectolax.parser import HTMLParser, Node
 
-from job_monitor.models import RawJob, Source
+from job_monitor.models import RawJob, Source, SourceBlocked
 from job_monitor.normalize import clean_text
 from job_monitor.sources.base import BaseAdapter
 
 if TYPE_CHECKING:
     from job_monitor.config import CompanyConfig, Settings
     from job_monitor.sources.http import PoliteClient
+
+# Config-driven pagination defaults (only active when ``page_param`` is set).
+_DEFAULT_PAGE_SIZE = 20
+_DEFAULT_PAGE_START = 0
+_DEFAULT_MAX_PAGES = 3
+
+
+def _with_query_param(url: str, key: str, value: Any) -> str:
+    """Return ``url`` with ``key=value`` set in its query string.
+
+    Replaces ``key`` if already present, else appends it. Uses
+    :mod:`urllib.parse` so it works regardless of whether the URL already carries
+    the param.
+    """
+    parts = urlsplit(url)
+    query = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True) if k != key]
+    query.append((key, str(value)))
+    return urlunsplit(parts._replace(query=urlencode(query)))
 
 
 class GenericHtmlAdapter(BaseAdapter):
@@ -230,6 +248,15 @@ class GenericHtmlAdapter(BaseAdapter):
           sites require.
         * else -> plain httpx (``get_text``), the default for server-rendered
           HTML.
+
+        Pagination is opt-in and config-driven. When ``search["page_param"]`` is
+        set, ``fetch`` walks up to ``max_pages`` (default 3) pages by setting
+        ``{page_param}=<page_start + i*page_size>`` (defaults: ``page_start=0``,
+        ``page_size=20``) on ``list_url``, accumulating + deduping postings by
+        ``apply_url`` and stopping early on an empty / no-new page. Without
+        ``page_param`` it is a single fetch (unchanged behavior). A
+        ``SourceBlocked`` from the first page propagates; a later-page block just
+        stops the walk.
         """
         search = self._search()
         list_url = search.get("list_url")
@@ -237,10 +264,46 @@ class GenericHtmlAdapter(BaseAdapter):
             return []
         list_url = str(list_url)
 
+        page_param = search.get("page_param")
+        if not page_param:
+            return self.parse(self._fetch_url(list_url))
+
+        return self._fetch_paginated(list_url, str(page_param))
+
+    def _fetch_url(self, url: str) -> str:
+        """GET ``url`` via the transport selected from ``company.search`` flags."""
+        search = self._search()
         if search.get("render"):
-            html = self.http.get_text_rendered(list_url, wait_selector=search.get("wait_selector"))
-        elif search.get("impersonate"):
-            html = self.http.get_text_impersonate(list_url)
-        else:
-            html = self.http.get_text(list_url)
-        return self.parse(html)
+            return self.http.get_text_rendered(url, wait_selector=search.get("wait_selector"))
+        if search.get("impersonate"):
+            return self.http.get_text_impersonate(url)
+        return self.http.get_text(url)
+
+    def _fetch_paginated(self, list_url: str, page_param: str) -> list[RawJob]:
+        """Walk ``page_param`` pages of ``list_url``, deduping by apply_url."""
+        search = self._search()
+        page_size = int(search.get("page_size", _DEFAULT_PAGE_SIZE))
+        page_start = int(search.get("page_start", _DEFAULT_PAGE_START))
+        max_pages = int(search.get("max_pages", _DEFAULT_MAX_PAGES))
+
+        jobs_by_url: dict[str, RawJob] = {}
+        for page in range(max_pages):
+            value = page_start + page * page_size
+            page_url = _with_query_param(list_url, page_param, value)
+            try:
+                html = self._fetch_url(page_url)
+            except SourceBlocked:
+                # Page 1 block propagates; a later-page block just stops the walk.
+                if page == 0:
+                    raise
+                break
+
+            page_jobs = self.parse(html, base_url=self._base_url())
+            new = [j for j in page_jobs if j.apply_url not in jobs_by_url]
+            # Stop on an empty page OR a page that adds no new postings.
+            if not page_jobs or not new:
+                break
+            for job in new:
+                jobs_by_url[job.apply_url] = job
+
+        return list(jobs_by_url.values())

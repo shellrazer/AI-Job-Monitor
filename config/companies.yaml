@@ -71,7 +71,7 @@ companies:
       careers_base: "https://www.pepsicojobs.com"
       location: "Australia"
       keywords: "quality"
-      max_pages: 5
+      max_pages: 7
 
   - company_id: mars_au
     name: "Mars Australia"
@@ -88,7 +88,7 @@ companies:
       country: "au"
       au_filter: true
       search_terms: ["quality", "food safety"]
-      max_pages: 3
+      max_pages: 5
 
   - company_id: kerry_au
     name: "Kerry Group Australia"
@@ -105,7 +105,7 @@ companies:
       country: "au"
       au_filter: true
       search_terms: ["quality", "food safety"]
-      max_pages: 5
+      max_pages: 7
 
   - company_id: lion
     name: "Lion"
@@ -122,7 +122,7 @@ companies:
       country: "au"
       au_filter: true
       search_terms: ["quality", "food safety"]
-      max_pages: 3
+      max_pages: 5
 
   - company_id: hellofresh_au
     name: "HelloFresh Australia (incl. Youfoodz)"
@@ -139,7 +139,7 @@ companies:
       country: "au"
       au_filter: true
       search_terms: ["quality", "food safety"]
-      max_pages: 3
+      max_pages: 5
 
   # ======================================================================= #
   # SmartRecruiters — public JSON API                                       #
@@ -190,7 +190,7 @@ companies:
     search:
       keywords: "Nestle quality"
       location: "Australia"
-      max_pages: 3
+      max_pages: 5
 
   - company_id: nestle_seek
     name: "Nestlé Australia — via SEEK"
@@ -202,7 +202,7 @@ companies:
     search:
       keywords: "Nestle"
       where: "Australia"
-      max_pages: 2
+      max_pages: 4
 
   - company_id: kellanova
     name: "Kellanova (Kellogg's) Australia"
@@ -401,10 +401,13 @@ companies:
     ats_platform: avature
     adapter: generic_html
     active: true
-    search:   # Avature; each posting is an article--result tile (page 1 only; pagination via ?jobOffset=)
+    search:   # Avature; each posting is an article--result tile; paginates via ?jobOffset= (step 20)
       list_url: "https://careers.woolworthsgroup.com.au/en_GB/apply/search-jobs"
       base_url: "https://careers.woolworthsgroup.com.au"
       impersonate: true
+      page_param: "jobOffset"
+      page_size: 20
+      max_pages: 5
       selectors:
         item: "article.article--result"
         title: "h3.article__header__text__title a"
@@ -612,7 +615,7 @@ companies:
     search:
       keywords: "Food Safety Quality Manager"
       location: "Sydney, New South Wales, Australia"
-      max_pages: 3
+      max_pages: 5
 
   - company_id: li_senior_quality
     name: "LinkedIn — Senior/Site/National Quality Manager (Australia)"
@@ -624,7 +627,7 @@ companies:
     search:
       keywords: "Senior Quality Manager food"
       location: "Australia"
-      max_pages: 3
+      max_pages: 5
 
   - company_id: li_supplier_quality
     name: "LinkedIn — Supplier Quality / Vendor Assurance (Australia)"
@@ -636,7 +639,7 @@ companies:
     search:
       keywords: "Supplier Quality Manager OR Vendor Assurance"
       location: "Australia"
-      max_pages: 3
+      max_pages: 5
 
   - company_id: li_regulatory_food
     name: "LinkedIn — Regulatory Affairs / Compliance Manager Food (Australia)"
@@ -648,7 +651,7 @@ companies:
     search:
       keywords: "Regulatory Affairs Manager food"
       location: "Australia"
-      max_pages: 2
+      max_pages: 4
 
   # ======================================================================= #
   # SEEK saved searches (spec §7) — curl_cffi, paginated                    #
@@ -663,7 +666,7 @@ companies:
     search:
       keywords: "Food Safety Quality Manager OR Site Quality Manager OR Senior Quality Manager OR National Quality Manager OR Group Quality Manager"
       where: "All Sydney NSW"
-      max_pages: 3
+      max_pages: 5
 
   - company_id: seek_qa_food_mfg
     name: "SEEK — QA Manager Food Manufacturing (NSW)"
@@ -675,7 +678,7 @@ companies:
     search:
       keywords: "QA Manager food manufacturing OR Quality Assurance Manager HACCP OR Quality Manager FMCG"
       where: "All Sydney NSW"
-      max_pages: 3
+      max_pages: 5
 
   - company_id: seek_supplier_quality
     name: "SEEK — Supplier Quality / Vendor Assurance (Australia)"
@@ -687,7 +690,7 @@ companies:
     search:
       keywords: "Supplier Quality Manager OR Vendor Assurance Manager OR Product Quality Manager food OR Senior Food Quality Specialist"
       where: "Australia"
-      max_pages: 3
+      max_pages: 5
 
   - company_id: seek_regulatory
     name: "SEEK — Regulatory / Compliance Manager Food (Australia)"
@@ -699,7 +702,7 @@ companies:
     search:
       keywords: "Regulatory Affairs Manager food OR Food Safety Compliance Manager OR Quality Compliance Manager food"
       where: "Australia"
-      max_pages: 2
+      max_pages: 4
 
   # ======================================================================= #
   # Jora searches — curl_cffi, paginated                                    #
@@ -714,7 +717,7 @@ companies:
     search:
       q: "quality manager food"
       l: "Sydney NSW"
-      max_pages: 3
+      max_pages: 5
 
   - company_id: jora_food_safety
     name: "Jora — Food Safety Quality Manager (Australia)"
@@ -726,4 +729,4 @@ companies:
     search:
       q: "food safety quality manager"
       l: "Australia"
-      max_pages: 2
+      max_pages: 4

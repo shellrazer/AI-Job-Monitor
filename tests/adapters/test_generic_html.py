@@ -335,3 +335,78 @@ def test_fetch_returns_empty_without_list_url() -> None:
 
     assert adapter.fetch(["quality manager"]) == []
     assert http.calls == []
+
+
+def test_fetch_without_page_param_is_single_fetch() -> None:
+    # No page_param configured -> single fetch, unchanged behavior.
+    http = _FakeHttp(SAMPLE_HTML)
+    search = _default_search(list_url="https://careers.acme.com/jobs", max_pages=5)
+    adapter = _adapter_with_http(http, search)
+
+    jobs = adapter.fetch(["quality manager"])
+
+    assert len(jobs) == 3
+    assert http.calls == [("httpx", "https://careers.acme.com/jobs")]
+
+
+# --------------------------------------------------------------------------- #
+# config-driven pagination                                                    #
+# --------------------------------------------------------------------------- #
+def _card(path: str, title: str) -> str:
+    return f'<div class="job-card"><a class="title" href="{path}">{title}</a></div>'
+
+
+# jobOffset=0 -> jobs 1,2,3 ; jobOffset=20 -> job 3 (overlap) + 4,5 ; jobOffset=40 -> empty.
+_OFFSET0 = f"<html><body>{_card('/jobs/1', 'J1')}{_card('/jobs/2', 'J2')}{_card('/jobs/3', 'J3')}</body></html>"
+_OFFSET20 = f"<html><body>{_card('/jobs/3', 'J3')}{_card('/jobs/4', 'J4')}{_card('/jobs/5', 'J5')}</body></html>"
+_OFFSET40 = "<html><body><p>No more jobs</p></body></html>"
+
+
+class _PagedHttp:
+    """Fake client returning distinct HTML keyed by the page-param query value."""
+
+    def __init__(self, page_param: str, pages: dict[str, str]) -> None:
+        self.page_param = page_param
+        self.pages = pages  # offset value (str) -> HTML
+        self.calls: list[tuple[str, str]] = []
+
+    def _payload_for(self, url: str) -> str:
+        from urllib.parse import parse_qs, urlsplit
+
+        offset = parse_qs(urlsplit(url).query).get(self.page_param, ["0"])[0]
+        return self.pages.get(offset, "")
+
+    def get_text(self, url: str, **_: Any) -> str:
+        self.calls.append(("httpx", url))
+        return self._payload_for(url)
+
+    def get_text_impersonate(self, url: str, **_: Any) -> str:
+        self.calls.append(("cffi", url))
+        return self._payload_for(url)
+
+    def get_text_rendered(self, url: str, *, wait_selector: str | None = None, **_: Any) -> str:
+        self.calls.append(("render", url))
+        return self._payload_for(url)
+
+
+def test_fetch_paginates_and_dedupes_with_page_param() -> None:
+    http = _PagedHttp("jobOffset", {"0": _OFFSET0, "20": _OFFSET20, "40": _OFFSET40})
+    search = _default_search(
+        list_url="https://careers.acme.com/jobs",
+        page_param="jobOffset",
+        page_size=20,
+        max_pages=3,
+    )
+    adapter = _adapter_with_http(http, search)
+
+    jobs = adapter.fetch(["quality manager"])
+
+    # 5 distinct postings; the overlapping /jobs/3 appears exactly once.
+    urls = [j.apply_url for j in jobs]
+    assert len(jobs) == 5
+    assert len(set(urls)) == 5
+    assert sum(1 for u in urls if u.endswith("/jobs/3")) == 1
+
+    # Walked jobOffset=0 then 20, then stopped at the empty jobOffset=40 page.
+    offsets = [c[1].split("jobOffset=")[1] for c in http.calls]
+    assert offsets == ["0", "20", "40"]

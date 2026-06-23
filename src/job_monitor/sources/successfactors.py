@@ -43,11 +43,11 @@ from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 from typing import TYPE_CHECKING, Any, ClassVar
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
 from selectolax.parser import HTMLParser
 
-from job_monitor.models import RawJob, Source
+from job_monitor.models import RawJob, Source, SourceBlocked
 from job_monitor.normalize import clean_text
 from job_monitor.sources.base import BaseAdapter
 
@@ -68,6 +68,24 @@ _JOB_HREF_MARKERS = ("/job/", "jobdetail", "/jobs/")
 # Anchor text shorter than this is almost certainly navigation chrome, not a
 # real posting title.
 _MIN_TITLE_LEN = 3
+
+# SuccessFactors career sites paginate the HTML results via a ``startrow`` query
+# param, 25 postings per page (page 1 = startrow=0, page 2 = startrow=25, ...).
+_DEFAULT_MAX_PAGES = 3
+_DEFAULT_PAGE_SIZE = 25
+
+
+def _with_query_param(url: str, key: str, value: Any) -> str:
+    """Return ``url`` with ``key=value`` set in its query string.
+
+    Replaces ``key`` if it is already present (e.g. Suntory's ``...&startrow=0``)
+    or appends it otherwise. Uses :mod:`urllib.parse` so it works regardless of
+    whether the URL already carries the param.
+    """
+    parts = urlsplit(url)
+    query = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True) if k != key]
+    query.append((key, str(value)))
+    return urlunsplit(parts._replace(query=urlencode(query)))
 
 
 class SuccessFactorsAdapter(BaseAdapter):
@@ -276,6 +294,14 @@ class SuccessFactorsAdapter(BaseAdapter):
 
         ``search_terms`` is accepted for interface parity; SuccessFactors RSS
         feeds are pre-scoped per company, so it is not used to vary the request.
+
+        The RSS ``feed_url`` path returns every item in a single response, so it
+        is a SINGLE fetch. The HTML ``careers_url`` path walks up to ``max_pages``
+        (default 3) pages of ``page_size`` (default 25) postings via the
+        ``startrow`` query param, accumulating + deduping postings by
+        ``apply_url`` and stopping early on an empty / no-new page. A
+        ``SourceBlocked`` from the first page propagates; a later-page block just
+        stops the walk.
         """
         feed_url = self._feed_url()
         if feed_url:
@@ -285,8 +311,34 @@ class SuccessFactorsAdapter(BaseAdapter):
         careers_url = self._careers_url()
         if not careers_url:
             return []
-        payload = self._fetch_url(careers_url)
-        return self.parse(payload, base_url=careers_url)
+        return self._fetch_paginated_html(careers_url)
+
+    def _fetch_paginated_html(self, careers_url: str) -> list[RawJob]:
+        """Walk ``startrow`` pages of the HTML careers page, deduping by apply_url."""
+        search = self._search()
+        max_pages = int(search.get("max_pages", _DEFAULT_MAX_PAGES))
+        page_size = int(search.get("page_size", _DEFAULT_PAGE_SIZE))
+
+        jobs_by_url: dict[str, RawJob] = {}
+        for page in range(max_pages):
+            page_url = _with_query_param(careers_url, "startrow", page * page_size)
+            try:
+                payload = self._fetch_url(page_url)
+            except SourceBlocked:
+                # Page 1 block propagates; a later-page block just stops the walk.
+                if page == 0:
+                    raise
+                break
+
+            page_jobs = self.parse(payload, base_url=page_url)
+            new = [j for j in page_jobs if j.apply_url not in jobs_by_url]
+            # Stop on an empty page OR a page that adds no new postings.
+            if not page_jobs or not new:
+                break
+            for job in new:
+                jobs_by_url[job.apply_url] = job
+
+        return list(jobs_by_url.values())
 
     def _fetch_url(self, url: str) -> str:
         """GET ``url`` via the transport selected from ``company.search`` flags.

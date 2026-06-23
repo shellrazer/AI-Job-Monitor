@@ -275,6 +275,10 @@ _QUALITY_TITLE = re.compile(
 )
 
 
+# Title terms the candidate does not want (excluded even if otherwise quality-ish).
+_TITLE_EXCLUDE = re.compile(r"\btechnician\b")
+
+
 def is_quality_relevant(title: str, jd_text: str = "") -> bool:
     """True if the *title* indicates a quality / QA / food-safety / technical role.
 
@@ -282,8 +286,11 @@ def is_quality_relevant(title: str, jd_text: str = "") -> bool:
     for signature stability / future use): either the title maps to a non-"other"
     seniority category, or it matches the quality-title vocabulary. Bare
     workplace-safety wording (WHS/OHS/"work health and safety") does NOT count —
-    only "food safety" does.
+    only "food safety" does. Titles matching :data:`_TITLE_EXCLUDE` (e.g.
+    "Technician" — candidate preference) are excluded regardless.
     """
+    if _TITLE_EXCLUDE.search(title.lower()):
+        return False
     if canonical_seniority(title) != "other":
         return True
     return bool(_QUALITY_TITLE.search(title.lower()))

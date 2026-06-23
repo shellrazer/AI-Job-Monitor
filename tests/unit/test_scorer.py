@@ -275,6 +275,10 @@ def test_is_quality_relevant_true(title: str) -> None:
         "Warehouse Operator",
         "Maintenance Engineer",
         "Logistics Coordinator",
+        # Candidate preference: no technician roles (even quality-titled ones).
+        "Quality Control Technician",
+        "Laboratory Technician",
+        "QA Technician",
     ],
 )
 def test_is_quality_relevant_false(title: str) -> None:

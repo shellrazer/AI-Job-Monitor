@@ -88,16 +88,17 @@ def location_bucket(location: str | None) -> str:
     return "other_au"
 
 
-def is_other_region(location: str | None) -> bool:
-    """True only for a location *clearly* in another AU state (not NSW/remote/ambiguous).
+def is_other_region(location: str | None, title: str = "") -> bool:
+    """True for a role to DROP in the NSW-only view — i.e. a *specific* non-NSW place.
 
-    Delegates to :func:`scorer.classify_location`: a ``melbourne_brisbane`` key
-    means a Melbourne/Brisbane/Perth/QLD/VIC/etc. signal with no NSW signal. NSW
-    (sydney_greater / nsw_regional), remote, and UNKNOWN-region (``other_au`` —
-    empty, bare "Australia", unknown suburb) all return False so they are KEPT by
-    the NSW-only view.
+    Delegates to :func:`scorer.region_for_nsw_filter`, which keeps NSW/Sydney and
+    remote roles, keeps truly locality-less / ambiguous values (blank, bare
+    "Australia"), and drops any specific non-NSW locality — whether signalled by a
+    clear other-state token (in the location OR the title, e.g. "... - Moorabbin,
+    VIC"), or simply a named non-NSW suburb we can't confirm as NSW (e.g.
+    "Kewdale, Australia").
     """
-    return scorer.classify_location(location) == "melbourne_brisbane"
+    return scorer.region_for_nsw_filter(location, title) == "other"
 
 
 def is_preferred(job: Job) -> bool:
@@ -218,7 +219,7 @@ def _other_regions(jobs: list[Job]) -> list[Job]:
     ``apply_url`` (keeping the first / highest-scored occurrence) so a preferred
     other-state role that also appears in Tab 1 is not double-listed within Tab 3.
     """
-    ordered = _sorted_by_score([j for j in jobs if is_other_region(j.location)])
+    ordered = _sorted_by_score([j for j in jobs if is_other_region(j.location, j.title)])
 
     seen: set[str] = set()
     deduped: list[Job] = []
@@ -248,7 +249,7 @@ def _tab_groups(jobs: list[Job], ratings: CompanyRatingsConfig) -> list[_Section
     """
     preferred = _sorted_by_score([j for j in jobs if is_preferred(j)])
     nsw_picks = _sorted_by_score(
-        [j for j in jobs if is_aggregator(j) and not is_other_region(j.location)]
+        [j for j in jobs if is_aggregator(j) and not is_other_region(j.location, j.title)]
     )
     other = _other_regions(jobs)
 

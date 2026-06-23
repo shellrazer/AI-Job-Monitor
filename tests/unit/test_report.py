@@ -166,16 +166,27 @@ def test_is_preferred_and_is_aggregator():
 # is_other_region                                                             #
 # --------------------------------------------------------------------------- #
 def test_is_other_region():
-    # Clearly another AU state -> True.
+    # Clearly another AU state (by location) -> True.
     assert is_other_region("Melbourne VIC") is True
+    assert is_other_region("Melbourne VIC", "") is True
     assert is_other_region("Brisbane") is True
     assert is_other_region("Queensland") is True
+    # Location is bare/ambiguous but the TITLE names another state -> True.
+    assert (
+        is_other_region(
+            "Moorabbin, Australia",
+            "National Quality and Maintenance Coordinator - Moorabbin, VIC",
+        )
+        is True
+    )
     # NSW / Sydney / remote / unknown-region / empty -> kept (False).
     assert is_other_region("Chatswood, Australia") is False
     assert is_other_region("Sydney NSW") is False
+    assert is_other_region("Sydney NSW", "") is False
     assert is_other_region("Remote") is False
     assert is_other_region(None) is False
     assert is_other_region("") is False
+    assert is_other_region("", "Quality Manager") is False
 
 
 # --------------------------------------------------------------------------- #
@@ -205,6 +216,41 @@ def test_tab_groups_selection():
     # Tab 3: clearly-other-state roles (any source), score desc. The Brisbane
     # preferred (85) outranks the Melbourne aggregator (70).
     assert titles(other) == ["Preferred Brisbane QM", "Aggregator Melbourne QM"]
+
+
+def test_tab_groups_other_state_in_title_routes_to_tab3():
+    # Location is bare/ambiguous ("Moorabbin, Australia" -> other_au) but the
+    # TITLE names another state, so the role must land in Tab 3 (Other Regions)
+    # and NOT in the NSW & Remote picks.
+    jobs = [
+        _job(
+            source=Source.OFFICIAL_ATS,
+            title="National Quality and Maintenance Coordinator - Moorabbin, VIC",
+            company_name="Coca-Cola",
+            location="Moorabbin, Australia",
+            apply_url="https://example.com/moorabbin",
+            final_score=82.0,
+            priority_tier=PriorityTier.A,
+        ),
+        _job(
+            source=Source.SEEK,
+            title="Sydney QM",
+            company_name="Cloud Foods",
+            location="Sydney NSW",
+            apply_url="https://example.com/syd",
+            final_score=80.0,
+            priority_tier=PriorityTier.A,
+        ),
+    ]
+    _preferred, nsw, other = _tab_groups(jobs, RATINGS)
+
+    def titles(section):
+        return [item.job.title for item in section.items]
+
+    moorabbin = "National Quality and Maintenance Coordinator - Moorabbin, VIC"
+    assert moorabbin in titles(other)
+    assert moorabbin not in titles(nsw)
+    assert "Sydney QM" in titles(nsw)
 
 
 def test_tab_groups_other_regions_dedupes_by_apply_url():

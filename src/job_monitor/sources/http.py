@@ -414,7 +414,10 @@ class PoliteClient:
         # render-only pages are usually behind some anti-bot heuristic.
         configured_ua = self.settings.user_agent
         user_agent = configured_ua if "Mozilla" in configured_ua else _BROWSER_USER_AGENT
-        timeout_ms = int(self.settings.timeout_seconds * 1000)
+        # Rendering JS pages (esp. paginated) is slower than a plain request, so use
+        # a dedicated, longer render timeout.
+        render_seconds = getattr(self.settings, "render_timeout_seconds", None) or self.settings.timeout_seconds
+        timeout_ms = int(render_seconds * 1000)
 
         with sync_playwright() as pw:
             browser = pw.chromium.launch(

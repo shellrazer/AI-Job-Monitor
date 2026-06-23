@@ -63,7 +63,9 @@ __all__ = [
     "is_australian_location",
     "is_quality_relevant",
     "is_recruiter_company",
+    "mentions_other_state",
     "priority_tier",
+    "region_for_nsw_filter",
     "resume_tips",
     "score_company",
     "score_industry",
@@ -737,12 +739,30 @@ _OTHER_AU_CITIES = (
     "sunshine coast", "geelong", "ballarat", "bendigo", "toowoomba", "townsville", "cairns",
     "mackay", "rockhampton", "launceston", "bunbury", "tatura", "shepparton", "dandenong",
     "yatala", "carole park", "tingalpa",
+    # VIC (Melbourne) industrial suburbs.
+    "moorabbin", "clayton", "mulgrave", "scoresby", "notting hill", "truganina", "derrimut",
+    "laverton", "altona", "rowville", "keysborough", "braeside",
+    # QLD (Brisbane) industrial suburbs.
+    "eagle farm", "acacia ridge", "richlands", "wacol", "hemmant", "murarrie", "rocklea", "darra",
+    # WA (Perth) industrial suburbs.
+    "kewdale", "canning vale", "welshpool", "malaga", "osborne park",
+    # SA (Adelaide) industrial suburbs.
+    "wingfield", "regency park", "edinburgh",
 )
 _AU_CITIES = _SYDNEY_SUBURBS + _NSW_REGIONAL + _OTHER_AU_CITIES
 _OTHER_STATE_RE = re.compile(
     r"melbourne|brisbane|perth|adelaide|canberra|hobart|darwin|gold coast|sunshine coast|"
     r"geelong|ballarat|bendigo|toowoomba|townsville|cairns|mackay|rockhampton|launceston|bunbury|"
     r"tatura|shepparton|dandenong|yatala|carole park|tingalpa|"
+    # VIC (Melbourne) industrial suburbs.
+    r"moorabbin|clayton|mulgrave|scoresby|notting hill|truganina|derrimut|laverton|altona|"
+    r"rowville|keysborough|braeside|"
+    # QLD (Brisbane) industrial suburbs.
+    r"eagle farm|acacia ridge|richlands|wacol|hemmant|murarrie|rocklea|darra|"
+    # WA (Perth) industrial suburbs.
+    r"kewdale|canning vale|welshpool|malaga|osborne park|"
+    # SA (Adelaide) industrial suburbs.
+    r"wingfield|regency park|edinburgh|"
     r"\bvic\b|victoria|\bqld\b|queensland|\bwa\b|western australia|\bsa\b|south australia|"
     r"\btas\b|tasmania|\bnt\b|northern territory|\bact\b|australian capital territory"
 )
@@ -803,6 +823,71 @@ def classify_location(location: str | None) -> str:
         return "melbourne_brisbane"
     # Recognized-AU but no specific region (e.g. bare "Australia", remote): ambiguous.
     return "other_au"
+
+
+def mentions_other_state(text: str | None) -> bool:
+    """True if *text* carries a clear OTHER-state signal and NO NSW signal.
+
+    Used to catch a location-filter leak where a job's LOCATION field is bare /
+    ambiguous (e.g. "Moorabbin, Australia" -> ``other_au``) but its TITLE clearly
+    names another state (e.g. "... - Moorabbin, VIC"). Empty / None -> False.
+    """
+    if not text:
+        return False
+    lowered = text.lower()
+    return bool(_OTHER_STATE_RE.search(lowered)) and not bool(_NSW_RE.search(lowered))
+
+
+# Tokens that do NOT name a specific locality (so a location made only of these is
+# "ambiguous", not a real place).
+_NON_LOCALITY_RE = re.compile(
+    r"\b(australia|australian|aus|remote|wfh|anywhere|hybrid|various|multiple|location|locations|"
+    r"all|work from home|work[- ]from[- ]home|nationwide|flexible|onsite|on[- ]site|aunz|anz|oceania)\b"
+)
+
+
+def _has_specific_locality(location: str | None) -> bool:
+    """True if *location* names a specific place beyond 'Australia'/remote/blank."""
+    if not location:
+        return False
+    stripped = _NON_LOCALITY_RE.sub(" ", location.lower())
+    stripped = re.sub(r"[^a-z0-9]+", " ", stripped).strip()
+    return bool(stripped)
+
+
+def region_for_nsw_filter(location: str | None, title: str = "") -> str:
+    """Classify a role for the NSW-only view: ``nsw`` (keep) | ``other`` (drop) | ``ambiguous`` (keep).
+
+    Rule (per user): NSW/Sydney or remote -> keep. A clear other-state signal, OR
+    any *specific* non-NSW locality (even an unrecognized suburb like "Kewdale,
+    Australia") -> drop. Only a truly locality-less value (blank / "Australia" /
+    remote-only) is ``ambiguous`` and kept.
+    """
+    loc = (location or "").lower()
+    both = f"{loc} {(title or '').lower()}"
+    bucket = classify_location(location)
+    if bucket in ("sydney_greater", "nsw_regional"):
+        return "nsw"
+    # NSW signal anywhere (incl. the title) keeps it even if the location field is vague.
+    if (
+        _NSW_RE.search(both)
+        or "greater sydney" in both
+        or "western sydney" in both
+        or any(s in both for s in _SYDNEY_SUBURBS)
+        or any(t in both for t in _NSW_REGIONAL)
+    ):
+        return "nsw"
+    # A clear other-state signal (location bucket or title) -> drop.
+    if bucket in ("melbourne_brisbane", "overseas") or mentions_other_state(title):
+        return "other"
+    # Remote / WFH with no specific place -> keep.
+    if any(m in loc for m in _AU_REMOTE_MARKERS):
+        return "nsw"
+    # A specific locality we couldn't confirm as NSW -> treat as other (drop).
+    if _has_specific_locality(location):
+        return "other"
+    # Truly locality-less ("Australia" / blank) -> ambiguous (keep).
+    return "ambiguous"
 
 
 def score_location(location: str | None, *, scoring: ScoringConfig | None = None) -> float:

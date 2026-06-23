@@ -25,6 +25,7 @@ from job_monitor.scorer import (
     final_score,
     is_australian_location,
     is_quality_relevant,
+    mentions_other_state,
     priority_tier,
     resume_tips,
     score_company,
@@ -299,6 +300,8 @@ def test_is_quality_relevant_false(title: str) -> None:
         ("Brisbane QLD", "melbourne_brisbane"),
         ("Perth WA", "melbourne_brisbane"),
         ("Adelaide SA", "melbourne_brisbane"),
+        # Bare other-state suburb with no state code still classifies as other-state.
+        ("Moorabbin, Australia", "melbourne_brisbane"),
         ("Australia", "other_au"),
         ("London UK", "overseas"),
         ("London", "overseas"),
@@ -327,6 +330,18 @@ def test_classify_location_overseas_filtered() -> None:
     # AU / empty / ambiguous stay non-overseas.
     for loc in ["Sydney", "Melbourne VIC", "Newcastle", "Perth WA", "Australia", "Remote", "", None]:
         assert classify_location(loc) != "overseas", loc
+
+
+def test_mentions_other_state() -> None:
+    # Clear other-state mention with no NSW signal -> True.
+    assert mentions_other_state("National Quality and Maintenance Coordinator - Moorabbin, VIC") is True
+    # NSW signal present -> False (not an other-state role).
+    assert mentions_other_state("Site QM - Parramatta NSW") is False
+    # No state signal at all -> False.
+    assert mentions_other_state("Quality Manager") is False
+    # Empty / None -> False.
+    assert mentions_other_state("") is False
+    assert mentions_other_state(None) is False
 
 
 @pytest.mark.parametrize(

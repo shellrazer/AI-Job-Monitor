@@ -165,17 +165,27 @@ def test_select_for_digest_nsw_only_filters_other_state(tmp_path):
     sydney = _scored_job("Sydney QM", "Sydney NSW", 80.0)
     melbourne = _scored_job("Melbourne QM", "Melbourne VIC", 75.0)
     unknown = _scored_job("Unknown Region QM", None, 70.0)
-    jobs = [sydney, melbourne, unknown]
+    # Location is bare/ambiguous but the TITLE names another state -> other-region.
+    title_leak = _scored_job(
+        "National Quality and Maintenance Coordinator - Moorabbin, VIC",
+        "Moorabbin, Australia",
+        73.0,
+    )
+    jobs = [sydney, melbourne, unknown, title_leak]
 
     cfg.settings.report.nsw_only = True
     selected = {j.title for j in _select_for_digest(jobs, cfg)}
     assert "Sydney QM" in selected
     assert "Unknown Region QM" in selected  # unknown-region kept
     assert "Melbourne QM" not in selected  # clearly other-state dropped
+    # Other-state signal only in the title is also dropped under nsw_only.
+    assert "National Quality and Maintenance Coordinator - Moorabbin, VIC" not in selected
 
     cfg.settings.report.nsw_only = False
     selected_all = {j.title for j in _select_for_digest(jobs, cfg)}
     assert "Melbourne QM" in selected_all  # retained when the view is off
+    # Title-leak role is kept when the NSW-only view is off.
+    assert "National Quality and Maintenance Coordinator - Moorabbin, VIC" in selected_all
 
 
 def test_regate_existing_cleans_stale_rows(tmp_db):

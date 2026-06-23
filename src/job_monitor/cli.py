@@ -135,7 +135,7 @@ def report_cmd(
     # NSW-only view (view-level, toggleable): hide roles clearly in another state;
     # keep NSW/Sydney + remote + unknown-region.
     if cfg.settings.report.nsw_only:
-        jobs = [j for j in jobs if not report_mod.is_other_region(j.location)]
+        jobs = [j for j in jobs if not report_mod.is_other_region(j.location, j.title)]
     out_dir = expand_path(cfg.settings.report.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     now = datetime.now()

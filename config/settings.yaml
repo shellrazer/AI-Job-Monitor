@@ -11,7 +11,7 @@ report:
   nsw_only: true           # show only NSW/Sydney + remote + unknown-region; hide roles clearly in another state
 
 email:
-  enabled: false           # auto-send OFF (review locally); requires JOB_MONITOR_GMAIL_USER + JOB_MONITOR_GMAIL_APP_PASSWORD in env/secrets
+  enabled: true            # auto-send ON; requires JOB_MONITOR_GMAIL_USER + JOB_MONITOR_GMAIL_APP_PASSWORD in env/secrets
   smtp_host: "smtp.gmail.com"
   smtp_port: 587
   sender: "${JOB_MONITOR_GMAIL_USER}"
@@ -29,6 +29,7 @@ http:
   user_agent: "JobMonitor/0.1 (+personal job search; contact zhe.nie@rokt.com)"
   per_host_rate_limit_rps: 0.5
   timeout_seconds: 20
+  render_timeout_seconds: 45   # Playwright JS render (GrainCorp etc., paginated) — longer than normal requests
   max_retries: 4
   backoff_base_seconds: 1.5
   cache_dir: "~/.job_monitor/http_cache"

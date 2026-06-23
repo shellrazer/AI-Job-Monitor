@@ -323,7 +323,7 @@ def _select_for_digest(jobs: list[Job], cfg: AppConfig) -> list[Job]:
         if j.status != JobStatus.IRRELEVANT
         and j.priority_tier is not None
         and _TIER_RANK.get(j.priority_tier.value, 4) <= min_rank
-        and not (nsw_only and report.is_other_region(j.location))
+        and not (nsw_only and report.is_other_region(j.location, j.title))
     ]
     eligible.sort(key=lambda j: j.final_score or 0.0, reverse=True)
     return eligible

@@ -128,6 +128,7 @@ class HttpSettings(BaseModel):
     timeout_seconds: float = 20.0
     max_retries: int = 4
     backoff_base_seconds: float = 1.5
+    render_timeout_seconds: float = 45.0  # Playwright JS render (paginated pages are slow)
     cache_dir: str = "~/.job_monitor/http_cache"
     cache_ttl_seconds: int = 3600
     respect_robots: bool = True

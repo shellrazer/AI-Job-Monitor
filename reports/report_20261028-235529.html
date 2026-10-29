@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Job Monitor Report</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #f4f5f7;
+      color: #1a1a1a;
+      line-height: 1.45;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; }
+    header.summary {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    header.summary h1 { margin: 0 0 4px; font-size: 20px; }
+    header.summary .subtitle { color: #555; font-size: 14px; margin: 0 0 12px; }
+    header.summary .meta { color: #777; font-size: 13px; }
+    .tier-counts { margin: 10px 0 0; padding: 0; list-style: none;
+      display: flex; flex-wrap: wrap; gap: 8px; }
+    .tier-counts li {
+      font-size: 13px; padding: 3px 10px; border-radius: 999px;
+      background: #eef0f3; color: #333;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+      border-left: 5px solid #c7ccd4;
+    }
+    .card--alert {
+      border-left-color: #d92d20;
+      background: #fff7f6;
+    }
+    .card h2 { margin: 0 0 4px; font-size: 17px; }
+    .card .company-line { color: #444; font-size: 14px; margin: 0 0 12px; }
+    .badge {
+      display: inline-block; font-size: 12px; font-weight: 600;
+      padding: 2px 9px; border-radius: 6px; margin-left: 8px;
+      vertical-align: middle; background: #e7eefc; color: #1747b8;
+    }
+    .badge--alert { background: #fde7e5; color: #b42318; }
+    dl.fields { margin: 0; display: grid; grid-template-columns: 180px 1fr;
+      gap: 4px 12px; font-size: 14px; }
+    dl.fields dt { color: #666; font-weight: 600; }
+    dl.fields dd { margin: 0; }
+    ul.reasons, ul.tips { margin: 4px 0 0; padding-left: 20px; }
+    ul.reasons li, ul.tips li { font-size: 14px; }
+    a { color: #1747b8; word-break: break-all; }
+    .empty { background: #fff; border-radius: 10px; padding: 24px;
+      text-align: center; color: #777; }
+    h2.section { margin: 26px 0 12px; font-size: 16px; color: #1a1a1a;
+      border-bottom: 2px solid #d6dae1; padding-bottom: 6px; }
+    .section-empty { font-size: 13px; color: #999; margin: 0 0 16px; }
+    .tabs {
+      display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px;
+      border-bottom: 2px solid #d6dae1;
+    }
+    .tab-btn {
+      appearance: none; border: 1px solid #d6dae1; border-bottom: none;
+      background: #eef0f3; color: #444; font: inherit; font-size: 14px;
+      font-weight: 600; cursor: pointer; padding: 9px 16px;
+      border-radius: 8px 8px 0 0; margin-bottom: -2px;
+    }
+    .tab-btn:hover { background: #e3e6ea; }
+    .tab-btn.is-active {
+      background: #fff; color: #1747b8; border-color: #d6dae1;
+      border-bottom: 2px solid #fff;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.is-active { display: block; }
+    .stars { color: #e6a700; letter-spacing: 1px; }
+    .recruiter {
+      display: inline-block; font-size: 12px; font-weight: 600;
+      padding: 2px 9px; border-radius: 6px; margin-left: 8px;
+      vertical-align: middle; background: #fff3e0; color: #9a5b00;
+    }
+    footer { color: #999; font-size: 12px; text-align: center; margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="summary">
+      <h1>职位监控报告 / Job Monitor Report</h1>
+      <p class="subtitle">38 roles</p>
+      <p class="meta">生成时间 / Generated: 2026-10-28 23:55
+        · 共 / Total: 38</p>
+      <ul class="tier-counts">
+        
+          <li>A: 1</li>
+        
+          <li>B: 16</li>
+        
+          <li>C: 21</li>
+        
+      </ul>
+    </header>
+
+    
+
+    
+    <div class="tabs" role="tablist">
+      
+        <button type="button" class="tab-btn is-active"
+          role="tab" aria-controls="tab-panel-1"
+          aria-selected="true"
+          data-tab-target="tab-panel-1">
+          优选公司 / Preferred Companies (10)
+        </button>
+      
+        <button type="button" class="tab-btn"
+          role="tab" aria-controls="tab-panel-2"
+          aria-selected="false"
+          data-tab-target="tab-panel-2">
+          综合推荐 / NSW & Remote Picks (28)
+        </button>
+      
+    </div>
+    
+
+    
+      <section class="tab-panel is-active"
+        id="tab-panel-1" role="tabpanel">
+      <h2 class="section">优选公司 / Preferred Companies (10)</h2>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality, Technical & Food Safety Manager
+            
+              <span class="badge badge--alert">A</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Suntory Oceania</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality, Technical & Food Safety Manager</dd>
+            <dt>公司 / Company</dt><dd>Suntory Oceania</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.suntorybeverageandfood.com/job/Toledo-Quality%2C-Technical-&-Food-Safety-Manager-45007/1354909655/">https://careers.suntorybeverageandfood.com/job/Toledo-Quality%2C-Technical-&-Food-Safety-Manager-45007/1354909655/</a></dd>
+            <dt>Final score</dt><dd>74.2</dd>
+            <dt>优先级 / Priority</dt><dd>A</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: food safety quality manager</li><li>Tier-1 target company</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Beverage Technical & Development Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Suntory Oceania</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Beverage Technical & Development Manager</dd>
+            <dt>公司 / Company</dt><dd>Suntory Oceania</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.suntorybeverageandfood.com/job/Sydney-Beverage-Technical-&-Development-Manager-2000/1373401855/">https://careers.suntorybeverageandfood.com/job/Sydney-Beverage-Technical-&-Development-Manager-2000/1373401855/</a></dd>
+            <dt>Final score</dt><dd>64.9</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Coordinator
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Bega Group · Penrith (NSW)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Coordinator</dd>
+            <dt>公司 / Company</dt><dd>Bega Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Penrith (NSW)</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-09-28</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://begacheese.wd3.myworkdayjobs.com/en-US/Bega_Careers/job/Penrith-NSW/Quality-Coordinator_JR-7667">https://begacheese.wd3.myworkdayjobs.com/en-US/Bega_Careers/job/Penrith-NSW/Quality-Coordinator_JR-7667</a></dd>
+            <dt>Final score</dt><dd>47.9</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Senior Regulatory Affairs Specialist
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Suntory Oceania</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Senior Regulatory Affairs Specialist</dd>
+            <dt>公司 / Company</dt><dd>Suntory Oceania</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.suntorybeverageandfood.com/job/Sydney-Senior-Regulatory-Affairs-Specialist-2000/1359600755/">https://careers.suntorybeverageandfood.com/job/Sydney-Senior-Regulatory-Affairs-Specialist-2000/1359600755/</a></dd>
+            <dt>Final score</dt><dd>46.4</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Technical Manager – Health & Wellness ANZ
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">ADM (Archer Daniels Midland) · Sydney</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Technical Manager – Health & Wellness ANZ</dd>
+            <dt>公司 / Company</dt><dd>ADM (Archer Daniels Midland)</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://sjobs.brassring.com/TGnewUI/Search/home/HomeWithPreLoad?partnerid=25416&siteid=5429&PageType=JobDetails&jobid=3392526">https://sjobs.brassring.com/TGnewUI/Search/home/HomeWithPreLoad?partnerid=25416&siteid=5429&PageType=JobDetails&jobid=3392526</a></dd>
+            <dt>Final score</dt><dd>46.2</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Project Quality Coordinator
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Goodman Fielder</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Project Quality Coordinator</dd>
+            <dt>公司 / Company</dt><dd>Goodman Fielder</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.goodmanfielder.com.au/jobs/17226/GF-2131N">https://careers.goodmanfielder.com.au/jobs/17226/GF-2131N</a></dd>
+            <dt>Final score</dt><dd>44.5</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Coordinator
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">George Weston Foods / Tip Top</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Coordinator</dd>
+            <dt>公司 / Company</dt><dd>George Weston Foods / Tip Top</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://gwf.springboard.com.au/jobs/VIC-Regional/GWF-1952492">https://gwf.springboard.com.au/jobs/VIC-Regional/GWF-1952492</a></dd>
+            <dt>Final score</dt><dd>43.7</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Supervisor
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">JBS Australia (incl. Primo Foods)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Supervisor</dd>
+            <dt>公司 / Company</dt><dd>JBS Australia (incl. Primo Foods)</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.jbssa.com.au/job/Sydney-Quality-Supervisor-NSW-2190/1364355466/">https://careers.jbssa.com.au/job/Sydney-Quality-Supervisor-NSW-2190/1364355466/</a></dd>
+            <dt>Final score</dt><dd>39.7</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Senior Food Technologist
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">JBS Australia (incl. Primo Foods)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Senior Food Technologist</dd>
+            <dt>公司 / Company</dt><dd>JBS Australia (incl. Primo Foods)</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.jbssa.com.au/job/Melbourne-Senior-Food-Technologist-NSW-3026/1364245866/">https://careers.jbssa.com.au/job/Melbourne-Senior-Food-Technologist-NSW-3026/1364245866/</a></dd>
+            <dt>Final score</dt><dd>39.4</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Analyst
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">JBS Australia (incl. Primo Foods)</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Analyst</dd>
+            <dt>公司 / Company</dt><dd>JBS Australia (incl. Primo Foods)</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>—</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>official_ats</dd>
+            <dt>发布日期 / Posted</dt><dd>—</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://careers.jbssa.com.au/job/Brisbane-Quality-Analyst-QLD-4076/1368926666/">https://careers.jbssa.com.au/job/Brisbane-Quality-Analyst-QLD-4076/1368926666/</a></dd>
+            <dt>Final score</dt><dd>38.3</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+      </section>
+    
+      <section class="tab-panel"
+        id="tab-panel-2" role="tabpanel">
+      <h2 class="section">综合推荐 / NSW & Remote Picks (28)</h2>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Site Quality Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Blackbook Recruitment · Yanco, New South Wales, Australia<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Site Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Blackbook Recruitment</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Yanco, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-22</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/site-quality-manager-at-blackbook-recruitment-4480094374">https://au.linkedin.com/jobs/view/site-quality-manager-at-blackbook-recruitment-4480094374</a></dd>
+            <dt>Final score</dt><dd>63.9</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: site quality manager</li><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Senior Manager - Quality, Compliance and People
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Valmar Support Services Ltd · Tumut, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Senior Manager - Quality, Compliance and People</dd>
+            <dt>公司 / Company</dt><dd>Valmar Support Services Ltd</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Tumut, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-09-23</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/senior-manager-quality-compliance-and-people-at-valmar-support-services-ltd-4470691972">https://au.linkedin.com/jobs/view/senior-manager-quality-compliance-and-people-at-valmar-support-services-ltd-4470691972</a></dd>
+            <dt>Final score</dt><dd>63.6</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>High-fit seniority: senior quality manager</li><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Blackmores Group · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Blackmores Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-09-27</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-assurance-manager-at-blackmores-group-4442285540">https://au.linkedin.com/jobs/view/quality-assurance-manager-at-blackmores-group-4442285540</a></dd>
+            <dt>Final score</dt><dd>60.2</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Toll Group · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Toll Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-09-29</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-assurance-manager-at-toll-group-4473083480">https://au.linkedin.com/jobs/view/quality-assurance-manager-at-toll-group-4473083480</a></dd>
+            <dt>Final score</dt><dd>60.2</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Control Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">ManufacturingEzyFind.co.za · Terminals Pty Ltd, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Control Manager</dd>
+            <dt>公司 / Company</dt><dd>ManufacturingEzyFind.co.za</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Terminals Pty Ltd, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-07-23</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-control-manager-at-manufacturingezyfind-co-za-4444459263">https://au.linkedin.com/jobs/view/quality-control-manager-at-manufacturingezyfind-co-za-4444459263</a></dd>
+            <dt>Final score</dt><dd>58.7</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality and Environment Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">NewCold · Marsden Park, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality and Environment Manager</dd>
+            <dt>公司 / Company</dt><dd>NewCold</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Marsden Park, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-09-10</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-and-environment-manager-at-newcold-4477667634">https://au.linkedin.com/jobs/view/quality-and-environment-manager-at-newcold-4477667634</a></dd>
+            <dt>Final score</dt><dd>57.5</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            QA & Product Compliance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Pacific Talent Partners · Sydney, New South Wales, Australia<span class="recruiter">🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</span></p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>QA & Product Compliance Manager</dd>
+            <dt>公司 / Company</dt><dd>Pacific Talent Partners</dd>
+            <dt>评分 / Rating</dt><dd>🕵 Recruiter — employer undisclosed / 招聘中介 (雇主未披露)</dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-23</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/qa-product-compliance-manager-at-pacific-talent-partners-4482806707">https://au.linkedin.com/jobs/view/qa-product-compliance-manager-at-pacific-talent-partners-4482806707</a></dd>
+            <dt>Final score</dt><dd>56.1</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Real Pet Food Company · Ingleburn, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Manager</dd>
+            <dt>公司 / Company</dt><dd>Real Pet Food Company</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Ingleburn, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-13</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-assurance-manager-at-real-pet-food-company-4478758270">https://au.linkedin.com/jobs/view/quality-assurance-manager-at-real-pet-food-company-4478758270</a></dd>
+            <dt>Final score</dt><dd>55.2</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Sharp & Carter · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager</dd>
+            <dt>公司 / Company</dt><dd>Sharp & Carter</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-10</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-manager-at-sharp-carter-4476134760">https://au.linkedin.com/jobs/view/quality-manager-at-sharp-carter-4476134760</a></dd>
+            <dt>Final score</dt><dd>54.5</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality & Regulatory Manager ANZ
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Sonova Group · Baulkham Hills, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality & Regulatory Manager ANZ</dd>
+            <dt>公司 / Company</dt><dd>Sonova Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Baulkham Hills, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-14</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-regulatory-manager-anz-at-sonova-group-4479275169">https://au.linkedin.com/jobs/view/quality-regulatory-manager-anz-at-sonova-group-4479275169</a></dd>
+            <dt>Final score</dt><dd>54.1</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality & Performance Manager
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Prudence Rehab · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality & Performance Manager</dd>
+            <dt>公司 / Company</dt><dd>Prudence Rehab</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-23</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-performance-manager-at-prudence-rehab-4481635894">https://au.linkedin.com/jobs/view/quality-performance-manager-at-prudence-rehab-4481635894</a></dd>
+            <dt>Final score</dt><dd>53.9</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Commercial Quality Manager ANZPI
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Abbott · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Commercial Quality Manager ANZPI</dd>
+            <dt>公司 / Company</dt><dd>Abbott</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-02-10</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/commercial-quality-manager-anzpi-at-abbott-4469712988">https://au.linkedin.com/jobs/view/commercial-quality-manager-anzpi-at-abbott-4469712988</a></dd>
+            <dt>Final score</dt><dd>51.9</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Manager - Rail and Station Infrastructure
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Multicultural Consulting Services · Millers Point, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Manager - Rail and Station Infrastructure</dd>
+            <dt>公司 / Company</dt><dd>Multicultural Consulting Services</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Millers Point, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-07-10</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-manager-rail-and-station-infrastructure-at-multicultural-consulting-services-4475143830">https://au.linkedin.com/jobs/view/quality-manager-rail-and-station-infrastructure-at-multicultural-consulting-services-4475143830</a></dd>
+            <dt>Final score</dt><dd>51.9</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Regional Quality Manager (PDx) ANZ
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">GE HealthCare · Mascot, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Regional Quality Manager (PDx) ANZ</dd>
+            <dt>公司 / Company</dt><dd>GE HealthCare</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Mascot, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-23</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/regional-quality-manager-pdx-anz-at-ge-healthcare-4474756497">https://au.linkedin.com/jobs/view/regional-quality-manager-pdx-anz-at-ge-healthcare-4474756497</a></dd>
+            <dt>Final score</dt><dd>50.8</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Site leadership / quality systems ownership</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality & Compliance Manager Drive Quality & Compliance, Empower Success!
+            
+              <span class="badge badge--alert">B</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">PEER · Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality & Compliance Manager Drive Quality & Compliance, Empower Success!</dd>
+            <dt>公司 / Company</dt><dd>PEER</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-17</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-compliance-manager-drive-quality-compliance-empower-success%21-at-peer-4477791277">https://au.linkedin.com/jobs/view/quality-compliance-manager-drive-quality-compliance-empower-success%21-at-peer-4477791277</a></dd>
+            <dt>Final score</dt><dd>50.6</dd>
+            <dt>优先级 / Priority</dt><dd>B</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Regulatory Compliance Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Corpay · Greater Sydney Area</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Regulatory Compliance Manager</dd>
+            <dt>公司 / Company</dt><dd>Corpay</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Greater Sydney Area</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-23</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/regulatory-compliance-manager-at-corpay-4464871496">https://au.linkedin.com/jobs/view/regulatory-compliance-manager-at-corpay-4464871496</a></dd>
+            <dt>Final score</dt><dd>48.4</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Senior Regulatory Compliance Manager
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Peoplebank · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Senior Regulatory Compliance Manager</dd>
+            <dt>公司 / Company</dt><dd>Peoplebank</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-26</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/senior-regulatory-compliance-manager-at-peoplebank-4483526581">https://au.linkedin.com/jobs/view/senior-regulatory-compliance-manager-at-peoplebank-4483526581</a></dd>
+            <dt>Final score</dt><dd>48.1</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Food Safety Auditor
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Intertek SAI Global · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Food Safety Auditor</dd>
+            <dt>公司 / Company</dt><dd>Intertek SAI Global</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-09-29</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/food-safety-auditor-at-intertek-sai-global-4473040592">https://au.linkedin.com/jobs/view/food-safety-auditor-at-intertek-sai-global-4473040592</a></dd>
+            <dt>Final score</dt><dd>47.9</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Manager, Regulatory Compliance - Mercer Super
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Marsh · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Manager, Regulatory Compliance - Mercer Super</dd>
+            <dt>公司 / Company</dt><dd>Marsh</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-28</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/manager-regulatory-compliance-mercer-super-at-marsh-4458237898">https://au.linkedin.com/jobs/view/manager-regulatory-compliance-mercer-super-at-marsh-4458237898</a></dd>
+            <dt>Final score</dt><dd>47.9</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Snr Manager, Quality
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">KBR, Inc. · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Snr Manager, Quality</dd>
+            <dt>公司 / Company</dt><dd>KBR, Inc.</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-08-10</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/snr-manager-quality-at-kbr-inc-4449476955">https://au.linkedin.com/jobs/view/snr-manager-quality-at-kbr-inc-4449476955</a></dd>
+            <dt>Final score</dt><dd>47.6</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Compliance Coordinator
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Nestlé · Concord West, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Compliance Coordinator</dd>
+            <dt>公司 / Company</dt><dd>Nestlé</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Concord West, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-28</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-compliance-coordinator-at-nestl%C3%A9-4484287643">https://au.linkedin.com/jobs/view/quality-compliance-coordinator-at-nestl%C3%A9-4484287643</a></dd>
+            <dt>Final score</dt><dd>47.5</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Manager Regulatory City Compliance Services
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">City of Wagga Wagga · Mount Austin, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Manager Regulatory City Compliance Services</dd>
+            <dt>公司 / Company</dt><dd>City of Wagga Wagga</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Mount Austin, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-23</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/manager-regulatory-city-compliance-services-at-city-of-wagga-wagga-4481656369">https://au.linkedin.com/jobs/view/manager-regulatory-city-compliance-services-at-city-of-wagga-wagga-4481656369</a></dd>
+            <dt>Final score</dt><dd>47.0</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Surface regulatory/compliance and labelling experience</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Assurance Coordinator - Leeton
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">SunRice Group · Leeton, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Assurance Coordinator - Leeton</dd>
+            <dt>公司 / Company</dt><dd>SunRice Group</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Leeton, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-16</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-assurance-coordinator-leeton-at-sunrice-group-4471870079">https://au.linkedin.com/jobs/view/quality-assurance-coordinator-leeton-at-sunrice-group-4471870079</a></dd>
+            <dt>Final score</dt><dd>45.2</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Supervisor - Systems
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Primo Foods · Greater Sydney Area</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Supervisor - Systems</dd>
+            <dt>公司 / Company</dt><dd>Primo Foods</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Greater Sydney Area</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-14</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-supervisor-systems-at-primo-foods-4478196445">https://au.linkedin.com/jobs/view/quality-supervisor-systems-at-primo-foods-4478196445</a></dd>
+            <dt>Final score</dt><dd>44.7</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Food Safety Team Leader (12month fixed-term) - Minto, South-West Sydney
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Redox Ltd · Minto, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Food Safety Team Leader (12month fixed-term) - Minto, South-West Sydney</dd>
+            <dt>公司 / Company</dt><dd>Redox Ltd</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Minto, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-09-29</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/food-safety-team-leader-12month-fixed-term-minto-south-west-sydney-at-redox-ltd-4471255756">https://au.linkedin.com/jobs/view/food-safety-team-leader-12month-fixed-term-minto-south-west-sydney-at-redox-ltd-4471255756</a></dd>
+            <dt>Final score</dt><dd>40.3</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Food-safety certification scope (HACCP/FSSC/BRC/SQF)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Lead with FSSC 22000, HACCP, audit readiness</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Engineer
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Breville | Sage · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Engineer</dd>
+            <dt>公司 / Company</dt><dd>Breville | Sage</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-14</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-engineer-at-breville-sage-4479272202">https://au.linkedin.com/jobs/view/quality-engineer-at-breville-sage-4479272202</a></dd>
+            <dt>Final score</dt><dd>39.9</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Quality Supervisor - Operations
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Primo Foods · Greater Sydney Area</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Quality Supervisor - Operations</dd>
+            <dt>公司 / Company</dt><dd>Primo Foods</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★★☆ (4/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Greater Sydney Area</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-06-10</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/quality-supervisor-operations-at-primo-foods-4475131282">https://au.linkedin.com/jobs/view/quality-supervisor-operations-at-primo-foods-4475131282</a></dd>
+            <dt>Final score</dt><dd>39.6</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+        
+        
+        <article class="card card--alert">
+          <h2>
+            Associate Director, Quality Management Systems
+            
+              <span class="badge badge--alert">C</span>
+            
+            <span class="badge badge--alert">强烈推荐 / Strong</span>
+          </h2>
+          <p class="company-line">Worldwide Clinical Trials · Sydney, New South Wales, Australia</p>
+          <dl class="fields">
+            <dt>职位 / Title</dt><dd>Associate Director, Quality Management Systems</dd>
+            <dt>公司 / Company</dt><dd>Worldwide Clinical Trials</dd>
+            <dt>评分 / Rating</dt><dd><span class="stars">★★★☆☆ (3/5)</span></dd>
+            <dt>地点 / Location</dt><dd>Sydney, New South Wales, Australia</dd>
+            <dt>薪资 / Salary</dt><dd>Not disclosed / 未披露</dd>
+            <dt>来源 / Source</dt><dd>linkedin</dd>
+            <dt>发布日期 / Posted</dt><dd>2026-10-27</dd>
+            <dt>申请链接 / Apply</dt><dd><a href="https://au.linkedin.com/jobs/view/associate-director-quality-management-systems-at-worldwide-clinical-trials-4483635875">https://au.linkedin.com/jobs/view/associate-director-quality-management-systems-at-worldwide-clinical-trials-4483635875</a></dd>
+            <dt>Final score</dt><dd>38.6</dd>
+            <dt>优先级 / Priority</dt><dd>C</dd>
+            <dt>匹配原因 / Match reasons</dt>
+            <dd>
+              
+                <ul class="reasons"><li>Tier-1 target company</li><li>Located in Sydney / NSW (preferred region)</li><li>Freshly posted (< 7 days)</li></ul>
+              
+            </dd>
+            <dt>简历建议 / Resume tips</dt>
+            <dd>
+              
+                <ul class="tips"><li>Tailor the summary to senior food-quality leadership outcomes</li></ul>
+              
+            </dd>
+          </dl>
+        </article>
+      
+      </section>
+    
+
+    <footer>Job Monitor · 2026-10-28 23:55</footer>
+  </div>
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll(".tab-btn");
+      function activate(targetId) {
+        var i;
+        for (i = 0; i < buttons.length; i++) {
+          var btn = buttons[i];
+          var isTarget = btn.getAttribute("data-tab-target") === targetId;
+          btn.classList.toggle("is-active", isTarget);
+          btn.setAttribute("aria-selected", isTarget ? "true" : "false");
+        }
+        var panels = document.querySelectorAll(".tab-panel");
+        for (i = 0; i < panels.length; i++) {
+          panels[i].classList.toggle("is-active", panels[i].id === targetId);
+        }
+      }
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener("click", function () {
+          activate(this.getAttribute("data-tab-target"));
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

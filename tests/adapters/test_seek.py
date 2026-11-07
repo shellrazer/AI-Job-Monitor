@@ -138,13 +138,52 @@ class _FakeSeekClient:
         self._page_html = page_html
         self.requested_pages: list[int] = []
 
-    def get_text_impersonate(self, url: str, **_: object) -> str:
+    def get_text(self, url: str, **_: object) -> str:
         import re
 
         match = re.search(r"[?&]page=(\d+)", url)
         page = int(match.group(1)) if match else 1
         self.requested_pages.append(page)
         return self._page_html.get(page, "")
+
+    get_text_impersonate = get_text
+
+
+def test_late_rate_limit_keeps_first_page(seek_html: str) -> None:
+    from httpx import HTTPError
+
+    class RateLimitedClient(_FakeSeekClient):
+        def get_text(self, url: str, **kwargs: object) -> str:
+            if "page=2" in url:
+                raise HTTPError("429")
+            return super().get_text(url, **kwargs)
+
+    adapter = _adapter_with_client(RateLimitedClient({1: seek_html}))
+    expected_urls = {job.apply_url for job in adapter.parse(seek_html)}
+    assert expected_urls
+    assert {job.apply_url for job in adapter.fetch(["quality manager"])} == expected_urls
+
+
+def test_blocked_html_uses_json_with_same_search() -> None:
+    from job_monitor.models import SourceBlocked
+
+    class BlockedHtmlClient(_FakeSeekClient):
+        def get_text(self, url: str, **kwargs: object) -> str:
+            raise SourceBlocked(url)
+
+        get_text_impersonate = get_text
+
+        def get_json(self, url: str) -> dict:
+            assert "/api/jobsearch/v5/search?" in url
+            assert "keywords=quality%20manager" in url
+            assert "where=Sydney%20NSW" in url
+            assert "sortmode=ListedDate" in url
+            return {"data": [{"id": "55500001", "title": "Quality Manager", "companyName": "Example Foods"}]}
+
+    adapter = _adapter_with_client(BlockedHtmlClient({}), max_pages=1)
+    assert adapter.company is not None
+    adapter.company.search["sort_mode"] = "ListedDate"
+    assert [job.title for job in adapter.fetch([])] == ["Quality Manager"]
 
 
 def _adapter_with_client(client: _FakeSeekClient, max_pages: int = 3) -> SeekAdapter:

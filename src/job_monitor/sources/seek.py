@@ -1,7 +1,6 @@
 """SEEK (seek.com.au) source adapter.
 
-SEEK is a Cloudflare-fronted Australian job board, so live fetches go through
-:meth:`PoliteClient.get_text_impersonate` (curl_cffi browser impersonation).
+Live searches try SEEK's Australian HTML, legacy HTML and public JSON search routes.
 :meth:`SeekAdapter.parse` is pure and offline-testable against a captured
 search-results HTML fixture.
 
@@ -26,13 +25,16 @@ import re
 from typing import Any, ClassVar
 from urllib.parse import quote, urlsplit
 
+from httpx import HTTPError
 from selectolax.parser import HTMLParser, Node
 
+from job_monitor.logging import setup_logging
 from job_monitor.models import RawJob, Source, SourceBlocked
 from job_monitor.normalize import clean_text
 from job_monitor.sources.base import BaseAdapter
 
 DEFAULT_BASE_URL = "https://www.seek.com.au"
+_AU_SEARCH_BASE_URL = "https://au.seek.com"
 
 # Default number of search-results pages to walk when the company config does
 # not specify ``max_pages``.
@@ -65,7 +67,7 @@ class SeekAdapter(BaseAdapter):
         Builds the query-form URL ``.../jobs?keywords=...&where=...&page={n}``
         and walks pages ``1..max_pages`` (``max_pages`` read from the company's
         ``search`` config, default :data:`DEFAULT_MAX_PAGES`), retrieving each via
-        curl_cffi impersonation (SEEK sits behind Cloudflare). Results are
+        the Australian search host. Results are
         accumulated and de-duplicated by ``apply_url``.
 
         Stops early when a page yields zero jobs or contributes no new
@@ -79,20 +81,29 @@ class SeekAdapter(BaseAdapter):
             # SEEK already understands OR syntax inside ``keywords``).
             keywords = " ".join(search_terms) if search_terms else ""
         where = search.get("where", "")
+        sort_mode = search.get("sort_mode")
         max_pages = self._max_pages(search)
 
         by_url: dict[str, RawJob] = {}
+        routes = iter(("australian", "legacy", "json"))
+        route = next(routes)
         for page in range(1, max_pages + 1):
-            url = self._search_url(str(keywords), str(where), page)
             try:
-                html = self.http.get_text_impersonate(url)
-            except SourceBlocked:
+                while True:
+                    try:
+                        jobs = self._fetch_search_page(str(keywords), str(where), page, route, sort_mode)
+                        break
+                    except SourceBlocked:
+                        fallback = next(routes, None)
+                        if fallback is None:
+                            raise
+                        route = fallback
+            except (SourceBlocked, HTTPError) as exc:
                 if page == 1:
                     raise
-                # A later page blocked: keep what we already gathered.
+                setup_logging().warning("SEEK pagination stopped on page %d: %s", page, exc)
                 break
 
-            jobs = self.parse(html, base_url=DEFAULT_BASE_URL)
             if not jobs:
                 # Empty page => end of results.
                 break
@@ -106,7 +117,25 @@ class SeekAdapter(BaseAdapter):
                 # No new postings on this page => end of results.
                 break
 
+        employers = tuple(name.casefold() for name in search.get("employers", []))
+        if employers:
+            return [job for job in by_url.values() if any(name in job.company_name.casefold() for name in employers)]
         return list(by_url.values())
+
+    def _fetch_search_page(
+        self, keywords: str, where: str, page: int, route: str, sort_mode: str | None,
+    ) -> list[RawJob]:
+        base = _AU_SEARCH_BASE_URL if route == "australian" else DEFAULT_BASE_URL
+        url = self._search_url(keywords, where, page, base_url=base, sort_mode=sort_mode)
+        if route == "json":
+            endpoint = url.replace("/jobs?", "/api/jobsearch/v5/search?siteKey=AU-Main&", 1)
+            payload = self.http.get_json(endpoint)
+            return [
+                job for record in payload["data"]
+                if (job := self._redux_job(record, DEFAULT_BASE_URL)) is not None
+            ]
+        html = self.http.get_text(url) if route == "australian" else self.http.get_text_impersonate(url)
+        return self.parse(html, base_url=DEFAULT_BASE_URL)
 
     @staticmethod
     def _max_pages(search: dict[str, Any]) -> int:
@@ -116,11 +145,14 @@ class SeekAdapter(BaseAdapter):
             return DEFAULT_MAX_PAGES
         return value if value >= 1 else DEFAULT_MAX_PAGES
 
-    def _search_url(self, keywords: str, where: str, page: int) -> str:
-        return (
-            f"{DEFAULT_BASE_URL}/jobs?keywords={quote(keywords)}"
+    def _search_url(
+        self, keywords: str, where: str, page: int, *, base_url: str = DEFAULT_BASE_URL, sort_mode: str | None = None,
+    ) -> str:
+        url = (
+            f"{base_url}/jobs?keywords={quote(keywords)}"
             f"&where={quote(where)}&page={page}"
         )
+        return f"{url}&sortmode={quote(sort_mode)}" if sort_mode else url
 
     # ------------------------------------------------------------------ #
     # Parse                                                              #

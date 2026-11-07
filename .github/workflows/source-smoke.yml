@@ -1,0 +1,45 @@
+name: Public job source smoke test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/source-smoke.yml'
+      - 'config/companies.yaml'
+      - 'src/job_monitor/sources/**'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+      - run: uv sync --locked --no-dev
+      - name: Check Nestlé, SEEK and Jora from the hosted runner
+        run: |
+          uv run --no-sync python - <<'PY'
+          from job_monitor.config import load_config
+          from job_monitor.sources import build_adapter
+          from job_monitor.sources.http import PoliteClient
+
+          config = load_config()
+          http = PoliteClient(config.settings.http)
+          sources = {"nestle_au", "seek_qa_food_mfg", "jora_food_safety"}
+          failures = []
+          for company in config.companies.active():
+              if company.company_id not in sources:
+                  continue
+              company.search["max_pages"] = 1
+              adapter = build_adapter(company, config.settings, http)
+              health = adapter.healthcheck()
+              print(f"{company.company_id}: {health.status}, {health.job_count} jobs")
+              if health.status != "ok":
+                  failures.append(f"{company.company_id}: {health.error or health.status}")
+              sources.remove(company.company_id)
+          if failures or sources:
+              raise SystemExit("; ".join(failures + [f"Missing source: {name}" for name in sorted(sources)]))
+          PY

@@ -138,13 +138,30 @@ class _FakeSeekClient:
         self._page_html = page_html
         self.requested_pages: list[int] = []
 
-    def get_text_impersonate(self, url: str, **_: object) -> str:
+    def get_text(self, url: str, **_: object) -> str:
         import re
 
         match = re.search(r"[?&]page=(\d+)", url)
         page = int(match.group(1)) if match else 1
         self.requested_pages.append(page)
         return self._page_html.get(page, "")
+
+    get_text_impersonate = get_text
+
+
+def test_late_rate_limit_keeps_first_page(seek_html: str) -> None:
+    from httpx import HTTPError
+
+    class RateLimitedClient(_FakeSeekClient):
+        def get_text(self, url: str, **kwargs: object) -> str:
+            if "page=2" in url:
+                raise HTTPError("429")
+            return super().get_text(url, **kwargs)
+
+    adapter = _adapter_with_client(RateLimitedClient({1: seek_html}))
+    expected_urls = {job.apply_url for job in adapter.parse(seek_html)}
+    assert expected_urls
+    assert {job.apply_url for job in adapter.fetch(["quality manager"])} == expected_urls
 
 
 def _adapter_with_client(client: _FakeSeekClient, max_pages: int = 3) -> SeekAdapter:

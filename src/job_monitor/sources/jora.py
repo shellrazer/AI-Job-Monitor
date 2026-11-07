@@ -24,6 +24,9 @@ import re
 from typing import TYPE_CHECKING, Any, ClassVar
 from urllib.parse import quote, urlsplit, urlunsplit
 
+from httpx import HTTPError
+
+from job_monitor.logging import setup_logging
 from job_monitor.models import RawJob, Source, SourceBlocked
 from job_monitor.normalize import clean_text
 from job_monitor.sources.base import BaseAdapter
@@ -224,16 +227,35 @@ class JoraAdapter(BaseAdapter):
         query = search_terms[0] if search_terms else str(search.get("q", ""))
         location = str(search.get("l", ""))
         max_pages = self._max_pages(search)
+        canonical_path = search.get("canonical_path")
 
         by_url: dict[str, RawJob] = {}
         for page in range(1, max_pages + 1):
-            url = f"{_DEFAULT_BASE_URL}/j?q={quote(query)}&l={quote(location)}&p={page}"
+            query_url = f"{_DEFAULT_BASE_URL}/j?q={quote(query)}&l={quote(location)}&p={page}"
+            url = query_url
+            if canonical_path:
+                url = f"{_DEFAULT_BASE_URL}/{canonical_path.lstrip('/')}"
+                if page > 1:
+                    url += f"?p={page}"
             try:
                 html = self.http.get_text_impersonate(url)
             except SourceBlocked:
+                if not canonical_path:
+                    if page == 1:
+                        raise
+                    break
+                canonical_path = None
+                try:
+                    html = self.http.get_text_impersonate(query_url)
+                except (SourceBlocked, HTTPError) as exc:
+                    if page == 1:
+                        raise
+                    setup_logging().warning("%s pagination stopped on page %d: %s", "JORA", page, exc)
+                    break
+            except HTTPError as exc:
                 if page == 1:
                     raise
-                # A later page blocked: keep what we already gathered.
+                setup_logging().warning("%s pagination stopped on page %d: %s", "JORA", page, exc)
                 break
 
             jobs = self.parse(html, base_url=_DEFAULT_BASE_URL)

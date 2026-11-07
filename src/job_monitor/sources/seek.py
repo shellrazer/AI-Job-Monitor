@@ -1,7 +1,6 @@
 """SEEK (seek.com.au) source adapter.
 
-SEEK is a Cloudflare-fronted Australian job board, so live fetches go through
-:meth:`PoliteClient.get_text_impersonate` (curl_cffi browser impersonation).
+Live searches use SEEK's Australian domain with its legacy host as a fallback.
 :meth:`SeekAdapter.parse` is pure and offline-testable against a captured
 search-results HTML fixture.
 
@@ -26,13 +25,16 @@ import re
 from typing import Any, ClassVar
 from urllib.parse import quote, urlsplit
 
+from httpx import HTTPError
 from selectolax.parser import HTMLParser, Node
 
+from job_monitor.logging import setup_logging
 from job_monitor.models import RawJob, Source, SourceBlocked
 from job_monitor.normalize import clean_text
 from job_monitor.sources.base import BaseAdapter
 
 DEFAULT_BASE_URL = "https://www.seek.com.au"
+_AU_SEARCH_BASE_URL = "https://au.seek.com"
 
 # Default number of search-results pages to walk when the company config does
 # not specify ``max_pages``.
@@ -65,7 +67,7 @@ class SeekAdapter(BaseAdapter):
         Builds the query-form URL ``.../jobs?keywords=...&where=...&page={n}``
         and walks pages ``1..max_pages`` (``max_pages`` read from the company's
         ``search`` config, default :data:`DEFAULT_MAX_PAGES`), retrieving each via
-        curl_cffi impersonation (SEEK sits behind Cloudflare). Results are
+        the Australian search host. Results are
         accumulated and de-duplicated by ``apply_url``.
 
         Stops early when a page yields zero jobs or contributes no new
@@ -82,14 +84,33 @@ class SeekAdapter(BaseAdapter):
         max_pages = self._max_pages(search)
 
         by_url: dict[str, RawJob] = {}
+        search_base = _AU_SEARCH_BASE_URL
         for page in range(1, max_pages + 1):
-            url = self._search_url(str(keywords), str(where), page)
+            url = self._search_url(str(keywords), str(where), page, base_url=search_base)
             try:
-                html = self.http.get_text_impersonate(url)
+                html = (
+                    self.http.get_text(url)
+                    if search_base == _AU_SEARCH_BASE_URL
+                    else self.http.get_text_impersonate(url)
+                )
             except SourceBlocked:
+                if search_base == DEFAULT_BASE_URL:
+                    if page == 1:
+                        raise
+                    break
+                search_base = DEFAULT_BASE_URL
+                try:
+                    url = self._search_url(str(keywords), str(where), page, base_url=search_base)
+                    html = self.http.get_text_impersonate(url)
+                except (SourceBlocked, HTTPError) as exc:
+                    if page == 1:
+                        raise
+                    setup_logging().warning("%s pagination stopped on page %d: %s", "SEEK", page, exc)
+                    break
+            except HTTPError as exc:
                 if page == 1:
                     raise
-                # A later page blocked: keep what we already gathered.
+                setup_logging().warning("%s pagination stopped on page %d: %s", "SEEK", page, exc)
                 break
 
             jobs = self.parse(html, base_url=DEFAULT_BASE_URL)
@@ -116,9 +137,9 @@ class SeekAdapter(BaseAdapter):
             return DEFAULT_MAX_PAGES
         return value if value >= 1 else DEFAULT_MAX_PAGES
 
-    def _search_url(self, keywords: str, where: str, page: int) -> str:
+    def _search_url(self, keywords: str, where: str, page: int, *, base_url: str = DEFAULT_BASE_URL) -> str:
         return (
-            f"{DEFAULT_BASE_URL}/jobs?keywords={quote(keywords)}"
+            f"{base_url}/jobs?keywords={quote(keywords)}"
             f"&where={quote(where)}&page={page}"
         )
 

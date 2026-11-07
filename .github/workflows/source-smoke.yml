@@ -2,6 +2,11 @@ name: Public job source smoke test
 
 on:
   workflow_dispatch:
+    inputs:
+      require_seek:
+        description: 'Require SEEK to return jobs even if it denies the hosted runner'
+        type: boolean
+        default: false
   pull_request:
     paths:
       - '.github/workflows/source-smoke.yml'
@@ -20,8 +25,13 @@ jobs:
       - uses: astral-sh/setup-uv@v7
       - run: uv sync --locked --no-dev
       - name: Check Nestlé, SEEK and Jora from the hosted runner
+        env:
+          REQUIRE_SEEK: ${{ inputs.require_seek }}
         run: |
           uv run --no-sync python - <<'PY'
+          import os
+          from pathlib import Path
+
           from job_monitor.config import load_config
           from job_monitor.sources import build_adapter
           from job_monitor.sources.http import PoliteClient
@@ -30,16 +40,37 @@ jobs:
           http = PoliteClient(config.settings.http)
           sources = {"nestle_au", "seek_qa_food_mfg", "jora_food_safety"}
           failures = []
+          rows = []
+          require_seek = os.environ.get('REQUIRE_SEEK', '').lower() == 'true'
           for company in config.companies.active():
               if company.company_id not in sources:
                   continue
               company.search["max_pages"] = 1
               adapter = build_adapter(company, config.settings, http)
               health = adapter.healthcheck()
-              print(f"{company.company_id}: {health.status}, {health.job_count} jobs")
-              if health.status != "ok":
-                  failures.append(f"{company.company_id}: {health.error or health.status}")
               sources.remove(company.company_id)
+              result = f"{company.company_id}: {health.status}, {health.job_count} jobs"
+              print(result, flush=True)
+              rows.append(result)
+              if health.status == "ok":
+                  continue
+              if (
+                  company.company_id == "seek_qa_food_mfg"
+                  and not require_seek
+                  and health.status == "blocked"
+                  and (health.error or "").startswith("403 Forbidden for ")
+              ):
+                  warning = "SEEK denied the GitHub-hosted runner (HTTP 403). SEEK coverage is unavailable."
+                  print(f"::warning::{warning}")
+                  rows.append(warning)
+                  continue
+              failures.append(f"{company.company_id}: {health.error or health.status}")
+
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as summary:
+              print("### Public job sources\n", file=summary)
+              for row in rows:
+                  print(f"- {row}", file=summary)
+
           if failures or sources:
               raise SystemExit("; ".join(failures + [f"Missing source: {name}" for name in sorted(sources)]))
           PY

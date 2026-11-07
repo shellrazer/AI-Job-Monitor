@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import json
 import re
-from importlib.util import find_spec
 from typing import Any, ClassVar
 from urllib.parse import quote, urlsplit
 
@@ -86,10 +85,7 @@ class SeekAdapter(BaseAdapter):
         max_pages = self._max_pages(search)
 
         by_url: dict[str, RawJob] = {}
-        search_routes = ["australian", "legacy", "json"]
-        if find_spec("playwright") is not None:
-            search_routes.append("browser")
-        routes = iter(search_routes)
+        routes = iter(("australian", "legacy", "json"))
         route = next(routes)
         for page in range(1, max_pages + 1):
             try:
@@ -129,7 +125,7 @@ class SeekAdapter(BaseAdapter):
     def _fetch_search_page(
         self, keywords: str, where: str, page: int, route: str, sort_mode: str | None,
     ) -> list[RawJob]:
-        base = _AU_SEARCH_BASE_URL if route in {"australian", "browser"} else DEFAULT_BASE_URL
+        base = _AU_SEARCH_BASE_URL if route == "australian" else DEFAULT_BASE_URL
         url = self._search_url(keywords, where, page, base_url=base, sort_mode=sort_mode)
         if route == "json":
             endpoint = url.replace("/jobs?", "/api/jobsearch/v5/search?siteKey=AU-Main&", 1)
@@ -138,12 +134,7 @@ class SeekAdapter(BaseAdapter):
                 job for record in payload["data"]
                 if (job := self._redux_job(record, DEFAULT_BASE_URL)) is not None
             ]
-        if route == "browser":
-            html = self.http.get_text_rendered(url, wait_selector="article[data-automation='normalJob']")
-        elif route == "australian":
-            html = self.http.get_text(url)
-        else:
-            html = self.http.get_text_impersonate(url)
+        html = self.http.get_text(url) if route == "australian" else self.http.get_text_impersonate(url)
         return self.parse(html, base_url=DEFAULT_BASE_URL)
 
     @staticmethod

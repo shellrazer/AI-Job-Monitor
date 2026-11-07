@@ -141,6 +141,7 @@ class ReportSettings(BaseModel):
     open_after_run: bool = False
     min_tier: str = "C"  # lowest tier to include in report/email
     email_new_only: bool = True  # daily digest = only roles newly discovered this run
+    email_leadership_only: bool = False
     nsw_only: bool = True  # show only NSW/Sydney + remote + unknown-region; hide clearly-other-state roles
 
 

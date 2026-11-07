@@ -532,6 +532,23 @@ companies:
       search_terms: ["quality", "food safety"]
 
   # --- Additional employer sources --- #
+  - company_id: bunge_viterra_au
+    name: "Bunge / Viterra Australia"
+    sector: "Grain / Oilseeds / Food Ingredients"
+    priority_tier: P1
+    careers_url: "https://www.bunge.com.au/en/careers"
+    ats_platform: bigredsky
+    adapter: generic_html
+    active: true
+    search:
+      list_url: "https://bunge.bigredsky.com/page.php"
+      base_url: "https://bunge.bigredsky.com/"
+      selectors:
+        item: "tr.evenrow, tr.oddrow"
+        title: "a[href*='AdvertID=']"
+        link: "a[href*='AdvertID=']@href"
+        location: "td[tabindex='27']"
+
   - company_id: sunrice
     name: "SunRice"
     sector: "Grain / Rice / Food Manufacturing"
@@ -737,6 +754,18 @@ companies:
     search:
       keywords: "Regulatory Affairs Manager food"
       location: "Australia"
+      max_pages: 4
+
+  - company_id: li_site_technical
+    name: "LinkedIn — Site Technical / QA Manager (NSW)"
+    sector: "aggregator"
+    priority_tier: P1
+    ats_platform: linkedin
+    adapter: linkedin
+    active: true
+    search:
+      keywords: '("Technical Manager" OR "Quality Assurance Manager") AND (food OR FMCG OR HACCP)'
+      location: "New South Wales, Australia"
       max_pages: 4
 
   # ======================================================================= #

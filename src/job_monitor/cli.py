@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import os
 import sys
+from pathlib import Path
 
 import typer
 from rich.console import Console
@@ -94,6 +96,13 @@ def run(
     setup_logging()
     result = run_pipeline(cfg, send_email=False if no_email else None)
     console.print(f"[green]{result.stats.summary()}[/]")
+    if summary_path := os.environ.get("GITHUB_STEP_SUMMARY"):
+        with Path(summary_path).open("a", encoding="utf-8") as summary:
+            print("### Job source coverage\n", file=summary)
+            print(f"{result.stats.summary()}\n", file=summary)
+            for source in result.stats.sources:
+                if source.status in {"blocked", "error"}:
+                    print(f"- **{source.status}** · {source.name}", file=summary)
     if result.report_path:
         console.print(f"Report: {result.report_path}")
         if cfg.settings.report.open_after_run:

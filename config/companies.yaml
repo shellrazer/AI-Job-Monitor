@@ -202,8 +202,10 @@ companies:
     active: true
     search:
       keywords: "Nestle"
-      where: "Australia"
-      max_pages: 4
+      where: "New South Wales NSW"
+      sort_mode: "KeywordRelevance"
+      employers: ["Nestlé", "Nestle"]
+      max_pages: 3
 
   - company_id: kellanova
     name: "Kellanova (Kellogg's) Australia"
@@ -771,55 +773,59 @@ companies:
       max_pages: 4
 
   # ======================================================================= #
-  # SEEK saved searches (spec §7) — curl_cffi, paginated                    #
+  # SEEK searches — separate role families, at most three pages each       #
   # ======================================================================= #
   - company_id: seek_senior_quality
-    name: "SEEK — Senior/Site/National Quality Manager (Sydney)"
+    name: "SEEK — National / Group / Senior Quality (NSW)"
     sector: "aggregator"
     priority_tier: P1
     ats_platform: seek
     adapter: seek
     active: true
     search:
-      keywords: "Food Safety Quality Manager OR Site Quality Manager OR Senior Quality Manager OR National Quality Manager OR Group Quality Manager"
-      where: "All Sydney NSW"
-      max_pages: 5
+      keywords: '"National Quality Manager" OR "Group Quality Manager" OR "Head of Quality" OR "Senior Quality Manager"'
+      where: "New South Wales NSW"
+      sort_mode: "KeywordRelevance"
+      max_pages: 3
 
   - company_id: seek_qa_food_mfg
-    name: "SEEK — QA / Technical Manager Food Manufacturing (Sydney)"
+    name: "SEEK — Site Quality / Food Safety / Technical (NSW)"
     sector: "aggregator"
     priority_tier: P1
     ats_platform: seek
     adapter: seek
     active: true
     search:
-      keywords: "QA Manager food manufacturing OR Quality Assurance Manager HACCP OR Quality Manager FMCG OR Site Technical Manager food"
-      where: "All Sydney NSW"
-      max_pages: 5
+      keywords: '("Site Quality Manager" OR "Food Safety Manager" OR "QA Manager" OR "Quality Assurance Manager" OR "Technical Manager") AND (food OR FMCG OR HACCP)'
+      where: "New South Wales NSW"
+      sort_mode: "KeywordRelevance"
+      max_pages: 3
 
   - company_id: seek_supplier_quality
-    name: "SEEK — Supplier Quality / Vendor Assurance (Australia)"
+    name: "SEEK — Supplier Quality / Vendor Assurance / Co-Manufacturing (NSW)"
     sector: "aggregator"
     priority_tier: P1
     ats_platform: seek
     adapter: seek
     active: true
     search:
-      keywords: "Supplier Quality Manager OR Vendor Assurance Manager OR Product Quality Manager food OR Senior Food Quality Specialist"
-      where: "Australia"
-      max_pages: 5
+      keywords: '("Supplier Quality" OR "Vendor Assurance" OR "Co-Manufacturing Quality" OR "Co-Packer Quality" OR "Own Brand Technical") AND (food OR FMCG OR grocery OR HACCP)'
+      where: "New South Wales NSW"
+      sort_mode: "KeywordRelevance"
+      max_pages: 3
 
   - company_id: seek_regulatory
-    name: "SEEK — Regulatory / Compliance Manager Food (Australia)"
+    name: "SEEK — Recent Food Compliance / Regulatory Management (NSW)"
     sector: "aggregator"
     priority_tier: P2
     ats_platform: seek
     adapter: seek
     active: true
     search:
-      keywords: "Regulatory Affairs Manager food OR Food Safety Compliance Manager OR Quality Compliance Manager food"
-      where: "Australia"
-      max_pages: 4
+      keywords: '("Regulatory Affairs Manager" OR "Food Safety Compliance Manager" OR "Quality Compliance Manager") AND (food OR beverage OR FMCG)'
+      where: "New South Wales NSW"
+      sort_mode: "ListedDate"
+      max_pages: 2
 
   # ======================================================================= #
   # Jora searches — curl_cffi, paginated                                    #

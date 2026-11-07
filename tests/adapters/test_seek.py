@@ -164,6 +164,28 @@ def test_late_rate_limit_keeps_first_page(seek_html: str) -> None:
     assert {job.apply_url for job in adapter.fetch(["quality manager"])} == expected_urls
 
 
+def test_blocked_html_uses_json_with_same_search() -> None:
+    from job_monitor.models import SourceBlocked
+
+    class BlockedHtmlClient(_FakeSeekClient):
+        def get_text(self, url: str, **kwargs: object) -> str:
+            raise SourceBlocked(url)
+
+        get_text_impersonate = get_text
+
+        def get_json(self, url: str) -> dict:
+            assert "/api/jobsearch/v5/search?" in url
+            assert "keywords=quality%20manager" in url
+            assert "where=Sydney%20NSW" in url
+            assert "sortmode=ListedDate" in url
+            return {"data": [{"id": "55500001", "title": "Quality Manager", "companyName": "Example Foods"}]}
+
+    adapter = _adapter_with_client(BlockedHtmlClient({}), max_pages=1)
+    assert adapter.company is not None
+    adapter.company.search["sort_mode"] = "ListedDate"
+    assert [job.title for job in adapter.fetch([])] == ["Quality Manager"]
+
+
 def _adapter_with_client(client: _FakeSeekClient, max_pages: int = 3) -> SeekAdapter:
     company = CompanyConfig(
         company_id="seek1",

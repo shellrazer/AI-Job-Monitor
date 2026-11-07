@@ -163,23 +163,24 @@ companies:
     name: "Nestlé Australia"
     sector: "FMCG / Food Manufacturing"
     priority_tier: P1
-    careers_url: "https://jobs.nestle.com/"
+    careers_url: "https://www.nestle.com.au/en/jobs"
     ats_platform: successfactors
     adapter: generic_html
-    active: false   # Official site hard-blocked by Cloudflare Turnstile (confirmed 2026-06: headless AND headful Playwright both stuck on "Just a moment"; curl_cffi chrome124/safari + sitemap.xml + RSS/tile-search/api all 403). Real Nestlé roles are captured instead via the LinkedIn + SEEK company searches below.
+    active: true
     search:
-      list_url: "https://jobs.nestle.com/search/?q=quality&locationsearch=Australia"
-      base_url: "https://jobs.nestle.com"
-      render: true
-      wait_selector: "a[href*='/job/']"
+      list_url: "https://jobdetails.nestle.com/search/?q=&locationsearch=Australia"
+      base_url: "https://jobdetails.nestle.com"
+      page_param: "startrow"
+      page_size: 10
+      max_pages: 15
       selectors:
         item: "tr.data-row"
         title: "a.jobTitle-link"
         link: "a.jobTitle-link@href"
         location: "span.jobLocation"
-      search_terms: ["quality", "food safety"]
+        date: "span.jobDate"
 
-  # Nestlé official site is bot-blocked — capture real Nestlé jobs via aggregators instead.
+  # Supplement the official Nestlé listings with the job boards.
   - company_id: nestle_linkedin
     name: "Nestlé Australia — via LinkedIn"
     sector: "FMCG / Food Manufacturing"
@@ -561,6 +562,7 @@ companies:
       # Public NSW listings while the SuccessFactors endpoint is unavailable.
       q: "SunRice"
       l: "New South Wales"
+      canonical_path: "SunRice-jobs-in-New-South-Wales"
       employers: ["SunRice", "Ricegrowers"]
 
   - company_id: treasury_wine
@@ -832,6 +834,7 @@ companies:
     search:
       q: "quality manager food"
       l: "Sydney NSW"
+      canonical_path: "Quality-Manager-Food-jobs-in-Sydney-NSW"
       max_pages: 5
 
   - company_id: jora_food_safety
@@ -844,4 +847,5 @@ companies:
     search:
       q: "food safety quality manager"
       l: "Australia"
+      canonical_path: "Food-Safety-Quality-Manager-jobs-in-Australia"
       max_pages: 4

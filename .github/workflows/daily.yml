@@ -23,7 +23,8 @@ concurrency:
 
 jobs:
   monitor:
-    runs-on: ubuntu-latest
+    # Playwright 1.60.0 does not support Ubuntu 26.04; keep the known-good runner.
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - name: Checkout code

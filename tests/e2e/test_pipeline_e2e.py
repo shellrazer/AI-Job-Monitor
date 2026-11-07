@@ -9,7 +9,7 @@ import numpy as np
 
 from job_monitor.config import load_config
 from job_monitor.models import Job, JobStatus, PriorityTier, Source
-from job_monitor.pipeline import _select_for_digest, regate_existing, run_pipeline
+from job_monitor.pipeline import _email_priority, _select_for_digest, regate_existing, run_pipeline
 
 TODAY = date(2026, 6, 21)
 
@@ -157,6 +157,27 @@ def _scored_job(title, location, score) -> Job:
         priority_tier=PriorityTier.A,
         status=JobStatus.NEW,
     )
+
+
+def test_report_limits_retail_and_catering_roles(tmp_path):
+    cfg = _make_cfg(tmp_path)
+    cases = [
+        ("Harris Farm Markets", "Quality Assurance Officer", False),
+        ("Compass Group Australia", "National Food Safety Manager", True),
+        ("Coles Group", "Supplier Quality Manager", True),
+        ("Primary Connect", "Warehouse Quality Manager", False),
+        ("dnata catering", "Site Food Safety Manager", True),
+        ("dnata catering", "Delivery Quality Manager", False),
+        ("PepsiCo", "QA Officer", True),
+    ]
+    jobs = []
+    for company, title, _ in cases:
+        job = _scored_job(title, "Sydney NSW", 90)
+        job.company_name = company
+        jobs.append(job)
+    assert _select_for_digest(jobs, cfg) == [job for job, (_, _, keep) in zip(jobs, cases, strict=True) if keep]
+    assert not _email_priority(jobs[-1])
+    assert _email_priority(jobs[1])
 
 
 def test_select_for_digest_nsw_only_filters_other_state(tmp_path):

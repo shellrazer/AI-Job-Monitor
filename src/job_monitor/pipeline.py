@@ -7,6 +7,7 @@ end-to-end test can run fully offline.
 
 from __future__ import annotations
 
+import re
 import sqlite3
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
@@ -25,6 +26,41 @@ from job_monitor.sources import build_adapter
 from job_monitor.sources.http import PoliteClient
 
 _TIER_RANK = {"A+": 0, "A": 1, "B": 2, "C": 3, "D": 4}
+_RETAIL = re.compile(r"\b(?:woolworths|primary connect|coles|aldi|metcash)\b", re.I)
+_SECONDARY = re.compile(r"\b(?:costco|harris farm|pfd food services|compass group|treasury wine estates)\b", re.I)
+_MEAL_OPERATIONS = re.compile(r"\b(?:hellofresh|youfoodz|marley spoon|dnata)\b", re.I)
+_LEADERSHIP = re.compile(r"\b(?:manager|head|director|lead|leader)\b", re.I)
+_MULTISITE = re.compile(r"\b(?:group|national|regional|multi[ -]site|head of|director)\b", re.I)
+_SUPPLIER = re.compile(
+    r"\bsupplier (?:quality|assurance)\b|\bvendor assurance\b|"
+    r"\b(?:own brand|private label) (?:quality|technical)\b|\bco[ -]manufactur\w* quality\b",
+    re.I,
+)
+_FOOD_QUALITY = re.compile(r"\b(?:food safety|quality|qa|qfs|site technical)\b", re.I)
+_OPERATIONAL_NOISE = re.compile(r"\b(?:warehouse|fulfilment|fulfillment|delivery|store operations)\b", re.I)
+
+
+def _matches_employer_scope(job: Job) -> bool:
+    """Apply the same employer scope to official and job-board listings."""
+    company = job.company_name
+    title = job.title
+    supplier = bool(_SUPPLIER.search(title))
+    quality_lead = bool(_LEADERSHIP.search(title) and _FOOD_QUALITY.search(title))
+    if _SECONDARY.search(company):
+        return bool(_LEADERSHIP.search(title) and (supplier or (quality_lead and _MULTISITE.search(title))))
+    if _RETAIL.search(company):
+        return bool(
+            not _OPERATIONAL_NOISE.search(title)
+            and (supplier or (quality_lead and re.search(r"food safety|quality systems", title, re.I)))
+        )
+    if _MEAL_OPERATIONS.search(company):
+        return bool(not _OPERATIONAL_NOISE.search(title) and (supplier or quality_lead))
+    return True
+
+
+def _email_priority(job: Job) -> bool:
+    """Keep leadership and supplier-quality matches in the email digest."""
+    return bool(_LEADERSHIP.search(job.title) and (_FOOD_QUALITY.search(job.title) or _SUPPLIER.search(job.title)))
 
 
 @dataclass
@@ -264,7 +300,11 @@ def run_pipeline(
             result.report_path = _write_report(top, cfg, now)
         # Daily newsletter: by default email ONLY roles first seen in this run, so
         # the user isn't re-sent the same list every day. Report stays the full list.
-        digest = [j for j in top if j.db_id in new_ids] if cfg.settings.report.email_new_only else top
+        digest = [
+            job for job in top
+            if (not cfg.settings.report.email_new_only or job.db_id in new_ids)
+            and (not cfg.settings.report.email_leadership_only or _email_priority(job))
+        ]
         result.digest_jobs = digest
         emit = cfg.settings.email.enabled if send_email is None else send_email
         if emit and digest:  # skip sending on days with nothing new
@@ -374,6 +414,7 @@ def _select_for_digest(jobs: list[Job], cfg: AppConfig) -> list[Job]:
         and j.priority_tier is not None
         and _TIER_RANK.get(j.priority_tier.value, 4) <= min_rank
         and not (nsw_only and report.is_other_region(j.location, j.title))
+        and _matches_employer_scope(j)
     ]
     eligible.sort(key=lambda j: j.final_score or 0.0, reverse=True)
     return eligible

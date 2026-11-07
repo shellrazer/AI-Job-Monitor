@@ -250,6 +250,9 @@ class JoraAdapter(BaseAdapter):
                 # No new postings on this page => end of results.
                 break
 
+        employers = tuple(str(name).casefold() for name in search.get("employers", []))
+        if employers:
+            return [job for job in by_url.values() if any(name in job.company_name.casefold() for name in employers)]
         return list(by_url.values())
 
     @staticmethod

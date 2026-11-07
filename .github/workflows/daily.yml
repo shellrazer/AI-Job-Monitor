@@ -28,10 +28,10 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
 
@@ -45,7 +45,7 @@ jobs:
         run: uv run playwright install --with-deps chromium
 
       - name: Cache embedding model
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/huggingface
           key: hf-all-minilm-l6-v2-v1
@@ -53,7 +53,7 @@ jobs:
       # Restore DB (restore-only) — continuity for cross-run dedup + new-only digest.
       - name: Restore jobs.sqlite from cache
         id: dbcache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: ~/.job_monitor/jobs.sqlite
           key: jobmonitor-db-${{ github.run_id }}
@@ -80,7 +80,7 @@ jobs:
       # -> a fresh snapshot is saved each run; restore-keys picks the latest prior.
       - name: Save jobs.sqlite to cache
         if: steps.dbcache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: ~/.job_monitor/jobs.sqlite
           key: jobmonitor-db-${{ github.run_id }}

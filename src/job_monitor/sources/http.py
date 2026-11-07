@@ -221,6 +221,8 @@ class PoliteClient:
         wait_selector: str | None = None,
         wait_until: str = "networkidle",
         use_cache: bool = True,
+        next_selector: str | None = None,
+        max_pages: int = 1,
     ) -> str:
         """Render ``url`` in a headless browser and return the post-JS HTML.
 
@@ -233,6 +235,8 @@ class PoliteClient:
         ``"networkidle"``, ``"load"``, ``"domcontentloaded"``). When
         ``wait_selector`` is given the call waits for that selector but swallows a
         timeout, returning whatever rendered so far.
+        When both selectors are provided, include listings from up to
+        ``max_pages`` pages by clicking ``next_selector`` between result sets.
 
         The navigation status alone is NOT treated as a block: Cloudflare's "Just
         a moment" interstitial returns ``403`` first, then auto-solves and
@@ -243,7 +247,8 @@ class PoliteClient:
         Raises :class:`RuntimeError` if Playwright is not installed, and
         :class:`SourceBlocked` only on a persistent challenge / block page.
         """
-        cache_key = self._cache_key("GET", url, _RENDER_TAG.encode("utf-8"), _RENDER_TAG)
+        cache_variant = f"{_RENDER_TAG}:{next_selector}:{max_pages}" if next_selector else _RENDER_TAG
+        cache_key = self._cache_key("GET", url, cache_variant.encode("utf-8"), _RENDER_TAG)
 
         if use_cache:
             cached = self._cache_get(cache_key)
@@ -257,6 +262,8 @@ class PoliteClient:
             headers=headers,
             wait_selector=wait_selector,
             wait_until=wait_until,
+            next_selector=next_selector,
+            max_pages=max_pages,
         )
 
         if use_cache:
@@ -389,6 +396,8 @@ class PoliteClient:
         headers: dict[str, str] | None,
         wait_selector: str | None,
         wait_until: str,
+        next_selector: str | None = None,
+        max_pages: int = 1,
     ) -> str:
         """Drive a headless chromium to fetch the fully rendered HTML for ``url``.
 
@@ -451,6 +460,25 @@ class PoliteClient:
                     page.wait_for_timeout(_SETTLE_WAIT_MS)
 
                 html = page.content()
+                if next_selector and wait_selector:
+                    items = page.locator(wait_selector)
+                    extra = []
+                    for _ in range(max_pages - 1):
+                        next_button = page.locator(next_selector).first
+                        if not items.count() or not next_button.is_visible():
+                            break
+                        previous = items.first.inner_html()
+                        next_button.click(timeout=timeout_ms)
+                        page.wait_for_function(
+                            """([selector, previous]) => {
+                                const item = document.querySelector(selector);
+                                return item && item.innerHTML !== previous;
+                            }""",
+                            arg=[wait_selector, previous],
+                            timeout=timeout_ms,
+                        )
+                        extra.extend(items.evaluate_all("(nodes) => nodes.map(node => node.outerHTML)"))
+                    html = html.replace("</body>", "".join(extra) + "</body>", 1)
             finally:
                 browser.close()
 

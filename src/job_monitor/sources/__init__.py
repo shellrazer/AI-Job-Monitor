@@ -25,6 +25,8 @@ def get_adapter_registry() -> dict[str, type[BaseAdapter]]:
     from job_monitor.sources.jora import JoraAdapter
     from job_monitor.sources.lever import LeverAdapter
     from job_monitor.sources.linkedin import LinkedInAdapter
+    from job_monitor.sources.livehire import LiveHireAdapter
+    from job_monitor.sources.oracle_orc import OracleOrcAdapter
     from job_monitor.sources.phenom import PhenomAdapter
     from job_monitor.sources.seek import SeekAdapter
     from job_monitor.sources.smartrecruiters import SmartRecruitersAdapter
@@ -41,6 +43,8 @@ def get_adapter_registry() -> dict[str, type[BaseAdapter]]:
         "greenhouse": GreenhouseAdapter,
         "lever": LeverAdapter,
         "linkedin": LinkedInAdapter,
+        "livehire": LiveHireAdapter,
+        "oracle_orc": OracleOrcAdapter,
         "phenom": PhenomAdapter,
     }
 

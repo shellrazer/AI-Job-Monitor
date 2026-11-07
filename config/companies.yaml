@@ -531,19 +531,37 @@ companies:
         location: "p.position3"
       search_terms: ["quality", "food safety"]
 
-  # --- Verified-platform but disabled pending a small adapter/selector tweak --- #
+  # --- Additional employer sources --- #
+  - company_id: bunge_viterra_au
+    name: "Bunge / Viterra Australia"
+    sector: "Grain / Oilseeds / Food Ingredients"
+    priority_tier: P1
+    careers_url: "https://www.bunge.com.au/en/careers"
+    ats_platform: bigredsky
+    adapter: generic_html
+    active: true
+    search:
+      list_url: "https://bunge.bigredsky.com/page.php"
+      base_url: "https://bunge.bigredsky.com/"
+      selectors:
+        item: "tr.evenrow, tr.oddrow"
+        title: "a[href*='AdvertID=']"
+        link: "a[href*='AdvertID=']@href"
+        location: "td[tabindex='27']"
+
   - company_id: sunrice
     name: "SunRice"
     sector: "Grain / Rice / Food Manufacturing"
     priority_tier: P1
     careers_url: "https://www.sunrice.com.au/careers"
-    ats_platform: successfactors
-    adapter: successfactors
-    active: false   # SF feed uses <Job-Listing>/<Job> XML, not <item> RSS — needs SF parser extension
+    ats_platform: jora
+    adapter: jora
+    active: true
     search:
-      feed_url: "https://career10.successfactors.com/career?company=C0001106122P&career_ns=job_listing_summary&navBarLevel=JOB_SEARCH&site=&resultType=XML"
-      impersonate: true
-      search_terms: ["quality", "food safety"]
+      # Public NSW listings while the SuccessFactors endpoint is unavailable.
+      q: "SunRice"
+      l: "New South Wales"
+      employers: ["SunRice", "Ricegrowers"]
 
   - company_id: treasury_wine
     name: "Treasury Wine Estates"
@@ -551,10 +569,11 @@ companies:
     priority_tier: P2
     careers_url: "https://www.tweglobal.com/careers"
     ats_platform: oracle_orc
-    adapter: generic_html
-    active: false   # Oracle Recruiting Cloud REST JSON — needs a dedicated oracle_orc adapter
+    adapter: oracle_orc
+    active: true
     search:
-      list_url: "https://www.tweglobal.com/careers"
+      base_url: "https://ebpm.fa.us2.oraclecloud.com"
+      site: "CX_1"
 
   - company_id: harris_farm
     name: "Harris Farm Markets"
@@ -562,10 +581,10 @@ companies:
     priority_tier: P3
     careers_url: "https://www.harrisfarm.com.au/pages/careers"
     ats_platform: livehire
-    adapter: generic_html
-    active: false   # LiveHire public JSON (POST careers-api/search/harrisfarm) — needs a livehire adapter
+    adapter: livehire
+    active: true
     search:
-      list_url: "https://www.livehire.com/careers/harrisfarm"
+      tenant: "harrisfarm"
 
   - company_id: dnata_catering
     name: "dnata Catering Australia"
@@ -574,15 +593,16 @@ companies:
     careers_url: "https://dnatacateringcareers.com.au/"
     ats_platform: expr3ss
     adapter: generic_html
-    active: false   # apply links are in onclick JS, not href — generic_html link extractor needs a tweak
+    active: true
     search:
-      list_url: "https://dnatacatering.expr3ss.com/home"
+      list_url: "https://dnatacatering.expr3ss.com/homeModern"
       base_url: "https://dnatacatering.expr3ss.com/"
       selectors:
-        item: "td.jobTitle div.jobdescription"
-        title: "self"
-        link: "self@onclick"
-        location: "span.location"
+        item: "article.job-card"
+        title: "h3"
+        link: "a.job-card__hit@href"
+        location: ".job-card__tags .tag:nth-child(2)"
+        snippet: ".job-card__description"
 
   - company_id: fonterra
     name: "Fonterra Australia"
@@ -591,16 +611,99 @@ companies:
     careers_url: "https://careers.fonterra.com/careers/SearchJobs/"
     ats_platform: avature
     adapter: generic_html
-    active: false   # Avature JS — enable with render after selector confirmation
+    active: true
     search:
-      list_url: "https://careers.fonterra.com/careers/SearchJobs/quality"
+      list_url: "https://careers.fonterra.com/careers/SearchJobs/?jobRecordsPerPage=100"
       base_url: "https://careers.fonterra.com"
-      render: true
       selectors:
-        item: "li.list__item, article.article--result"
-        title: "a.link, h3"
-        location: "span.list__item-location"
-        link: "a@href"
+        item: "article.article--result"
+        title: "h3 a.link"
+        location: ".list-item-location"
+        link: "h3 a.link@href"
+
+  - company_id: lactalis_mainland
+    name: "Lactalis Australia / Mainland Dairy"
+    sector: "Dairy / Food Manufacturing"
+    priority_tier: P1
+    careers_url: "https://careers.parmalat.com.au/"
+    ats_platform: adlogic
+    adapter: successfactors
+    active: true
+    search:
+      feed_url: "https://careers.parmalat.com.au/adlogic-jobs/rss"
+
+  - company_id: beak_johnston
+    name: "Beak & Johnston"
+    sector: "Ready Meals / Food Manufacturing"
+    priority_tier: P1
+    careers_url: "https://www.beakandjohnston.com.au/careers/"
+    ats_platform: actionhrm
+    adapter: generic_html
+    active: true
+    search:
+      list_url: "https://www.beakandjohnston.com.au/careers/"
+      render: true
+      wait_selector: ".BambooHR-ATS-Jobs-Item, .BambooHR-ATS-blankState"
+      selectors:
+        item: ".BambooHR-ATS-Jobs-Item, .e-con:has(> .e-con > .elementor-widget-button a[href*='/recruit/position/']):has(> .e-con .job-meta)"
+        title: "h2, a[href*='beak.bamboohr.com/careers/']"
+        link: "a[href*='/recruit/position/'], a[href*='beak.bamboohr.com/careers/']@href"
+        location: ".job-meta .job-tag:first-child, .BambooHR-ATS-Location"
+
+  - company_id: unilever_au
+    name: "Unilever Australia"
+    sector: "FMCG"
+    priority_tier: P1
+    careers_url: "https://careers.unilever.com/en/australia-and-new-zealand"
+    ats_platform: talentbrew
+    adapter: generic_html
+    active: true
+    search:
+      list_url: "https://careers.unilever.com/en/location/new-south-wales-jobs/34155/2077456-2155400/3/1"
+      selectors:
+        item: "li:has(> a[data-job-id] .global-job-list__title)"
+        title: ".global-job-list__title"
+        link: "a[data-job-id]@href"
+        location: ".job-location"
+
+  - company_id: baiada
+    name: "Baiada (Steggles / Lilydale)"
+    sector: "Poultry / Food Manufacturing"
+    priority_tier: P1
+    careers_url: "https://www.baiada.com.au/careers/"
+    ats_platform: chandler_macleod
+    adapter: generic_html
+    active: true
+    search:
+      list_url: "https://www.chandlermacleod.com/partners/baiada-jobs"
+      render: true
+      wait_selector: "[data-rel='article-job-result']"
+      selectors:
+        item: "[data-rel='article-job-result']"
+        title: "a[data-rel='link-job-name']"
+        link: "a[data-rel='link-job-name']@href"
+        location: ".shmLocation"
+
+  - company_id: sanitarium
+    name: "Sanitarium"
+    sector: "Food Manufacturing / Nutrition"
+    priority_tier: P1
+    careers_url: "https://jobs.dayforcehcm.com/en-AU/sanitarium/candidateportal"
+    ats_platform: dayforce
+    adapter: generic_html
+    active: true
+    search:
+      list_url: "https://jobs.dayforcehcm.com/en-AU/sanitarium/candidateportal"
+      render: true
+      wait_selector: "[test-id='job-posting-card']"
+      next_selector: ".ant-pagination-next[aria-disabled='false']"
+      max_pages: 5
+      selectors:
+        item: "[test-id='job-posting-card']"
+        title: "[test-id='job-title']"
+        link: "a[job-posting-id]@href"
+        location: "[test-id='job-location']"
+        snippet: "[test-id='job-description']"
 
   # ======================================================================= #
   # LinkedIn — guest jobs API (curl_cffi impersonation, paginated)          #
@@ -653,6 +756,18 @@ companies:
       location: "Australia"
       max_pages: 4
 
+  - company_id: li_site_technical
+    name: "LinkedIn — Site Technical / QA Manager (NSW)"
+    sector: "aggregator"
+    priority_tier: P1
+    ats_platform: linkedin
+    adapter: linkedin
+    active: true
+    search:
+      keywords: '("Technical Manager" OR "Quality Assurance Manager") AND (food OR FMCG OR HACCP)'
+      location: "New South Wales, Australia"
+      max_pages: 4
+
   # ======================================================================= #
   # SEEK saved searches (spec §7) — curl_cffi, paginated                    #
   # ======================================================================= #
@@ -669,14 +784,14 @@ companies:
       max_pages: 5
 
   - company_id: seek_qa_food_mfg
-    name: "SEEK — QA Manager Food Manufacturing (NSW)"
+    name: "SEEK — QA / Technical Manager Food Manufacturing (Sydney)"
     sector: "aggregator"
     priority_tier: P1
     ats_platform: seek
     adapter: seek
     active: true
     search:
-      keywords: "QA Manager food manufacturing OR Quality Assurance Manager HACCP OR Quality Manager FMCG"
+      keywords: "QA Manager food manufacturing OR Quality Assurance Manager HACCP OR Quality Manager FMCG OR Site Technical Manager food"
       where: "All Sydney NSW"
       max_pages: 5
 

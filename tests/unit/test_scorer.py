@@ -196,6 +196,7 @@ def test_example3_qa_officer_lands_d() -> None:
         ("Site Quality Manager", "site_quality_manager"),
         ("Senior Quality Manager", "senior_quality_manager"),
         ("Food Safety Quality Manager", "food_safety_quality_manager"),
+        ("Food Safety Manager", "food_safety_quality_manager"),
         ("Supplier Quality Manager", "supplier_quality_manager"),
         ("Vendor Assurance Manager", "supplier_quality_manager"),
         ("Regulatory Affairs Manager", "regulatory_affairs_manager_food"),
@@ -275,6 +276,7 @@ def test_is_quality_relevant_true(title: str) -> None:
         "Warehouse Operator",
         "Maintenance Engineer",
         "Logistics Coordinator",
+        "Senior Payroll Specialist",
         # Candidate preference: no technician roles (even quality-titled ones).
         "Quality Control Technician",
         "Laboratory Technician",
@@ -286,6 +288,10 @@ def test_is_quality_relevant_false(title: str) -> None:
     assert is_quality_relevant(title) is False
 
 
+def test_generic_senior_specialist_needs_quality_evidence() -> None:
+    assert is_quality_relevant("Senior Specialist", "Lead the HACCP program")
+
+
 # --------------------------------------------------------------------------- #
 # Location & salary bands.                                                    #
 # --------------------------------------------------------------------------- #
@@ -294,6 +300,8 @@ def test_is_quality_relevant_false(title: str) -> None:
     [
         ("Western Sydney NSW", "sydney_greater"),
         ("Parramatta", "sydney_greater"),
+        ("Greenacre", "sydney_greater"),
+        ("Berkeley Vale", "nsw_regional"),
         ("Macquarie Park", "sydney_greater"),
         ("Norwest", "sydney_greater"),
         ("Some Suburb NSW", "sydney_greater"),

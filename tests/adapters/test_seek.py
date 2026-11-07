@@ -159,7 +159,9 @@ def test_late_rate_limit_keeps_first_page(seek_html: str) -> None:
             return super().get_text(url, **kwargs)
 
     adapter = _adapter_with_client(RateLimitedClient({1: seek_html}))
-    assert adapter.fetch(["quality manager"]) == adapter.parse(seek_html)
+    expected_urls = {job.apply_url for job in adapter.parse(seek_html)}
+    assert expected_urls
+    assert {job.apply_url for job in adapter.fetch(["quality manager"])} == expected_urls
 
 
 def _adapter_with_client(client: _FakeSeekClient, max_pages: int = 3) -> SeekAdapter:

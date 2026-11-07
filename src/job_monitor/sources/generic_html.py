@@ -274,7 +274,12 @@ class GenericHtmlAdapter(BaseAdapter):
         """GET ``url`` via the transport selected from ``company.search`` flags."""
         search = self._search()
         if search.get("render"):
-            return self.http.get_text_rendered(url, wait_selector=search.get("wait_selector"))
+            return self.http.get_text_rendered(
+                url,
+                wait_selector=search.get("wait_selector"),
+                next_selector=search.get("next_selector"),
+                max_pages=int(search.get("max_pages", _DEFAULT_MAX_PAGES)),
+            )
         if search.get("impersonate"):
             return self.http.get_text_impersonate(url)
         return self.http.get_text(url)

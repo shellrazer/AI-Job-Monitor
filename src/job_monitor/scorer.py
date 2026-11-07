@@ -228,8 +228,8 @@ def canonical_seniority(title: str, *, promote_senior_specialist: bool = True) -
     if has("senior", "quality", "manager"):
         return "senior_quality_manager"
 
-    # food safety quality manager — all four tokens present, any order.
-    if has("food", "safety", "quality", "manager"):
+    # "Food Safety Manager" is also a target title without the word "Quality".
+    if has("food", "safety", "manager"):
         return "food_safety_quality_manager"
 
     if ("supplier" in t or "vendor" in t) and ("quality" in t or "assurance" in t) and "manager" in t:
@@ -244,7 +244,7 @@ def canonical_seniority(title: str, *, promote_senior_specialist: bool = True) -
     if ("qa" in t or "quality assurance" in raw or "quality" in t) and "manager" in t:
         return "qa_manager"
 
-    if (has("senior", "specialist")) or "quality lead" in raw or "quality systems lead" in raw:
+    if has("senior", "specialist") or "quality lead" in raw or "quality systems lead" in raw:
         return "senior_specialist_quality_lead"
 
     if ("qa" in t or "quality" in t) and ("officer" in t or "coordinator" in t):
@@ -282,18 +282,20 @@ _TITLE_EXCLUDE = re.compile(r"\btechnician\b")
 def is_quality_relevant(title: str, jd_text: str = "") -> bool:
     """True if the *title* indicates a quality / QA / food-safety / technical role.
 
-    Relevance is decided on the TITLE only (the ``jd_text`` argument is accepted
-    for signature stability / future use): either the title maps to a non-"other"
-    seniority category, or it matches the quality-title vocabulary. Bare
+    The title must match the quality vocabulary or a relevant seniority
+    category. Generic senior specialists need a quality signal in the job description. Bare
     workplace-safety wording (WHS/OHS/"work health and safety") does NOT count —
     only "food safety" does. Titles matching :data:`_TITLE_EXCLUDE` (e.g.
     "Technician" — candidate preference) are excluded regardless.
     """
     if _TITLE_EXCLUDE.search(title.lower()):
         return False
-    if canonical_seniority(title) != "other":
+    if _QUALITY_TITLE.search(title.lower()):
         return True
-    return bool(_QUALITY_TITLE.search(title.lower()))
+    category = canonical_seniority(title)
+    if category == "senior_specialist_quality_lead":
+        return bool(_QUALITY_TITLE.search(jd_text.lower()))
+    return category != "other"
 
 
 # --------------------------------------------------------------------------- #
@@ -729,6 +731,7 @@ _SYDNEY_SUBURBS = (
     "greystanes", "erskine park", "kemps creek", "marsden park", "smeaton grange", "gregory hills",
     "edmondson park", "chipping norton", "villawood", "chullora", "olympic park", "western sydney",
     "greater sydney", "northern beaches", "sutherland",
+    "greenacre", "north rocks", "arndell park", "mount kuring-gai", "mount kuring gai",
 )
 # NSW regional towns (-> nsw_regional).
 _NSW_REGIONAL = (
@@ -738,6 +741,7 @@ _NSW_REGIONAL = (
     "leeton", "armidale", "taree", "kempsey", "grafton", "broken hill", "mudgee", "parkes", "forbes",
     "moree", "narrabri", "gunnedah", "singleton", "muswellbrook", "scone", "raymond terrace",
     "nelson bay", "batemans bay", "ulladulla", "bega", "eden", "cooma", "regional nsw", "nsw regional",
+    "berkeley vale", "beresfield", "wamoon", "bowral",
 )
 # Non-NSW AU cities/towns (-> melbourne_brisbane / other_au). Used for AU recognition
 # and to win over a bare Sydney-suburb-name collision (e.g. "Manly QLD").

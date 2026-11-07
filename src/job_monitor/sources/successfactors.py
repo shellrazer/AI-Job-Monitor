@@ -172,7 +172,11 @@ class SuccessFactorsAdapter(BaseAdapter):
             description_raw = self._item_text(item, "description")
             description = clean_text(description_raw) if description_raw else None
 
-            location = self._g_text(item, "location") or self._location_from_title(title)
+            location = (
+                self._g_text(item, "location")
+                or next((tag.text for tag in item.findall("category") if (tag.text or "").startswith("Australia/")), "")
+                or self._location_from_title(title)
+            )
             guid = self._item_text(item, "guid")
             pub_date = self._item_text(item, "pubDate")
 
